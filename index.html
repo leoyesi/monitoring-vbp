@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal VBP & Publikasi 1-Pintu — Sekolah Athalia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #0f172a; }
+    .nav-active { background-color: #2563eb; color: #ffffff; }
+    .flow-card { transition: all 0.15s ease; }
+    .flow-active-a { border-color: #1d4ed8; background-color: #eff6ff; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.12); }
+    .flow-active-b1 { border-color: #0f766e; background-color: #f0fdfa; box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12); }
+    .flow-active-b2 { border-color: #b91c1c; background-color: #fef2f2; box-shadow: 0 4px 12px rgba(185, 28, 28, 0.12); }
+    .loader { border: 3px solid #e2e8f0; border-top: 3px solid #1d4ed8; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- HEADER & NAVIGASI 5 TAHAP -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-extrabold text-base">A</div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold leading-tight">Portal VBP & Publikasi 1-Pintu</h1>
+          <p class="text-[11px] text-slate-400">Sekolah Athalia • Satu Pintu Pengajuan & Jadwal</p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-xl">
+        <button onclick="switchRole('unit')" id="nav-unit" class="nav-active px-2.5 py-1.5 rounded-lg text-xs font-bold transition">
+          1. Form Unit
+        </button>
+        <button onclick="switchRole('kepsek')" id="nav-kepsek" class="text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition">
+          2. Kepsek (ACC) 🔒
+        </button>
+        <button onclick="switchRole('konseptor')" id="nav-konseptor" class="text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition">
+          3. Konseptor VBP
+        </button>
+        <button onclick="switchRole('kasie')" id="nav-kasie" class="text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition">
+          4. Kasie (ACC) 🔒
+        </button>
+        <button onclick="switchRole('tim')" id="nav-tim" class="text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition">
+          5. Tim & Kalender
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- STATUS SINKRONISASI -->
+  <div id="loading-banner" class="bg-blue-50 border-b border-blue-200 px-4 py-2 text-xs text-blue-800 flex items-center justify-center gap-2">
+    <div class="loader"></div>
+    <span>Memuat data dari Google Sheets...</span>
+  </div>
+  <div id="error-banner" class="hidden bg-red-50 border-b border-red-200 px-4 py-2 text-xs text-red-800 flex items-center justify-center gap-2">
+    <span id="error-banner-text" class="font-semibold"></span>
+    <button onclick="loadData()" class="underline font-bold ml-2">Muat Ulang</button>
+  </div>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 1: PORTAL UNIT                                                   -->
+    <!-- ===================================================================== -->
+    <section id="view-unit" class="space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Langkah 1: Pilih Keperluan Anda</h2>
+            <p class="text-xs text-slate-500">Klik salah satu kotak di bawah sesuai kebutuhan unit.</p>
+          </div>
+          <button onclick="loadData()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-600">
+            ↻ Refresh
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+          <button type="button" onclick="selectFlow('A')" id="card-flow-A" class="flow-card flow-active-a text-left rounded-xl border-2 p-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-700 text-white">CABANG A</span>
+              <span class="text-[11px] font-bold text-blue-700">Awal Kuartal</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900">Rencana Kuartalan (VBP)</div>
+            <p class="text-xs text-slate-600 mt-1">Daftarkan program kuartalan & nilai VBP. Tanggal boleh menyusul.</p>
+          </button>
+
+          <button type="button" onclick="selectFlow('B1')" id="card-flow-B1" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-teal-500 p-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-teal-700 text-white">CABANG B1</span>
+              <span class="text-[11px] font-bold text-teal-700">Menjelang Acara</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900">Lengkapi Teknis Program</div>
+            <p class="text-xs text-slate-600 mt-1">Isi tanggal, jam & lokasi untuk program kuartalan yang sudah terdaftar.</p>
+          </button>
+
+          <button type="button" onclick="selectFlow('B2')" id="card-flow-B2" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-red-500 p-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-red-700 text-white">CABANG B2</span>
+              <span class="text-[11px] font-bold text-red-700">SLA Kilat</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900">Order Baru / Mendadak</div>
+            <p class="text-xs text-slate-600 mt-1">Pengajuan baru (Ad-Hoc) di luar rencana kuartalan.</p>
+          </button>
+        </div>
+
+        <form id="form-1pintu" onsubmit="handleUnitSubmit(event)" class="space-y-5">
+          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Langkah 2: Data Pemohon</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Unit *</label>
+                <select id="u-unit" required onchange="populateUnitPlansDropdown()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="">-- Pilih Unit --</option>
+                  <option value="KB-TK">KB-TK</option>
+                  <option value="SD">SD</option>
+                  <option value="SMP">SMP</option>
+                  <option value="SMA">SMA</option>
+                  <option value="PINUS - PAUD">PINUS - PAUD</option>
+                  <option value="PINUS - SD">PINUS - SD</option>
+                  <option value="PINUS - PKBM">PINUS - PKBM</option>
+                  <option value="PK3">PK3</option>
+                  <option value="CHAPLAIN">CHAPLAIN</option>
+                  <option value="PENDIDIKAN">PENDIDIKAN</option>
+                  <option value="SDM">SDM</option>
+                  <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+                  <option value="YAYASAN">YAYASAN</option>
+                  <option value="All Unit">All Unit</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama PIC Unit *</label>
+                <input type="text" id="u-pemohon" required placeholder="Contoh: Bu Anjar" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp *</label>
+                <input type="text" id="u-hp" required placeholder="0812xxxxxxxx" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+          </div>
+
+          <div id="box-b1-selector" class="hidden bg-teal-50 border border-teal-200 rounded-xl p-4 space-y-2">
+            <label class="block text-xs font-extrabold text-teal-900">Langkah 3: Pilih Program Kuartalan yang Akan Dilengkapi *</label>
+            <select id="u-existing-plan" onchange="fillFromSelectedPlan()" class="w-full rounded-lg border border-teal-300 bg-white px-3 py-2.5 text-sm font-semibold">
+              <option value="">-- Pilih Unit terlebih dahulu di atas --</option>
+            </select>
+            <p id="b1-plan-preview" class="text-xs text-teal-800"></p>
+          </div>
+
+          <div id="box-vbp-fields" class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Langkah 3: Info Kegiatan & Pilar VBP</span>
+              <span id="badge-b2-kilat" class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-red-100 text-red-800">
+                Otomatis SLA Kilat (Ad-Hoc)
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div id="wrap-kuartal">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Target Kuartal *</label>
+                <select id="u-kuartal" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Q1 (Jul-Sep)">Q1 (Jul - Sep)</option>
+                  <option value="Q2 (Okt-Des)" selected>Q2 (Okt - Des)</option>
+                  <option value="Q3 (Jan-Mar)">Q3 (Jan - Mar)</option>
+                  <option value="Q4 (Apr-Jun)">Q4 (Apr - Jun)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Pilar Utama (FSCM) *</label>
+                <select id="u-domain" onchange="updateSubDomainOptions('u-domain', 'u-subdomain')" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Identitas & Panggilan">1. Identitas & Panggilan</option>
+                  <option value="Keunggulan Akademik & Proses Belajar">2. Keunggulan Akademik & Proses Belajar</option>
+                  <option value="Pengembangan Potensi & Kehidupan Siswa">3. Pengembangan Potensi & Kehidupan Siswa</option>
+                  <option value="Kemitraan Orang Tua & Komunitas">4. Kemitraan Orang Tua & Komunitas</option>
+                  <option value="Tata Kelola, Layanan & Bukti Kualitas">5. Tata Kelola, Layanan & Bukti Kualitas</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Sub-Pilar *</label>
+                <select id="u-subdomain" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Bentuk Program *</label>
+                <select id="u-tingkat" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Kegiatan">Kegiatan (Event / Acara)</option>
+                  <option value="Praktik">Praktik (Pembiasaan / Kelas)</option>
+                  <option value="Gerakan">Gerakan (Kampanye / Aksi)</option>
+                  <option value="Kebijakan">Kebijakan (Aturan Sekolah)</option>
+                  <option value="Prinsip">Prinsip (Nilai Dasar)</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Judul Konten / Nama Kegiatan *</label>
+                <input type="text" id="u-judul" placeholder="Contoh: Entrepreneurship Week SMA 2026" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pesan / Bukti Nyata yang Ingin Ditonjolkan *</label>
+              <textarea id="u-value" rows="2" placeholder="Contoh: Siswa belajar kerja tim, kejujuran bisnis, dan kreativitas nyata." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <div id="toggle-teknis-wrapper" class="flex items-center justify-between bg-blue-50/70 border border-blue-200 rounded-xl px-4 py-3">
+            <div>
+              <div class="text-xs font-bold text-blue-900">Sudah tahu tanggal acara & kebutuhan liputan?</div>
+              <div class="text-[11px] text-blue-700">Opsional untuk Cabang A. Bisa diisi nanti lewat Cabang B1.</div>
+            </div>
+            <button type="button" onclick="toggleOptionalTeknis()" id="btn-toggle-teknis" class="px-3 py-1.5 rounded-lg bg-white border border-blue-300 text-xs font-bold text-blue-800 hover:bg-blue-100">
+              + Isi Jadwal & Teknis
+            </button>
+          </div>
+
+          <div id="box-teknis-fields" class="hidden bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Jadwal & Kebutuhan Teknis</span>
+              <div id="sla-live-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-200 text-slate-700">
+                Estimasi SLA: Pilih Tanggal Mulai
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kebutuhan Layanan *</label>
+                <select id="u-kebutuhan" onchange="toggleStudioHelper()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Liputan/Dokumentasi & Desain/Konten">Liputan & Desain Konten</option>
+                  <option value="Liputan/Dokumentasi">Liputan Foto / Video Saja</option>
+                  <option value="Desain/Konten">Desain Poster / Medsos Saja</option>
+                  <option value="Studio / Rekaman">Booking Studio / Rekaman</option>
+                  <option value="Peminjaman Alat">Peminjaman Alat</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai Acara <span id="req-tgl-star" class="hidden text-red-600">*</span></label>
+                <input type="date" id="u-tgl-mulai" onchange="recalculateLiveSLA()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai (Jika >1 hari)</label>
+                <input type="date" id="u-tgl-selesai" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Jam & Lokasi Acara <span id="req-lok-star" class="hidden text-red-600">*</span></label>
+                <input type="text" id="u-waktu-lokasi" placeholder="Contoh: 07:30 - 11:00 | Aula Gedung F" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Link Brief / Rundown (Opsional)</label>
+                <input type="url" id="u-link-brief" placeholder="https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div id="box-studio-helper" class="hidden bg-indigo-50 border border-indigo-200 rounded-lg p-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-indigo-900 mb-1">Jadwal Gladi / Ambil Alat</label>
+                <input type="text" id="u-studio-gladi" placeholder="Contoh: Gladi H-1 jam 13.00" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-1.5 text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-indigo-900 mb-1">Daftar Alat / Peserta Studio</label>
+                <input type="text" id="u-studio-alat" placeholder="Contoh: 2 Mic Clip-on, Kamera" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-1.5 text-xs">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Teknis / Output yang Diminta <span id="req-det-star" class="hidden text-red-600">*</span></label>
+              <textarea id="u-detail-teknis" rows="2" placeholder="Contoh: Foto kegiatan, video Reels 1 menit, dan wawancara 2 siswa." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end pt-1">
+            <button type="submit" id="btn-submit-unit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow transition">
+              Simpan Rencana Kuartalan
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- DAFTAR ORDER TERKELOMPOK -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900">Jadwal & Daftar Order (Per Tahun • Bulan • Minggu)</h3>
+            <p class="text-xs text-slate-500">Klik header minggu untuk membuka atau menutup daftar.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="toggleAllAccordions(true)" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+              Buka Semua
+            </button>
+            <button type="button" onclick="toggleAllAccordions(false)" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+              Tutup Semua
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <select id="flt-year" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Tahun</option>
+          </select>
+          <select id="flt-month" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Bulan</option>
+          </select>
+          <select id="flt-week" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Minggu</option>
+            <option value="THIS_WEEK">Minggu Ini</option>
+            <option value="NEXT_WEEK">Minggu Depan</option>
+          </select>
+          <select id="flt-unit" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Unit</option>
+            <option value="KB-TK">KB-TK</option>
+            <option value="SD">SD</option>
+            <option value="SMP">SMP</option>
+            <option value="SMA">SMA</option>
+            <option value="PINUS - PAUD">PINUS - PAUD</option>
+            <option value="PINUS - SD">PINUS - SD</option>
+            <option value="PINUS - PKBM">PINUS - PKBM</option>
+            <option value="PK3">PK3</option>
+            <option value="CHAPLAIN">CHAPLAIN</option>
+            <option value="PENDIDIKAN">PENDIDIKAN</option>
+            <option value="SDM">SDM</option>
+            <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+            <option value="YAYASAN">YAYASAN</option>
+            <option value="All Unit">All Unit</option>
+          </select>
+          <select id="flt-status" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ACTIVE">Status: Aktif Saja</option>
+            <option value="ALL">Status: Semua</option>
+            <option value="DONE">Status: Selesai (Done)</option>
+          </select>
+          <input type="text" id="flt-search" onkeyup="renderAllGroupedViews()" placeholder="Cari judul / ID..." class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+        </div>
+
+        <div id="grouped-unit-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 2: PORTAL KEPALA SEKOLAH (ACC PROGRAM UNIT — TERKUNCI PIN)       -->
+    <!-- ===================================================================== -->
+    <section id="view-kepsek" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-extrabold text-slate-900">Persetujuan Kepala Sekolah (ACC Unit)</h2>
+              <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">🔓 PIN Terverifikasi</span>
+            </div>
+            <p class="text-xs text-slate-500">Tinjau rencana kuartalan dan order Ad-Hoc dari unit sebelum masuk ke Konseptor VBP.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="kp-unit-filter" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold">
+              <option value="ALL">Semua Unit</option>
+              <option value="KB-TK">KB-TK</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="PINUS - PAUD">PINUS - PAUD</option>
+              <option value="PINUS - SD">PINUS - SD</option>
+              <option value="PINUS - PKBM">PINUS - PKBM</option>
+              <option value="PK3">PK3</option>
+              <option value="CHAPLAIN">CHAPLAIN</option>
+              <option value="PENDIDIKAN">PENDIDIKAN</option>
+              <option value="SDM">SDM</option>
+              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+              <option value="YAYASAN">YAYASAN</option>
+              <option value="All Unit">All Unit</option>
+            </select>
+            <button onclick="setKepsekFilter('PENDING')" id="kp-flt-PENDING" class="kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 text-white">
+              Menunggu ACC (<span id="kp-pending-count">0</span>)
+            </button>
+            <button onclick="setKepsekFilter('ALL')" id="kp-flt-ALL" class="kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">
+              Semua Program Aktif
+            </button>
+            <button onclick="lockRoleSession('kepsek')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50" title="Kunci kembali tab ini">
+              🔒 Kunci
+            </button>
+          </div>
+        </div>
+        <div id="grouped-kepsek-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 3: PORTAL KONSEPTOR VBP                                          -->
+    <!-- ===================================================================== -->
+    <section id="view-konseptor" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Meja Kurasi Konseptor VBP</h2>
+            <p class="text-xs text-slate-500">Lengkapi pesan kunci VBP untuk program yang sudah di-ACC Kepsek, lalu ajukan ke Kasie.</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="setKonseptorFilter('ANTREAN')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Siap Dikonsep</button>
+            <button onclick="setKonseptorFilter('KILAT')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">SLA Kilat</button>
+            <button onclick="setKonseptorFilter('ALL')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+          </div>
+        </div>
+        <div id="grouped-konseptor-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 4: PORTAL KASIE PUBLIKASI (ACC & SLA — TERKUNCI PIN)             -->
+    <!-- ===================================================================== -->
+    <section id="view-kasie" class="hidden space-y-5">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl border border-red-200 p-3.5 shadow-sm">
+          <div class="text-[11px] font-bold text-red-700">SLA Kilat / Ad-Hoc</div>
+          <div id="kpi-kilat" class="text-2xl font-extrabold text-red-900 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-amber-200 p-3.5 shadow-sm">
+          <div class="text-[11px] font-bold text-amber-700">Menunggu ACC Kasie</div>
+          <div id="kpi-acc" class="text-2xl font-extrabold text-amber-900 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-blue-200 p-3.5 shadow-sm">
+          <div class="text-[11px] font-bold text-blue-700">Sedang Produksi</div>
+          <div id="kpi-prod" class="text-2xl font-extrabold text-blue-900 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-emerald-200 p-3.5 shadow-sm">
+          <div class="text-[11px] font-bold text-emerald-700">Selesai (Done)</div>
+          <div id="kpi-done" class="text-2xl font-extrabold text-emerald-900 mt-0.5">0</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-extrabold text-slate-900">Kendali ACC Kasie & Slot Harian</h2>
+              <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">🔓 PIN Terverifikasi</span>
+            </div>
+            <p class="text-xs text-slate-500">Atur tanggal produksi, PIC, dan geser jadwal reguler (+1H) bila slot penuh.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button onclick="triggerSyncAllCalendar()" id="btn-sync-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
+              Sync ke Google Calendar
+            </button>
+            <button onclick="setKasieFilter('ALL')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+            <button onclick="setKasieFilter('KILAT')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">SLA Kilat</button>
+            <button onclick="setKasieFilter('ACC')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Menunggu ACC</button>
+            <button onclick="setKasieFilter('PROD')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Produksi</button>
+            <button onclick="lockRoleSession('kasie')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50" title="Kunci kembali tab ini">
+              🔒 Kunci
+            </button>
+          </div>
+        </div>
+        <div id="grouped-kasie-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 5: PORTAL TIM PRODUKSI & GOOGLE CALENDAR                         -->
+    <!-- ===================================================================== -->
+    <section id="view-tim" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Penugasan Tim & Google Calendar</h2>
+            <p class="text-xs text-slate-500">Pilih nama Anda untuk melihat daftar tugas, brief teknis, dan jadwal kalender.</p>
+          </div>
+          <a href="https://calendar.google.com" target="_blank" rel="noopener" class="px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs">
+            Buka Google Calendar ↗
+          </a>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-xs font-bold text-slate-500 mr-1">Filter PIC:</span>
+          <button onclick="setTeamPicFilter('ALL')" id="pic-btn-ALL" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua Tim</button>
+          <button onclick="setTeamPicFilter('Yesi')" id="pic-btn-Yesi" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Yesi</button>
+          <button onclick="setTeamPicFilter('Indri')" id="pic-btn-Indri" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Indri</button>
+          <button onclick="setTeamPicFilter('Dodai')" id="pic-btn-Dodai" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Dodai</button>
+          <button onclick="setTeamPicFilter('Wahyu')" id="pic-btn-Wahyu" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Wahyu</button>
+          <button onclick="setTeamPicFilter('Nia')" id="pic-btn-Nia" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Nia</button>
+          <button onclick="setTeamPicFilter('Magang')" id="pic-btn-Magang" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Magang</button>
+        </div>
+
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+          <button onclick="switchTeamSubView('list')" id="sub-tim-list" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900">
+            Daftar Tugas & Brief (<span id="tim-task-count">0</span>)
+          </button>
+          <button onclick="switchTeamSubView('calendar')" id="sub-tim-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100">
+            Tampilan Google Calendar
+          </button>
+        </div>
+
+        <div id="tim-view-list" class="space-y-4"></div>
+
+        <div id="tim-view-calendar" class="hidden space-y-3">
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
+            Jika kalender di bawah tidak muncul di browser Anda, pastikan Anda login ke akun Google yang sudah diberi akses kalender atau klik tombol <strong>Buka Google Calendar ↗</strong> di atas.
+          </div>
+          <div class="w-full rounded-xl overflow-hidden border border-slate-300 bg-white">
+            <iframe id="gcal-iframe" src="" style="border: 0" width="100%" height="620" frameborder="0" scrolling="no"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL VERIFIKASI PIN -->
+  <div id="modal-pin" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+    <form onsubmit="submitPinVerification(event)" class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-sm">🔒</span>
+          <div>
+            <h3 id="pin-modal-title" class="text-sm font-extrabold text-slate-900">Verifikasi PIN Akses</h3>
+            <p class="text-[11px] text-slate-500">Masukkan PIN untuk membuka halaman ini.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('modal-pin')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <div>
+        <input type="password" inputmode="numeric" id="pin-input-field" required placeholder="••••" class="w-full text-center tracking-[0.5em] text-xl font-extrabold rounded-xl border-2 border-slate-300 focus:border-blue-600 outline-none px-4 py-3">
+        <p id="pin-error-msg" class="hidden text-xs text-red-600 font-bold mt-1.5 text-center">PIN salah. Silakan coba lagi.</p>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeModal('modal-pin')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">Batal</button>
+        <button type="submit" id="btn-verify-pin" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800">Buka Akses</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL ACC KEPALA SEKOLAH -->
+  <div id="modal-kepsek" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="kp-badge" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 id="kp-title" class="text-base font-extrabold text-slate-900">Tinjauan Kepala Sekolah</h3>
+        </div>
+        <button onclick="closeModal('modal-kepsek')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="kp-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3.5 text-xs space-y-1.5 border border-slate-200">
+        <div><strong>Unit & Pemohon:</strong> <span id="kp-unit-info"></span></div>
+        <div><strong>Target Kuartal & Pilar:</strong> <span id="kp-pilar-info"></span></div>
+        <div><strong>Bukti Nyata yang Ditonjolkan:</strong> <span id="kp-value-info" class="text-slate-700"></span></div>
+        <div><strong>Jadwal & Lokasi Event:</strong> <span id="kp-jadwal-info" class="text-teal-800 font-semibold"></span></div>
+        <div><strong>Kebutuhan & Teknis:</strong> <span id="kp-teknis-info"></span></div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Catatan Kepala Sekolah (Opsional / Wajib jika Revisi)</label>
+        <textarea id="kp-catatan" rows="2" placeholder="Contoh: ACC, silakan lanjutkan kurasi VBP dan liputan." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"></textarea>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-2 pt-2">
+        <button onclick="submitKepsek('TOLAK')" class="px-3.5 py-2 rounded-lg border border-red-300 text-red-700 text-xs font-bold hover:bg-red-50">
+          Tolak / Batalkan
+        </button>
+        <button onclick="submitKepsek('REVISI')" class="px-3.5 py-2 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200">
+          Minta Revisi Unit
+        </button>
+        <button onclick="submitKepsek('ACC')" class="px-5 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800">
+          ✓ ACC Kepsek → Ke Konseptor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TIM PRODUKSI -->
+  <div id="modal-tim" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="mt-badge" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 id="mt-title" class="text-base font-extrabold text-slate-900">Detail Tugas & Setor Hasil</h3>
+        </div>
+        <button onclick="closeModal('modal-tim')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="mt-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3.5 text-xs space-y-2 border border-slate-200">
+        <div><strong>PIC Produksi:</strong> <span id="mt-pic" class="font-bold text-blue-800"></span></div>
+        <div><strong>Jadwal Produksi:</strong> <span id="mt-prod-date"></span></div>
+        <div><strong>Waktu & Lokasi Acara:</strong> <span id="mt-lokasi"></span></div>
+        <div><strong>Layanan & Format:</strong> <span id="mt-format"></span></div>
+        <div><strong>Pesan Kunci VBP:</strong> <span id="mt-konsep" class="text-slate-700"></span></div>
+        <div><strong>Detail Teknis Unit:</strong> <span id="mt-teknis" class="text-teal-800 font-medium"></span></div>
+        <div><strong>Catatan Pimpinan/Kasie:</strong> <span id="mt-catatan" class="text-amber-800 font-medium"></span></div>
+        <div id="mt-brief-wrap"></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Update Status Pengerjaan</label>
+          <select id="mt-status" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
+            <option value="Siap Produksi">Siap Produksi</option>
+            <option value="In Progress">In Progress (Sedang Dikerjakan)</option>
+            <option value="Done">Done (Selesai Tayang / Serah Terima)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Link Hasil Tayang / Google Drive</label>
+          <input type="url" id="mt-link-hasil" placeholder="https://drive.google.com/... atau link IG" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-tim')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">Tutup</button>
+        <button onclick="submitTeamProgress()" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800">Simpan Progres</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KONSEPTOR VBP -->
+  <div id="modal-konseptor" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="mk-badge-id" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 class="text-base font-extrabold text-slate-900">Kurasi Pesan Kunci VBP</h3>
+        </div>
+        <button onclick="closeModal('modal-konseptor')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="mk-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
+        <div><strong>Unit:</strong> <span id="mk-info-unit"></span></div>
+        <div><strong>Bukti Nyata Unit:</strong> <span id="mk-info-value" class="text-slate-700"></span></div>
+        <div><strong>Info Teknis:</strong> <span id="mk-info-teknis" class="text-teal-800 font-medium"></span></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Pilar FSCM</label>
+          <select id="mk-domain" onchange="updateSubDomainOptions('mk-domain', 'mk-subdomain')" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Identitas & Panggilan">Identitas & Panggilan</option>
+            <option value="Keunggulan Akademik & Proses Belajar">Keunggulan Akademik & Proses Belajar</option>
+            <option value="Pengembangan Potensi & Kehidupan Siswa">Pengembangan Potensi & Kehidupan Siswa</option>
+            <option value="Kemitraan Orang Tua & Komunitas">Kemitraan Orang Tua & Komunitas</option>
+            <option value="Tata Kelola, Layanan & Bukti Kualitas">Tata Kelola, Layanan & Bukti Kualitas</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Sub-Pilar</label>
+          <select id="mk-subdomain" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs"></select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Bentuk Program</label>
+          <select id="mk-tingkat" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Kegiatan">Kegiatan</option>
+            <option value="Praktik">Praktik</option>
+            <option value="Gerakan">Gerakan</option>
+            <option value="Kebijakan">Kebijakan</option>
+            <option value="Prinsip">Prinsip</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Format & Channel</label>
+          <input type="text" id="mk-format" placeholder="Contoh: Reels IG, Carousel, YouTube" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Judul Konten</label>
+        <input type="text" id="mk-judul" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Pesan Kunci VBP</label>
+        <textarea id="mk-konsep" rows="3" placeholder="Tulis pesan utama VBP..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="submitKonseptor('Draft Plan')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50">
+          Simpan Draft
+        </button>
+        <button onclick="submitKonseptor('Menunggu ACC Kasie')" class="px-4 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800">
+          Ajukan ACC Kasie
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KASIE -->
+  <div id="modal-kasie" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="ks-badge-sla" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold"></span>
+          <h3 id="ks-title" class="text-base font-extrabold text-slate-900 mt-1">ACC & Jadwal Produksi</h3>
+        </div>
+        <button onclick="closeModal('modal-kasie')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="ks-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
+        <div><strong>Pesan VBP:</strong> <span id="ks-konsep"></span></div>
+        <div><strong>Teknis & Waktu:</strong> <span id="ks-teknis"></span></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Tgl Mulai Produksi</label>
+          <input type="date" id="ks-tgl-prod" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Deadline Tayang</label>
+          <input type="date" id="ks-deadline" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">PIC Produksi</label>
+          <input type="text" id="ks-pic" list="pic-list" placeholder="Contoh: Yesi, Wahyu" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+          <datalist id="pic-list">
+            <option value="Yesi">
+            <option value="Indri">
+            <option value="Dodai">
+            <option value="Wahyu">
+            <option value="Nia">
+            <option value="Magang">
+            <option value="Tim Publikasi">
+          </datalist>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Prioritas</label>
+          <select id="ks-prioritas" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Normal">Normal</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Status</label>
+          <select id="ks-status" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Siap Produksi">ACC - Siap Produksi</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done (Selesai)</option>
+            <option value="Revisi VBP">Revisi VBP</option>
+            <option value="Canceled">Canceled</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Catatan Kasie</label>
+        <input type="text" id="ks-catatan" placeholder="Contoh: ACC - Prioritaskan liputan utama" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Link Hasil (Isi saat Done)</label>
+        <input type="url" id="ks-link-hasil" placeholder="https://..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-kasie')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">Batal</button>
+        <button onclick="submitKasie()" class="px-5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzL8R2VZO2HUjOuRYB8dnDjb5dgN1wCIeYDfghb6LO-kijLCo3sKocJGUBLVKd1qyBm/exec';
+
+    let ALL_RECORDS = [];
+    let CALENDAR_ID = '';
+    let PIN_REQUIRED = { kepsek: true, konseptor: false, kasie: true };
+    let PENDING_PIN_ROLE = null;
+    let SERVER_DATE = new Date().toISOString().slice(0, 10);
+    let CURRENT_FLOW = 'A';
+    let OPTIONAL_TEKNIS_OPEN = false;
+    let KEPSEK_FILTER = 'PENDING';
+    let KONSEPTOR_FILTER = 'ALL';
+    let KASIE_FILTER = 'ALL';
+    let TEAM_PIC_FILTER = 'ALL';
+
+    const MONTH_NAMES_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const SHORT_MONTH_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    const FSCM_SUBDOMAINS = {
+      "Identitas & Panggilan": ["Identitas Kristiani", "Visi Pembentukan Seutuhnya", "Budaya Kasih & Rasa Memiliki"],
+      "Keunggulan Akademik & Proses Belajar": ["Pembelajaran Aktif & Bermakna", "Kompetensi Masa Depan", "Pendampingan Belajar Individual"],
+      "Pengembangan Potensi & Kehidupan Siswa": ["Minat, Bakat & Ekstrakurikuler", "Kepemimpinan & Tanggung Jawab", "Kesehatan Mental & Kesejahteraan Siswa"],
+      "Kemitraan Orang Tua & Komunitas": ["Sinergi Sekolah & Keluarga", "Keterbukaan & Komunikasi", "Kepercayaan & Kesaksian Nyata"],
+      "Tata Kelola, Layanan & Bukti Kualitas": ["Profesionalisme Guru & Staf", "Fasilitas & Lingkungan Aman", "Rekam Jejak & Dampak Lulusan"]
+    };
+
+    window.onload = function() {
+      updateSubDomainOptions('u-domain', 'u-subdomain');
+      updateSubDomainOptions('mk-domain', 'mk-subdomain');
+      selectFlow('A');
+      loadData();
+    };
+
+    function updateSubDomainOptions(domainSelectId, subSelectId, selectedVal) {
+      const dom = document.getElementById(domainSelectId).value;
+      const subEl = document.getElementById(subSelectId);
+      const list = FSCM_SUBDOMAINS[dom] || [];
+      subEl.innerHTML = list.map(s => `<option value="${s}">${s}</option>`).join('');
+      if (selectedVal && list.includes(selectedVal)) subEl.value = selectedVal;
+    }
+
+    async function loadData() {
+      const loadEl = document.getElementById('loading-banner');
+      const errEl = document.getElementById('error-banner');
+      loadEl.classList.remove('hidden');
+      errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL + '?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Gagal membaca data.');
+
+        ALL_RECORDS = data.records || [];
+        CALENDAR_ID = data.calendarId || '';
+        if (data.pinRequired) PIN_REQUIRED = data.pinRequired;
+        SERVER_DATE = data.serverDate || SERVER_DATE;
+        loadEl.classList.add('hidden');
+
+        // Perbarui ikon kunci di navigasi sesuai setting PIN di Kode.gs
+        document.getElementById('nav-kepsek').textContent = '2. Kepsek (ACC)' + (PIN_REQUIRED.kepsek ? ' 🔒' : '');
+        document.getElementById('nav-konseptor').textContent = '3. Konseptor VBP' + (PIN_REQUIRED.konseptor ? ' 🔒' : '');
+        document.getElementById('nav-kasie').textContent = '4. Kasie (ACC)' + (PIN_REQUIRED.kasie ? ' 🔒' : '');
+
+        if (CALENDAR_ID) {
+          document.getElementById('gcal-iframe').src =
+            `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Asia%2FJakarta&mode=WEEK`;
+        }
+
+        populateTimeFilterOptions();
+        populateUnitPlansDropdown();
+        renderAllGroupedViews();
+        updateKPIs();
+      } catch (err) {
+        loadEl.classList.add('hidden');
+        errEl.classList.remove('hidden');
+        document.getElementById('error-banner-text').textContent = 'Gagal memuat data: ' + err.message;
+      }
+    }
+
+    async function callGasPost(actionName, extraBody) {
+      const res = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ action: actionName }, extraBody))
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Gagal menyimpan.');
+      return data;
+    }
+
+    // =========================================================================
+    // PENGAMANAN PIN PERAN (KEPSEK & KASIE)
+    // =========================================================================
+    function getSavedPin(role) {
+      return sessionStorage.getItem('athalia_pin_' + role) || '';
+    }
+
+    function switchRole(role) {
+      if (PIN_REQUIRED[role] && !getSavedPin(role)) {
+        PENDING_PIN_ROLE = role;
+        const label = role === 'kepsek' ? 'PIN Kepala Sekolah' : (role === 'kasie' ? 'PIN Kasie Publikasi' : 'PIN Konseptor');
+        document.getElementById('pin-modal-title').textContent = 'Masukkan ' + label;
+        document.getElementById('pin-input-field').value = '';
+        document.getElementById('pin-error-msg').classList.add('hidden');
+        document.getElementById('modal-pin').classList.remove('hidden');
+        setTimeout(() => document.getElementById('pin-input-field').focus(), 50);
+        return;
+      }
+      activateRoleView(role);
+    }
+
+    function activateRoleView(role) {
+      ['unit', 'kepsek', 'konseptor', 'kasie', 'tim'].forEach(r => {
+        document.getElementById('view-' + r).classList.toggle('hidden', r !== role);
+        const btn = document.getElementById('nav-' + r);
+        if (r === role) {
+          btn.classList.add('nav-active');
+          btn.classList.remove('text-slate-300');
+        } else {
+          btn.classList.remove('nav-active');
+          btn.classList.add('text-slate-300');
+        }
+      });
+      renderAllGroupedViews();
+    }
+
+    async function submitPinVerification(e) {
+      e.preventDefault();
+      const pinVal = document.getElementById('pin-input-field').value.trim();
+      const btn = document.getElementById('btn-verify-pin');
+      btn.disabled = true;
+      btn.textContent = 'Memeriksa...';
+
+      try {
+        const res = await callGasPost('verifyPin', { role: PENDING_PIN_ROLE, pin: pinVal });
+        if (res.valid) {
+          sessionStorage.setItem('athalia_pin_' + PENDING_PIN_ROLE, pinVal);
+          closeModal('modal-pin');
+          activateRoleView(PENDING_PIN_ROLE);
+        } else {
+          document.getElementById('pin-error-msg').classList.remove('hidden');
+          document.getElementById('pin-input-field').select();
+        }
+      } catch (err) {
+        alert('Error verifikasi PIN: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Buka Akses';
+      }
+    }
+
+    function lockRoleSession(role) {
+      sessionStorage.removeItem('athalia_pin_' + role);
+      activateRoleView('unit');
+    }
+
+    // =========================================================================
+    // FORM UNIT (CABANG A, B1, B2)
+    // =========================================================================
+    function selectFlow(flow) {
+      CURRENT_FLOW = flow;
+      document.getElementById('card-flow-A').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'A' ? 'flow-active-a' : 'border-slate-200 hover:border-blue-400');
+      document.getElementById('card-flow-B1').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'B1' ? 'flow-active-b1' : 'border-slate-200 hover:border-teal-400');
+      document.getElementById('card-flow-B2').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'B2' ? 'flow-active-b2' : 'border-slate-200 hover:border-red-400');
+
+      const btn = document.getElementById('btn-submit-unit');
+
+      if (flow === 'A') {
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('box-vbp-fields').classList.remove('hidden');
+        document.getElementById('wrap-kuartal').classList.remove('hidden');
+        document.getElementById('badge-b2-kilat').classList.add('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.remove('hidden');
+        document.getElementById('box-teknis-fields').classList.toggle('hidden', !OPTIONAL_TEKNIS_OPEN);
+        setTeknisRequired(false);
+        btn.textContent = 'Simpan Rencana Kuartalan';
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow transition';
+      } else if (flow === 'B1') {
+        document.getElementById('box-b1-selector').classList.remove('hidden');
+        document.getElementById('box-vbp-fields').classList.add('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.add('hidden');
+        document.getElementById('box-teknis-fields').classList.remove('hidden');
+        setTeknisRequired(true);
+        populateUnitPlansDropdown();
+        btn.textContent = 'Simpan Detail Teknis';
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow transition';
+      } else {
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('box-vbp-fields').classList.remove('hidden');
+        document.getElementById('wrap-kuartal').classList.add('hidden');
+        document.getElementById('badge-b2-kilat').classList.remove('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.add('hidden');
+        document.getElementById('box-teknis-fields').classList.remove('hidden');
+        setTeknisRequired(true);
+        btn.textContent = 'Kirim Order Ad-Hoc (SLA Kilat)';
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-sm shadow transition';
+      }
+      recalculateLiveSLA();
+    }
+
+    function toggleOptionalTeknis() {
+      OPTIONAL_TEKNIS_OPEN = !OPTIONAL_TEKNIS_OPEN;
+      document.getElementById('box-teknis-fields').classList.toggle('hidden', !OPTIONAL_TEKNIS_OPEN);
+      document.getElementById('btn-toggle-teknis').textContent = OPTIONAL_TEKNIS_OPEN ? '− Sembunyikan Jadwal' : '+ Isi Jadwal & Teknis';
+    }
+
+    function setTeknisRequired(isReq) {
+      ['req-tgl-star', 'req-lok-star', 'req-det-star'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', !isReq);
+      });
+      document.getElementById('u-tgl-mulai').required = isReq;
+      document.getElementById('u-waktu-lokasi').required = isReq;
+      document.getElementById('u-detail-teknis').required = isReq;
+    }
+
+    function toggleStudioHelper() {
+      const keb = document.getElementById('u-kebutuhan').value;
+      const show = (keb === 'Studio / Rekaman' || keb === 'Peminjaman Alat');
+      document.getElementById('box-studio-helper').classList.toggle('hidden', !show);
+    }
+
+    function populateUnitPlansDropdown() {
+      const unit = document.getElementById('u-unit').value;
+      const sel = document.getElementById('u-existing-plan');
+      if (!unit) {
+        sel.innerHTML = '<option value="">-- Pilih Unit terlebih dahulu di atas --</option>';
+        return;
+      }
+      const plans = ALL_RECORDS.filter(r =>
+        r.unit === unit && r.tipeOrder === 'Rencana Kuartalan' && r.status !== 'Done' && r.status !== 'Canceled'
+      );
+      if (plans.length === 0) {
+        sel.innerHTML = '<option value="">(Belum ada Rencana Kuartalan aktif — gunakan Cabang B2)</option>';
+        return;
+      }
+      sel.innerHTML = `<option value="">-- Pilih Program (${plans.length} tersedia) --</option>` +
+        plans.map(p => `<option value="${p.rowIndex}">[${p.id}] ${p.judul} (${p.targetKuartal})</option>`).join('');
+    }
+
+    function fillFromSelectedPlan() {
+      const rowIdx = Number(document.getElementById('u-existing-plan').value);
+      const item = ALL_RECORDS.find(r => r.rowIndex === rowIdx);
+      const prev = document.getElementById('b1-plan-preview');
+      if (!item) { prev.textContent = ''; return; }
+      prev.textContent = `Pilar: ${item.domainFscm} • Bukti Nyata: ${item.valueBukti || '-'}`;
+      if (item.tglMulaiEvent) document.getElementById('u-tgl-mulai').value = item.tglMulaiEvent;
+      if (item.tglSelesaiEvent) document.getElementById('u-tgl-selesai').value = item.tglSelesaiEvent;
+      if (item.waktuLokasi) document.getElementById('u-waktu-lokasi').value = item.waktuLokasi;
+      if (item.kebutuhan) document.getElementById('u-kebutuhan').value = item.kebutuhan;
+      recalculateLiveSLA();
+    }
+
+    function recalculateLiveSLA() {
+      const badge = document.getElementById('sla-live-badge');
+      const tglStr = document.getElementById('u-tgl-mulai').value;
+
+      if (CURRENT_FLOW === 'B2') {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800';
+        badge.textContent = 'SLA KILAT (≤2 Hari / Ad-Hoc)';
+        return;
+      }
+      if (!tglStr) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-200 text-slate-700';
+        badge.textContent = 'Estimasi SLA: Pilih Tanggal Mulai';
+        return;
+      }
+      const today = new Date(SERVER_DATE + 'T00:00:00');
+      const evDate = new Date(tglStr + 'T00:00:00');
+      const diffDays = Math.round((evDate - today) / 86400000);
+
+      if (diffDays <= 2) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800';
+        badge.textContent = `H-${Math.max(0, diffDays)}: SLA KILAT (≤2 Hari)`;
+      } else if (diffDays <= 7) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800';
+        badge.textContent = `H-${diffDays}: SLA PRIORITAS (3–7 Hari)`;
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800';
+        badge.textContent = `H-${diffDays}: SLA REGULER (>7 Hari)`;
+      }
+    }
+
+    async function handleUnitSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-unit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      let detTeknis = document.getElementById('u-detail-teknis').value.trim();
+      const gladi = document.getElementById('u-studio-gladi').value.trim();
+      const alat = document.getElementById('u-studio-alat').value.trim();
+      if (gladi || alat) {
+        detTeknis += `\n[Studio/Alat] Gladi/Ambil: ${gladi || '-'} | Alat: ${alat || '-'}`;
+      }
+
+      try {
+        if (CURRENT_FLOW === 'B1') {
+          const rowIndex = Number(document.getElementById('u-existing-plan').value);
+          if (!rowIndex) {
+            alert('Pilih program kuartalan terlebih dahulu.');
+            btn.disabled = false;
+            selectFlow('B1');
+            return;
+          }
+          const res = await callGasPost('updateUnitTechnicalDetail', {
+            payload: {
+              rowIndex,
+              pemohon: document.getElementById('u-pemohon').value.trim(),
+              noHp: document.getElementById('u-hp').value.trim(),
+              kebutuhan: document.getElementById('u-kebutuhan').value,
+              tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
+              tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
+              waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
+              linkBrief: document.getElementById('u-link-brief').value.trim(),
+              detailTeknis: detTeknis
+            }
+          });
+          alert(`Tersimpan! ID: ${res.id}\nStatus: ${res.status} | SLA: ${res.kategoriSla}`);
+          document.getElementById('form-1pintu').reset();
+          selectFlow('A');
+          await loadData();
+          return;
+        }
+
+        const isAdHoc = (CURRENT_FLOW === 'B2');
+        const judul = document.getElementById('u-judul').value.trim();
+        if (!judul) {
+          alert('Judul kegiatan wajib diisi.');
+          btn.disabled = false;
+          selectFlow(CURRENT_FLOW);
+          return;
+        }
+
+        const res = await callGasPost('submitNewRequest', {
+          payload: {
+            tipeOrder: isAdHoc ? 'Ad-Hoc' : 'Rencana Kuartalan',
+            unit: document.getElementById('u-unit').value,
+            pemohon: document.getElementById('u-pemohon').value.trim(),
+            noHp: document.getElementById('u-hp').value.trim(),
+            targetKuartal: document.getElementById('u-kuartal').value,
+            domainFscm: document.getElementById('u-domain').value,
+            subDomainFscm: document.getElementById('u-subdomain').value,
+            tingkatFocus: document.getElementById('u-tingkat').value,
+            judul,
+            valueBukti: document.getElementById('u-value').value.trim(),
+            kebutuhan: document.getElementById('u-kebutuhan').value,
+            tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
+            tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
+            waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
+            linkBrief: document.getElementById('u-link-brief').value.trim(),
+            detailTeknis: detTeknis,
+            prioritas: isAdHoc ? 'Urgent' : 'Normal'
+          }
+        });
+
+        alert(`Berhasil terkirim!\nID: ${res.id}\nStatus: Menunggu ACC Kepsek`);
+        document.getElementById('form-1pintu').reset();
+        OPTIONAL_TEKNIS_OPEN = false;
+        selectFlow('A');
+        await loadData();
+      } catch (err) {
+        alert('Error: ' + err.message);
+        selectFlow(CURRENT_FLOW);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // =========================================================================
+    // PENGELOMPOKAN WAKTU (TAHUN -> BULAN -> MINGGU)
+    // =========================================================================
+    function getWeekBounds(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const day = dt.getDay();
+      const diffToMon = (day === 0 ? -6 : 1 - day);
+      const mon = new Date(y, m - 1, d + diffToMon);
+      const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+      const weekKey = `${mon.getFullYear()}-${String(mon.getMonth() + 1).padStart(2, '0')}-${String(mon.getDate()).padStart(2, '0')}`;
+      const weekLabel = `Minggu ${mon.getDate()} ${SHORT_MONTH_ID[mon.getMonth()]} – ${sun.getDate()} ${SHORT_MONTH_ID[sun.getMonth()]} ${sun.getFullYear()}`;
+      return { weekKey, weekLabel, year: String(y), monthNum: m, monthKey: `${y}-${String(m).padStart(2, '0')}`, monthLabel: `${MONTH_NAMES_ID[m - 1]} ${y}` };
+    }
+
+    function populateTimeFilterOptions() {
+      const years = new Set();
+      const months = new Map();
+
+      ALL_RECORDS.forEach(r => {
+        if (r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) {
+          const info = getWeekBounds(r.tglMulaiEvent);
+          years.add(info.year);
+          months.set(info.monthKey, info.monthLabel);
+        }
+      });
+
+      const yrSel = document.getElementById('flt-year');
+      const curYr = yrSel.value;
+      yrSel.innerHTML = '<option value="ALL">Semua Tahun</option>' +
+        Array.from(years).sort().map(y => `<option value="${y}">Tahun ${y}</option>`).join('') +
+        '<option value="UNSCHEDULED">Belum Ada Tanggal</option>';
+      if (curYr) yrSel.value = curYr;
+
+      const moSel = document.getElementById('flt-month');
+      const curMo = moSel.value;
+      moSel.innerHTML = '<option value="ALL">Semua Bulan</option>' +
+        Array.from(months.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([k, lbl]) => `<option value="${k}">${lbl}</option>`).join('');
+      if (curMo) moSel.value = curMo;
+    }
+
+    function getFilteredRecords(roleFilterFn) {
+      const yr = document.getElementById('flt-year').value;
+      const mo = document.getElementById('flt-month').value;
+      const wk = document.getElementById('flt-week').value;
+      const unit = document.getElementById('flt-unit').value;
+      const st = document.getElementById('flt-status').value;
+      const q = (document.getElementById('flt-search').value || '').toLowerCase();
+
+      const thisWeekKey = getWeekBounds(SERVER_DATE).weekKey;
+      const nextWeekDate = new Date(SERVER_DATE + 'T00:00:00');
+      nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+      const nextWeekKey = getWeekBounds(nextWeekDate.toISOString().slice(0, 10)).weekKey;
+
+      return ALL_RECORDS.filter(r => {
+        if (roleFilterFn && !roleFilterFn(r)) return false;
+
+        if (unit !== 'ALL' && r.unit !== unit) return false;
+        if (st === 'ACTIVE' && (r.status === 'Done' || r.status === 'Canceled')) return false;
+        if (st === 'DONE' && r.status !== 'Done') return false;
+        if (q && !(r.id + r.unit + r.judul + r.domainFscm + r.picProduksi).toLowerCase().includes(q)) return false;
+
+        const hasDate = r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent);
+        if (yr === 'UNSCHEDULED') return !hasDate;
+        if (yr !== 'ALL' && (!hasDate || !r.tglMulaiEvent.startsWith(yr))) return false;
+        if (mo !== 'ALL' && (!hasDate || !r.tglMulaiEvent.startsWith(mo))) return false;
+
+        if (wk === 'THIS_WEEK') return hasDate && getWeekBounds(r.tglMulaiEvent).weekKey === thisWeekKey;
+        if (wk === 'NEXT_WEEK') return hasDate && getWeekBounds(r.tglMulaiEvent).weekKey === nextWeekKey;
+
+        return true;
+      });
+    }
+
+    function buildGroupedHierarchyHtml(records, mode) {
+      if (records.length === 0) {
+        return `<div class="text-center py-8 text-xs text-slate-400 border border-dashed border-slate-300 rounded-xl">Tidak ada data pada antrean ini.</div>`;
+      }
+
+      const thisWeekKey = getWeekBounds(SERVER_DATE).weekKey;
+      const nextWeekDate = new Date(SERVER_DATE + 'T00:00:00');
+      nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+      const nextWeekKey = getWeekBounds(nextWeekDate.toISOString().slice(0, 10)).weekKey;
+
+      const yearMap = new Map();
+      const unscheduled = [];
+
+      records.forEach(r => {
+        if (!r.tglMulaiEvent || !/^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) {
+          unscheduled.push(r);
+          return;
+        }
+        const info = getWeekBounds(r.tglMulaiEvent);
+        if (!yearMap.has(info.year)) yearMap.set(info.year, new Map());
+        const monthMap = yearMap.get(info.year);
+
+        if (!monthMap.has(info.monthKey)) monthMap.set(info.monthKey, { label: info.monthLabel, weeks: new Map() });
+        const weekMap = monthMap.get(info.monthKey).weeks;
+
+        if (!weekMap.has(info.weekKey)) weekMap.set(info.weekKey, { label: info.weekLabel, items: [] });
+        weekMap.get(info.weekKey).items.push(r);
+      });
+
+      let html = '';
+
+      Array.from(yearMap.keys()).sort().forEach(year => {
+        const monthMap = yearMap.get(year);
+        let yearTotal = 0;
+        monthMap.forEach(mObj => mObj.weeks.forEach(wObj => yearTotal += wObj.items.length));
+
+        html += `
+          <div class="border border-slate-300 rounded-2xl overflow-hidden bg-slate-50/50">
+            <div class="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between">
+              <span class="text-sm font-extrabold tracking-wide">TAHUN ${year}</span>
+              <span class="text-xs font-semibold bg-slate-700 px-2.5 py-0.5 rounded-full">${yearTotal} Order</span>
+            </div>
+            <div class="p-3 sm:p-4 space-y-4">
+        `;
+
+        Array.from(monthMap.keys()).sort().forEach(mKey => {
+          const mObj = monthMap.get(mKey);
+          let monthTotal = 0;
+          mObj.weeks.forEach(wObj => monthTotal += wObj.items.length);
+
+          html += `
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+              <div class="bg-blue-50/80 border-b border-blue-100 px-3.5 py-2 flex items-center justify-between">
+                <span class="text-xs sm:text-sm font-extrabold text-blue-950">${mObj.label}</span>
+                <span class="text-[11px] font-bold text-blue-800">${monthTotal} Kegiatan</span>
+              </div>
+              <div class="p-2.5 sm:p-3 space-y-2.5">
+          `;
+
+          Array.from(mObj.weeks.keys()).sort().forEach(wKey => {
+            const wObj = mObj.weeks.get(wKey);
+            wObj.items.sort((a, b) => a.tglMulaiEvent.localeCompare(b.tglMulaiEvent));
+
+            const isThisWeek = (wKey === thisWeekKey);
+            const isNextWeek = (wKey === nextWeekKey);
+            const tagHtml = isThisWeek
+              ? '<span class="ml-2 px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-600 text-white">MINGGU INI</span>'
+              : (isNextWeek ? '<span class="ml-2 px-2 py-0.5 rounded text-[10px] font-extrabold bg-teal-600 text-white">MINGGU DEPAN</span>' : '');
+
+            html += `
+              <details open class="order-week-accordion border ${isThisWeek ? 'border-blue-300' : 'border-slate-200'} rounded-xl overflow-hidden">
+                <summary class="cursor-pointer select-none ${isThisWeek ? 'bg-blue-50/50' : 'bg-slate-50'} hover:bg-slate-100 px-3 py-2 flex items-center justify-between">
+                  <div class="flex items-center flex-wrap gap-1">
+                    <span class="text-xs font-extrabold text-slate-800">▾ ${wObj.label}</span>
+                    ${tagHtml}
+                  </div>
+                  <span class="text-[11px] font-bold text-slate-500">${wObj.items.length} item</span>
+                </summary>
+                <div class="divide-y divide-slate-100 bg-white">
+                  ${wObj.items.map(r => renderOrderItemRow(r, mode)).join('')}
+                </div>
+              </details>
+            `;
+          });
+
+          html += `</div></div>`;
+        });
+
+        html += `</div></div>`;
+      });
+
+      if (unscheduled.length > 0) {
+        html += `
+          <details open class="order-week-accordion border border-amber-300 rounded-xl overflow-hidden bg-white">
+            <summary class="cursor-pointer select-none bg-amber-50 px-4 py-2.5 flex items-center justify-between">
+              <span class="text-xs sm:text-sm font-extrabold text-amber-900">▾ Belum Ada Tanggal Event (Rencana Kuartalan)</span>
+              <span class="text-xs font-bold text-amber-800">${unscheduled.length} item</span>
+            </summary>
+            <div class="divide-y divide-slate-100">
+              ${unscheduled.map(r => renderOrderItemRow(r, mode)).join('')}
+            </div>
+          </details>
+        `;
+      }
+
+      return html;
+    }
+
+    function renderOrderItemRow(r, mode) {
+      const tipeBadge = r.tipeOrder === 'Ad-Hoc'
+        ? '<span class="px-1.5 py-0.5 rounded bg-red-600 text-white font-bold text-[10px]">Ad-Hoc</span>'
+        : '<span class="px-1.5 py-0.5 rounded bg-blue-700 text-white font-bold text-[10px]">Kuartalan</span>';
+
+      const slaClass = (r.kategoriSla || '').includes('KILAT') ? 'bg-red-100 text-red-800'
+        : ((r.kategoriSla || '').includes('PRIORITAS') ? 'bg-amber-100 text-amber-800'
+        : ((r.kategoriSla || '').includes('REGULER') ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'));
+
+      let actionHtml = '';
+      if (mode === 'kepsek') {
+        actionHtml = `<button onclick="openKepsekModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 shrink-0">Tinjau & ACC</button>`;
+      } else if (mode === 'konseptor') {
+        actionHtml = `<button onclick="openKonseptorModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Kurasi VBP</button>`;
+      } else if (mode === 'kasie') {
+        const isFull = (r.cekSlotHarian || '').includes('PENUH');
+        const shiftBtn = (isFull && !(r.kategoriSla || '').includes('KILAT'))
+          ? `<button onclick="triggerAutoShift(${r.rowIndex})" class="px-2.5 py-1.5 rounded-lg bg-amber-600 text-white text-[11px] font-bold hover:bg-amber-700 shrink-0">Shift +1H</button>`
+          : '';
+        actionHtml = `
+          <div class="flex items-center gap-1.5 shrink-0">
+            ${shiftBtn}
+            <button onclick="openKasieModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-700">ACC / Atur</button>
+          </div>
+        `;
+      } else if (mode === 'tim') {
+        actionHtml = `<button onclick="openTeamModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Brief & Setor Hasil</button>`;
+      }
+
+      const prodInfo = (mode === 'tim' || mode === 'kasie') && r.tglMulaiProduksi
+        ? ` • Produksi: <strong class="text-blue-800">${r.tglMulaiProduksi} s/d ${r.deadlineTayang || r.tglMulaiProduksi}</strong>`
+        : '';
+
+      const statusBadgeClass = r.status === 'Menunggu ACC Kepsek'
+        ? 'bg-amber-100 border-amber-300 text-amber-900'
+        : (r.status === 'Revisi Unit' ? 'bg-red-100 border-red-300 text-red-900' : 'bg-slate-100 border-slate-200 text-slate-800');
+
+      return `
+        <div class="p-3 hover:bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="font-extrabold text-xs text-slate-900">${r.id}</span>
+              ${tipeBadge}
+              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-bold text-[11px]">${r.unit}</span>
+              <span class="px-2 py-0.5 rounded font-bold text-[10px] ${slaClass}">${r.kategoriSla || '-'}</span>
+            </div>
+            <div class="text-xs sm:text-sm font-bold text-slate-900">${r.judul}</div>
+            <div class="text-[11px] text-slate-500">
+              Event: <strong class="text-slate-700">${r.tglMulaiEvent || 'Belum ditentukan'}</strong>${prodInfo} • Pemohon: <strong>${r.pemohon || '-'}</strong> • PIC: <strong class="text-slate-800">${r.picProduksi || '-'}</strong>
+            </div>
+          </div>
+          <div class="flex items-center justify-between sm:justify-end gap-2">
+            <span class="px-2.5 py-1 rounded-lg border font-bold text-[11px] ${statusBadgeClass}">${r.status}</span>
+            ${actionHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleAllAccordions(openState) {
+      document.querySelectorAll('.order-week-accordion').forEach(el => { el.open = openState; });
+    }
+
+    function renderAllGroupedViews() {
+      const unitRecs = getFilteredRecords(null);
+      document.getElementById('grouped-unit-container').innerHTML = buildGroupedHierarchyHtml(unitRecs, 'unit');
+
+      // Filter Kepsek
+      const kpUnit = document.getElementById('kp-unit-filter').value;
+      const kepsekPendingAll = ALL_RECORDS.filter(r => r.status === 'Menunggu ACC Kepsek');
+      document.getElementById('kp-pending-count').textContent = kepsekPendingAll.length;
+
+      const kepsekRecs = ALL_RECORDS.filter(r => {
+        if (kpUnit !== 'ALL' && r.unit !== kpUnit) return false;
+        if (KEPSEK_FILTER === 'PENDING') return r.status === 'Menunggu ACC Kepsek';
+        return r.status !== 'Done' && r.status !== 'Canceled';
+      });
+      document.getElementById('grouped-kepsek-container').innerHTML = buildGroupedHierarchyHtml(kepsekRecs, 'kepsek');
+
+      // Filter Konseptor (hanya yang sudah lolos ACC Kepsek)
+      const konseptorRecs = ALL_RECORDS.filter(r => {
+        if (['Menunggu ACC Kepsek', 'Revisi Unit', 'Done', 'Canceled'].includes(r.status)) return false;
+        if (KONSEPTOR_FILTER === 'KILAT') return (r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc';
+        if (KONSEPTOR_FILTER === 'ANTREAN') return ['Antrean Konseptor', 'Draft Plan', 'Revisi VBP'].includes(r.status);
+        return true;
+      });
+      document.getElementById('grouped-konseptor-container').innerHTML = buildGroupedHierarchyHtml(konseptorRecs, 'konseptor');
+
+      // Filter Kasie
+      const kasieRecs = ALL_RECORDS.filter(r => {
+        if (['Menunggu ACC Kepsek', 'Revisi Unit', 'Done', 'Canceled'].includes(r.status)) return false;
+        if (KASIE_FILTER === 'KILAT') return ((r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc');
+        if (KASIE_FILTER === 'ACC') return r.status === 'Menunggu ACC Kasie';
+        if (KASIE_FILTER === 'PROD') return ['Siap Produksi', 'In Progress'].includes(r.status);
+        return true;
+      });
+      document.getElementById('grouped-kasie-container').innerHTML = buildGroupedHierarchyHtml(kasieRecs, 'kasie');
+
+      // Filter Tim Produksi
+      const teamRecs = ALL_RECORDS.filter(r => {
+        if (!['Siap Produksi', 'In Progress', 'Done'].includes(r.status)) return false;
+        if (TEAM_PIC_FILTER === 'ALL') return true;
+        return (r.picProduksi || '').toLowerCase().includes(TEAM_PIC_FILTER.toLowerCase());
+      });
+      document.getElementById('tim-task-count').textContent = teamRecs.length;
+      document.getElementById('tim-view-list').innerHTML = buildGroupedHierarchyHtml(teamRecs, 'tim');
+    }
+
+    function setKepsekFilter(f) {
+      KEPSEK_FILTER = f;
+      document.getElementById('kp-flt-PENDING').className = f === 'PENDING'
+        ? 'kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 text-white'
+        : 'kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700';
+      document.getElementById('kp-flt-ALL').className = f === 'ALL'
+        ? 'kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white'
+        : 'kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700';
+      renderAllGroupedViews();
+    }
+
+    function setKonseptorFilter(f) { KONSEPTOR_FILTER = f; renderAllGroupedViews(); }
+    function setKasieFilter(f) { KASIE_FILTER = f; renderAllGroupedViews(); }
+
+    function setTeamPicFilter(pic) {
+      TEAM_PIC_FILTER = pic;
+      document.querySelectorAll('.pic-btn').forEach(btn => {
+        btn.className = 'pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+      const activeBtn = document.getElementById('pic-btn-' + pic);
+      if (activeBtn) {
+        activeBtn.className = 'pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white';
+      }
+      renderAllGroupedViews();
+    }
+
+    function switchTeamSubView(sub) {
+      document.getElementById('tim-view-list').classList.toggle('hidden', sub !== 'list');
+      document.getElementById('tim-view-calendar').classList.toggle('hidden', sub !== 'calendar');
+      document.getElementById('sub-tim-list').className = sub === 'list'
+        ? 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900'
+        : 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100';
+      document.getElementById('sub-tim-cal').className = sub === 'calendar'
+        ? 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900'
+        : 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100';
+    }
+
+    function updateKPIs() {
+      document.getElementById('kpi-kilat').textContent = ALL_RECORDS.filter(r => (r.kategoriSla || '').includes('KILAT') && r.status !== 'Done').length;
+      document.getElementById('kpi-acc').textContent = ALL_RECORDS.filter(r => r.status === 'Menunggu ACC Kasie').length;
+      document.getElementById('kpi-prod').textContent = ALL_RECORDS.filter(r => ['Siap Produksi', 'In Progress'].includes(r.status)).length;
+      document.getElementById('kpi-done').textContent = ALL_RECORDS.filter(r => r.status === 'Done').length;
+    }
+
+    // =========================================================================
+    // MODALS (KEPSEK, TIM, KONSEPTOR, KASIE)
+    // =========================================================================
+    function openKepsekModal(rowIndex) {
+      const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
+      if (!r) return;
+      document.getElementById('kp-rowIndex').value = r.rowIndex;
+      document.getElementById('kp-badge').textContent = `${r.id} • ${r.tipeOrder} • ${r.kategoriSla}`;
+      document.getElementById('kp-title').textContent = r.judul;
+      document.getElementById('kp-unit-info').textContent = `${r.unit} — PIC: ${r.pemohon} (${r.noHp})`;
+      document.getElementById('kp-pilar-info').textContent = `${r.targetKuartal} • ${r.domainFscm} (${r.subDomainFscm})`;
+      document.getElementById('kp-value-info').textContent = r.valueBukti || '-';
+      document.getElementById('kp-jadwal-info').textContent = `${r.tglMulaiEvent || 'Tanggal belum ditentukan'} | ${r.waktuLokasi || '-'}`;
+      document.getElementById('kp-teknis-info').textContent = `${r.kebutuhan} — ${r.detailTeknis || '-'}`;
+      document.getElementById('kp-catatan').value = '';
+      document.getElementById('modal-kepsek').classList.remove('hidden');
+    }
+
+    async function submitKepsek(decision) {
+      const catatan = document.getElementById('kp-catatan').value.trim();
+      if (decision === 'REVISI' && !catatan) {
+        alert('Tuliskan catatan revisi untuk unit terlebih dahulu.');
+        return;
+      }
+      if (decision === 'TOLAK' && !confirm('Batalkan / tolak pengajuan dari unit ini?')) return;
+
+      try {
+        await callGasPost('saveKepsekApproval', {
+          pin: getSavedPin('kepsek'),
+          payload: {
+            rowIndex: Number(document.getElementById('kp-rowIndex').value),
+            decision: decision,
+            catatanKepsek: catatan
+          }
+        });
+        closeModal('modal-kepsek');
+        await loadData();
+      } catch (err) { alert(err.message); }
+    }
+
+    function openTeamModal(rowIndex) {
+      const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
+      if (!r) return;
+      document.getElementById('mt-rowIndex').value = r.rowIndex;
+      document.getElementById('mt-badge').textContent = `${r.id} • ${r.unit} • ${r.kategoriSla}`;
+      document.getElementById('mt-title').textContent = r.judul;
+      document.getElementById('mt-pic').textContent = r.picProduksi || '-';
+      document.getElementById('mt-prod-date').textContent = `${r.tglMulaiProduksi || r.tglMulaiEvent || '-'} s/d ${r.deadlineTayang || '-'}`;
+      document.getElementById('mt-lokasi').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'}`;
+      document.getElementById('mt-format').textContent = `${r.kebutuhan} (${r.formatChannel || 'Sesuai brief'})`;
+      document.getElementById('mt-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
+      document.getElementById('mt-teknis').textContent = r.detailTeknis || '-';
+      document.getElementById('mt-catatan').textContent = r.catatanKasie || '-';
+
+      const briefWrap = document.getElementById('mt-brief-wrap');
+      briefWrap.innerHTML = r.linkBrief
+        ? `<strong>Link Brief Unit:</strong> <a href="${r.linkBrief}" target="_blank" class="text-blue-700 underline font-bold">Buka Dokumen Brief ↗</a>`
+        : '';
+
+      document.getElementById('mt-status').value = ['Siap Produksi', 'In Progress', 'Done'].includes(r.status) ? r.status : 'In Progress';
+      document.getElementById('mt-link-hasil').value = r.linkHasil || '';
+      document.getElementById('modal-tim').classList.remove('hidden');
+    }
+
+    async function submitTeamProgress() {
+      try {
+        await callGasPost('teamUpdateProgress', {
+          payload: {
+            rowIndex: Number(document.getElementById('mt-rowIndex').value),
+            status: document.getElementById('mt-status').value,
+            linkHasil: document.getElementById('mt-link-hasil').value.trim()
+          }
+        });
+        closeModal('modal-tim');
+        await loadData();
+      } catch (err) { alert(err.message); }
+    }
+
+    function openKonseptorModal(rowIndex) {
+      const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
+      if (!r) return;
+      document.getElementById('mk-rowIndex').value = r.rowIndex;
+      document.getElementById('mk-badge-id').textContent = `${r.id} • ${r.kategoriSla}`;
+      document.getElementById('mk-info-unit').textContent = `${r.unit} (${r.pemohon})`;
+      document.getElementById('mk-info-value').textContent = r.valueBukti || '-';
+      document.getElementById('mk-info-teknis').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
+
+      document.getElementById('mk-domain').value = r.domainFscm || 'Identitas & Panggilan';
+      updateSubDomainOptions('mk-domain', 'mk-subdomain', r.subDomainFscm);
+      document.getElementById('mk-tingkat').value = r.tingkatFocus || 'Kegiatan';
+      document.getElementById('mk-format').value = r.formatChannel || '';
+      document.getElementById('mk-judul').value = r.judul || '';
+      document.getElementById('mk-konsep').value = r.konsepVbp || '';
+      document.getElementById('modal-konseptor').classList.remove('hidden');
+    }
+
+    async function submitKonseptor(nextStatus) {
+      try {
+        await callGasPost('saveConceptData', {
+          pin: getSavedPin('konseptor'),
+          payload: {
+            rowIndex: Number(document.getElementById('mk-rowIndex').value),
+            domainFscm: document.getElementById('mk-domain').value,
+            subDomainFscm: document.getElementById('mk-subdomain').value,
+            tingkatFocus: document.getElementById('mk-tingkat').value,
+            formatChannel: document.getElementById('mk-format').value.trim(),
+            judul: document.getElementById('mk-judul').value.trim(),
+            valueBukti: document.getElementById('mk-info-value').textContent,
+            konsepVbp: document.getElementById('mk-konsep').value.trim(),
+            status: nextStatus
+          }
+        });
+        closeModal('modal-konseptor');
+        await loadData();
+      } catch (err) { alert(err.message); }
+    }
+
+    function openKasieModal(rowIndex) {
+      const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
+      if (!r) return;
+      document.getElementById('ks-rowIndex').value = r.rowIndex;
+      document.getElementById('ks-title').textContent = `[${r.unit}] ${r.judul}`;
+      const b = document.getElementById('ks-badge-sla');
+      b.textContent = `${r.tipeOrder} • ${r.kategoriSla}`;
+      b.className = (r.kategoriSla || '').includes('KILAT')
+        ? 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-red-100 text-red-800'
+        : 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800';
+
+      document.getElementById('ks-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
+      document.getElementById('ks-teknis').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
+
+      const defaultStart = r.tglMulaiProduksi || r.tglMulaiEvent || SERVER_DATE;
+      document.getElementById('ks-tgl-prod').value = defaultStart;
+
+      let defaultDeadline = r.deadlineTayang;
+      if (!defaultDeadline && defaultStart) {
+        const d = new Date(defaultStart + 'T00:00:00');
+        const addDays = (r.kategoriSla || '').includes('KILAT') ? 1 : ((r.kategoriSla || '').includes('PRIORITAS') ? 2 : 4);
+        d.setDate(d.getDate() + addDays);
+        defaultDeadline = d.toISOString().slice(0, 10);
+      }
+      document.getElementById('ks-deadline').value = defaultDeadline || '';
+      document.getElementById('ks-pic').value = r.picProduksi || 'Tim Publikasi';
+      document.getElementById('ks-prioritas').value = r.prioritas || 'Normal';
+      document.getElementById('ks-status').value = ['Siap Produksi', 'In Progress', 'Done', 'Revisi VBP', 'Canceled'].includes(r.status) ? r.status : 'Siap Produksi';
+      document.getElementById('ks-catatan').value = r.catatanKasie || '';
+      document.getElementById('ks-link-hasil').value = r.linkHasil || '';
+      document.getElementById('modal-kasie').classList.remove('hidden');
+    }
+
+    async function submitKasie() {
+      try {
+        await callGasPost('saveKasieApproval', {
+          pin: getSavedPin('kasie'),
+          payload: {
+            rowIndex: Number(document.getElementById('ks-rowIndex').value),
+            tglMulaiProduksi: document.getElementById('ks-tgl-prod').value,
+            deadlineTayang: document.getElementById('ks-deadline').value,
+            picProduksi: document.getElementById('ks-pic').value,
+            prioritas: document.getElementById('ks-prioritas').value,
+            status: document.getElementById('ks-status').value,
+            catatanKasie: document.getElementById('ks-catatan').value.trim(),
+            linkHasil: document.getElementById('ks-link-hasil').value.trim()
+          }
+        });
+        closeModal('modal-kasie');
+        await loadData();
+      } catch (err) { alert(err.message); }
+    }
+
+    async function triggerAutoShift(rowIndex) {
+      if (!confirm('Geser jadwal tugas ini +1 hari?')) return;
+      try {
+        await callGasPost('applyAutoShift', { pin: getSavedPin('kasie'), rowIndex });
+        await loadData();
+      } catch (err) { alert(err.message); }
+    }
+
+    async function triggerSyncAllCalendar() {
+      const btn = document.getElementById('btn-sync-cal');
+      btn.disabled = true;
+      btn.textContent = 'Menyinkronkan...';
+      try {
+        const res = await callGasPost('syncAllToCalendar', { pin: getSavedPin('kasie') });
+        alert(`Selesai! ${res.syncedCount} jadwal aktif berhasil disinkronkan ke Google Calendar.`);
+        await loadData();
+      } catch (err) {
+        alert('Gagal sync kalender: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sync ke Google Calendar';
+      }
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+  </script>
+</body>
+</html>
