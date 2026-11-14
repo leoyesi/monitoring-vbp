@@ -11,7 +11,7 @@
     .tab-active { background-color: #1e3a8a; color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25); }
     .branch-card-active-a { border-color: #1d4ed8; background-color: #eff6ff; box-shadow: 0 4px 14px rgba(29, 78, 216, 0.12); }
     .branch-card-active-b { border-color: #0f766e; background-color: #f0fdfa; box-shadow: 0 4px 14px rgba(15, 118, 110, 0.12); }
-    .loader { border: 3px solid #e2e8f0; border-top: 3px solid #1e3a8a; border-radius: 50%; width: 22px; height: 22px; animation: spin 0.8s linear infinite; }
+    .loader { border: 3px solid #e2e8f0; border-top: 3px solid #1e3a8a; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
@@ -43,10 +43,14 @@
     </div>
   </header>
 
-  <!-- GLOBAL STATUS BAR -->
+  <!-- GLOBAL STATUS / ERROR BANNER -->
   <div id="loading-banner" class="bg-blue-50 border-b border-blue-200 px-4 py-2.5 text-xs text-blue-800 flex items-center justify-center gap-2">
     <div class="loader"></div>
     <span>Menyinkronkan database Master_Konten (31 Kolom) & Aturan SLA...</span>
+  </div>
+  <div id="error-banner" class="hidden bg-red-50 border-b border-red-200 px-4 py-2.5 text-xs text-red-800 flex items-center justify-center gap-2">
+    <span id="error-banner-text" class="font-semibold"></span>
+    <button onclick="loadData()" class="underline font-bold ml-2">Coba Lagi</button>
   </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -337,7 +341,6 @@
     <!-- VIEW 3: PORTAL KASIE PUBLIKASI (PAK YESI — ACC, SLA & KUOTA SLOT)     -->
     <!-- ===================================================================== -->
     <section id="view-kasie" class="hidden space-y-6">
-      <!-- KPI SUMMARY -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl border border-red-200 p-4 shadow-sm">
           <div class="text-xs font-bold text-red-700">SLA Kilat / Ad-Hoc Aktif</div>
@@ -546,12 +549,14 @@
 
   <script>
     // =========================================================================
-    // STATE & REFERENSI 5 DOMAIN FSCM
+    // KONFIGURASI URL GOOGLE APPS SCRIPT WEB APP (/exec)
     // =========================================================================
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzL8R2VZO2HUjOuRYB8dnDjb5dgN1wCIeYDfghb6LO-kijLCo3sKocJGUBLVKd1qyBm/exec';
+
     let ALL_RECORDS = [];
     let SERVER_DATE = new Date().toISOString().slice(0, 10);
-    let CURRENT_BRANCH = 'A'; // 'A' = Rencana Kuartalan | 'B' = Permintaan Teknis / Ad-Hoc
-    let CURRENT_B_MODE = 'B1'; // 'B1' = Update Kuartalan | 'B2' = Ad-Hoc Baru
+    let CURRENT_BRANCH = 'A';
+    let CURRENT_B_MODE = 'B1';
     let KONSEPTOR_FILTER = 'ALL';
     let KASIE_FILTER = 'ALL';
 
@@ -600,23 +605,47 @@
       }
     }
 
-    function loadData() {
-      document.getElementById('loading-banner').classList.remove('hidden');
-      google.script.run
-        .withSuccessHandler(res => {
-          ALL_RECORDS = res.records || [];
-          SERVER_DATE = res.serverDate || SERVER_DATE;
-          document.getElementById('loading-banner').classList.add('hidden');
-          populateUnitPlansDropdown();
-          renderUnitTable();
-          renderKonseptorTable();
-          renderKasieTable();
-        })
-        .withFailureHandler(err => {
-          document.getElementById('loading-banner').classList.add('hidden');
-          alert('Gagal memuat data: ' + err.message);
-        })
-        .getInitialData();
+    // =========================================================================
+    // KOMUNIKASI FETCH KE GOOGLE APPS SCRIPT (GET & POST CORS-SAFE)
+    // =========================================================================
+    async function loadData() {
+      const loadEl = document.getElementById('loading-banner');
+      const errEl = document.getElementById('error-banner');
+      loadEl.classList.remove('hidden');
+      errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL + '?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Gagal membaca data sheet.');
+
+        ALL_RECORDS = data.records || [];
+        SERVER_DATE = data.serverDate || SERVER_DATE;
+        loadEl.classList.add('hidden');
+
+        populateUnitPlansDropdown();
+        renderUnitTable();
+        renderKonseptorTable();
+        renderKasieTable();
+      } catch (err) {
+        loadEl.classList.add('hidden');
+        errEl.classList.remove('hidden');
+        document.getElementById('error-banner-text').textContent =
+          'Gagal terhubung ke Google Sheets (' + err.message + '). Pastikan Apps Script sudah di-deploy dengan akses "Siapa saja".';
+      }
+    }
+
+    async function callGasPost(actionName, extraBody) {
+      const res = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ action: actionName }, extraBody))
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Gagal menyimpan data ke server.');
+      return data;
     }
 
     function switchRole(role) {
@@ -651,7 +680,6 @@
         document.getElementById('box-vbp-fields').classList.remove('hidden');
         document.getElementById('wrap-kuartal').classList.remove('hidden');
 
-        // Teknis opsional di Cabang A
         setTeknisRequired(false);
         btnSubmit.textContent = 'Kirim Rencana Kuartalan (Cabang A)';
         btnSubmit.className = 'px-6 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-sm shadow-md transition';
@@ -771,13 +799,12 @@
       }
     }
 
-    function handleUnitSubmit(e) {
+    async function handleUnitSubmit(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-submit-unit');
       btn.disabled = true;
       btn.textContent = 'Menyimpan ke Master_Konten...';
 
-      // Gabungkan helper studio/alat ke detail teknis jika terisi
       let detTeknis = document.getElementById('u-detail-teknis').value.trim();
       const gladi = document.getElementById('u-studio-gladi').value.trim();
       const alat = document.getElementById('u-studio-alat').value.trim();
@@ -785,84 +812,76 @@
         detTeknis += `\n[Studio/Alat] Gladi/Ambil: ${gladi || '-'} | Kebutuhan: ${alat || '-'}`;
       }
 
-      // CABANG B1: Update baris Rencana Kuartalan yang sudah ada
-      if (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B1') {
-        const rowIndex = Number(document.getElementById('u-existing-plan').value);
-        if (!rowIndex) {
-          alert('Silakan pilih Rencana Kuartalan dari daftar terlebih dahulu.');
-          btn.disabled = false;
-          toggleBMode('B1');
+      try {
+        // CABANG B1: Update baris Rencana Kuartalan yang sudah ada
+        if (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B1') {
+          const rowIndex = Number(document.getElementById('u-existing-plan').value);
+          if (!rowIndex) {
+            alert('Silakan pilih Rencana Kuartalan dari daftar terlebih dahulu.');
+            btn.disabled = false;
+            toggleBMode('B1');
+            return;
+          }
+          const payloadB1 = {
+            rowIndex: rowIndex,
+            pemohon: document.getElementById('u-pemohon').value.trim(),
+            noHp: document.getElementById('u-hp').value.trim(),
+            kebutuhan: document.getElementById('u-kebutuhan').value,
+            tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
+            tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
+            waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
+            linkBrief: document.getElementById('u-link-brief').value.trim(),
+            detailTeknis: detTeknis
+          };
+          const res = await callGasPost('updateUnitTechnicalDetail', { payload: payloadB1 });
+          alert(`Berhasil! Detail teknis untuk ${res.id} diperbarui.\nKategori SLA Aktif: ${res.kategoriSla}\nStatus: ${res.status}`);
+          document.getElementById('form-1pintu').reset();
+          selectBranch('A');
+          await loadData();
           return;
         }
-        const payloadB1 = {
-          rowIndex: rowIndex,
+
+        // CABANG A (Rencana Kuartalan) ATAU CABANG B2 (Ad-Hoc Baru)
+        const isAdHoc = (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B2');
+        const judul = document.getElementById('u-judul').value.trim();
+        if (!judul) {
+          alert('Judul Konten / Nama Kegiatan wajib diisi.');
+          btn.disabled = false;
+          selectBranch(CURRENT_BRANCH);
+          return;
+        }
+
+        const payloadNew = {
+          tipeOrder: isAdHoc ? 'Ad-Hoc' : 'Rencana Kuartalan',
+          unit: document.getElementById('u-unit').value,
           pemohon: document.getElementById('u-pemohon').value.trim(),
           noHp: document.getElementById('u-hp').value.trim(),
+          targetKuartal: document.getElementById('u-kuartal').value,
+          domainFscm: document.getElementById('u-domain').value,
+          subDomainFscm: document.getElementById('u-subdomain').value,
+          tingkatFocus: document.getElementById('u-tingkat').value,
+          judul: judul,
+          valueBukti: document.getElementById('u-value').value.trim(),
           kebutuhan: document.getElementById('u-kebutuhan').value,
           tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
           tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
           waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
           linkBrief: document.getElementById('u-link-brief').value.trim(),
-          detailTeknis: detTeknis
+          detailTeknis: detTeknis,
+          prioritas: isAdHoc ? 'Urgent' : 'Normal'
         };
-        google.script.run
-          .withSuccessHandler(res => {
-            alert(`Berhasil! Detail teknis untuk ${res.id} diperbarui.\nKategori SLA Aktif: ${res.kategoriSla}\nStatus: ${res.status}`);
-            document.getElementById('form-1pintu').reset();
-            selectBranch('A');
-            btn.disabled = false;
-            loadData();
-          })
-          .withFailureHandler(err => {
-            alert('Error: ' + err.message);
-            btn.disabled = false;
-          })
-          .updateUnitTechnicalDetail(payloadB1);
-        return;
-      }
 
-      // CABANG A (Rencana Kuartalan) ATAU CABANG B2 (Ad-Hoc Baru)
-      const isAdHoc = (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B2');
-      const judul = document.getElementById('u-judul').value.trim();
-      if (!judul) {
-        alert('Judul Konten / Nama Kegiatan wajib diisi.');
+        const res = await callGasPost('submitNewRequest', { payload: payloadNew });
+        alert(`Berhasil terkirim! ID: ${res.id}\nJalur: ${payloadNew.tipeOrder}\nKategori SLA: ${res.kategoriSla}`);
+        document.getElementById('form-1pintu').reset();
+        selectBranch('A');
+        await loadData();
+      } catch (err) {
+        alert('Error: ' + err.message);
+        selectBranch(CURRENT_BRANCH);
+      } finally {
         btn.disabled = false;
-        return;
       }
-
-      const payloadNew = {
-        tipeOrder: isAdHoc ? 'Ad-Hoc' : 'Rencana Kuartalan',
-        unit: document.getElementById('u-unit').value,
-        pemohon: document.getElementById('u-pemohon').value.trim(),
-        noHp: document.getElementById('u-hp').value.trim(),
-        targetKuartal: document.getElementById('u-kuartal').value,
-        domainFscm: document.getElementById('u-domain').value,
-        subDomainFscm: document.getElementById('u-subdomain').value,
-        tingkatFocus: document.getElementById('u-tingkat').value,
-        judul: judul,
-        valueBukti: document.getElementById('u-value').value.trim(),
-        kebutuhan: document.getElementById('u-kebutuhan').value,
-        tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
-        tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
-        waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
-        linkBrief: document.getElementById('u-link-brief').value.trim(),
-        detailTeknis: detTeknis,
-        prioritas: isAdHoc ? 'Urgent' : 'Normal'
-      };
-
-      google.script.run
-        .withSuccessHandler(res => {
-          alert(`Berhasil terkirim! ID: ${res.id}\nJalur: ${payloadNew.tipeOrder}\nKategori SLA: ${res.kategoriSla}`);
-          document.getElementById('form-1pintu').reset();
-          selectBranch('A');
-          btn.disabled = false;
-          loadData();
-        })
-        .withFailureHandler(err => {
-          alert('Error: ' + err.message);
-          btn.disabled = false;
-        })
-        .submitNewRequest(payloadNew);
     }
 
     // =========================================================================
@@ -970,7 +989,7 @@
       document.getElementById('modal-konseptor').classList.remove('hidden');
     }
 
-    function submitKonseptor(nextStatus) {
+    async function submitKonseptor(nextStatus) {
       const payload = {
         rowIndex: Number(document.getElementById('mk-rowIndex').value),
         domainFscm: document.getElementById('mk-domain').value,
@@ -982,13 +1001,13 @@
         konsepVbp: document.getElementById('mk-konsep').value.trim(),
         status: nextStatus
       };
-      google.script.run
-        .withSuccessHandler(() => {
-          closeModal('modal-konseptor');
-          loadData();
-        })
-        .withFailureHandler(err => alert(err.message))
-        .saveConceptData(payload);
+      try {
+        await callGasPost('saveConceptData', { payload: payload });
+        closeModal('modal-konseptor');
+        await loadData();
+      } catch (err) {
+        alert(err.message);
+      }
     }
 
     function setKasieFilter(f) {
@@ -997,7 +1016,6 @@
     }
 
     function renderKasieTable() {
-      // Update KPI
       document.getElementById('kpi-kilat').textContent = ALL_RECORDS.filter(r => (r.kategoriSla || '').includes('KILAT') && r.status !== 'Done').length;
       document.getElementById('kpi-acc').textContent = ALL_RECORDS.filter(r => r.status === 'Menunggu ACC Kasie').length;
       document.getElementById('kpi-prod').textContent = ALL_RECORDS.filter(r => ['Siap Produksi', 'In Progress'].includes(r.status)).length;
@@ -1066,7 +1084,6 @@
       document.getElementById('ks-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
       document.getElementById('ks-teknis').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
 
-      // Rekomendasi tanggal produksi otomatis jika belum diisi
       const defaultStart = r.tglMulaiProduksi || r.tglMulaiEvent || SERVER_DATE;
       document.getElementById('ks-tgl-prod').value = defaultStart;
 
@@ -1087,7 +1104,7 @@
       document.getElementById('modal-kasie').classList.remove('hidden');
     }
 
-    function submitKasie() {
+    async function submitKasie() {
       const payload = {
         rowIndex: Number(document.getElementById('ks-rowIndex').value),
         tglMulaiProduksi: document.getElementById('ks-tgl-prod').value,
@@ -1098,21 +1115,23 @@
         catatanKasie: document.getElementById('ks-catatan').value.trim(),
         linkHasil: document.getElementById('ks-link-hasil').value.trim()
       };
-      google.script.run
-        .withSuccessHandler(() => {
-          closeModal('modal-kasie');
-          loadData();
-        })
-        .withFailureHandler(err => alert(err.message))
-        .saveKasieApproval(payload);
+      try {
+        await callGasPost('saveKasieApproval', { payload: payload });
+        closeModal('modal-kasie');
+        await loadData();
+      } catch (err) {
+        alert(err.message);
+      }
     }
 
-    function triggerAutoShift(rowIndex) {
+    async function triggerAutoShift(rowIndex) {
       if (!confirm('Geser jadwal produksi tugas reguler ini +1 hari untuk memberi ruang pada SLA Kilat / Ad-Hoc?')) return;
-      google.script.run
-        .withSuccessHandler(() => loadData())
-        .withFailureHandler(err => alert(err.message))
-        .applyAutoShift(rowIndex);
+      try {
+        await callGasPost('applyAutoShift', { rowIndex: rowIndex });
+        await loadData();
+      } catch (err) {
+        alert(err.message);
+      }
     }
 
     function closeModal(id) {
