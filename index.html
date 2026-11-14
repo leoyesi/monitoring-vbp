@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal VBP & Produksi Publikasi 1-Pintu — Sekolah Athalia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .tab-active { background-color: #1e3a8a; color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25); }
+    .branch-card-active-a { border-color: #1d4ed8; background-color: #eff6ff; box-shadow: 0 4px 14px rgba(29, 78, 216, 0.12); }
+    .branch-card-active-b { border-color: #0f766e; background-color: #f0fdfa; box-shadow: 0 4px 14px rgba(15, 118, 110, 0.12); }
+    .loader { border: 3px solid #e2e8f0; border-top: 3px solid #1e3a8a; border-radius: 50%; width: 22px; height: 22px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP NAVBAR -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-extrabold text-lg shadow-inner">A</div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight">Portal VBP & Publikasi 1-Pintu</h1>
+          <p class="text-xs text-slate-300">Sekolah Athalia • Cabang A (Kuartalan VBP) & Cabang B (Teknis / Ad-Hoc SLA)</p>
+        </div>
+      </div>
+
+      <!-- ROLE / WORKSPACE SWITCHER -->
+      <nav class="flex flex-wrap items-center gap-1.5 bg-slate-800 p-1 rounded-xl">
+        <button onclick="switchRole('unit')" id="nav-unit" class="tab-active px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition">
+          1. Portal Unit (Input 1-Pintu)
+        </button>
+        <button onclick="switchRole('konseptor')" id="nav-konseptor" class="text-slate-300 hover:text-white px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition">
+          2. Konseptor VBP
+        </button>
+        <button onclick="switchRole('kasie')" id="nav-kasie" class="text-slate-300 hover:text-white px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition">
+          3. Kasie Publikasi (ACC & SLA)
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- GLOBAL STATUS BAR -->
+  <div id="loading-banner" class="bg-blue-50 border-b border-blue-200 px-4 py-2.5 text-xs text-blue-800 flex items-center justify-center gap-2">
+    <div class="loader"></div>
+    <span>Menyinkronkan database Master_Konten (31 Kolom) & Aturan SLA...</span>
+  </div>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 1: PORTAL UNIT (1-PINTU: CABANG A & CABANG B)                    -->
+    <!-- ===================================================================== -->
+    <section id="view-unit" class="space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-7">
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+          <div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 mb-1.5">
+              GERBANG INPUT TERPADU UNIT
+            </span>
+            <h2 class="text-xl font-extrabold text-slate-900">Pilih Jalur Pengajuan Konten & Dukungan Publikasi</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Gunakan <strong>Cabang A</strong> untuk perencanaan VBP awal kuartal, atau <strong>Cabang B</strong> untuk kelengkapan teknis menjelang hari-H & permintaan mendadak (Ad-Hoc).</p>
+          </div>
+          <button onclick="loadData()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700">
+            ↻ Refresh Data
+          </button>
+        </div>
+
+        <!-- PILIHAN CABANG A vs CABANG B -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div onclick="selectBranch('A')" id="card-branch-A" class="branch-card-active-a cursor-pointer rounded-xl border-2 p-4 transition">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-700">CABANG A • PERENCANAAN STRATEGIS</span>
+              <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-blue-700 text-white">Rencana Kuartalan (VBP)</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Matriks Program & Value Brand Positioning</h3>
+            <p class="text-xs text-slate-600 mt-1">Diisi di awal kuartal (Q1–Q4). Fokus pada 5 Domain FSCM, Tingkat Focus Area, dan Value/Bukti Nyata. Detail jam & lokasi bisa menyusul via Cabang B.</p>
+          </div>
+
+          <div onclick="selectBranch('B')" id="card-branch-B" class="cursor-pointer rounded-xl border-2 border-slate-200 hover:border-teal-500 p-4 transition">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-teal-700">CABANG B • EKSEKUSI & ATURAN SLA</span>
+              <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-teal-700 text-white">Teknis / Ad-Hoc + SLA</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Permintaan Teknis Lapangan / Studio / Ad-Hoc</h3>
+            <p class="text-xs text-slate-600 mt-1">Untuk melengkapi detail teknis Rencana Kuartalan menjelang hari-H <strong>ATAU</strong> mengajukan permintaan baru/mendadak (Ad-Hoc). Sistem otomatis menerapkan aturan SLA.</p>
+          </div>
+        </div>
+
+        <!-- SUB-MODE KHUSUS CABANG B (B1 vs B2) -->
+        <div id="branch-b-submode" class="hidden bg-teal-50/70 border border-teal-200 rounded-xl p-4 mb-6">
+          <label class="block text-xs font-extrabold uppercase tracking-wider text-teal-900 mb-2">Pilih Jenis Permintaan Cabang B:</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-start gap-3 bg-white p-3 rounded-lg border border-teal-300 cursor-pointer">
+              <input type="radio" name="bMode" value="B1" checked onchange="toggleBMode('B1')" class="mt-1 text-teal-700">
+              <div>
+                <div class="text-sm font-bold text-slate-900">B1. Lengkapi Teknis dari Rencana Kuartalan</div>
+                <div class="text-xs text-slate-500">Pilih program Cabang A yang sudah terdaftar (tanpa duplikasi baris). SLA otomatis dihitung dari H-menuju event.</div>
+              </div>
+            </label>
+            <label class="flex items-start gap-3 bg-white p-3 rounded-lg border border-slate-200 cursor-pointer">
+              <input type="radio" name="bMode" value="B2" onchange="toggleBMode('B2')" class="mt-1 text-teal-700">
+              <div>
+                <div class="text-sm font-bold text-slate-900">B2. Permintaan Baru / Ad-Hoc (Insidental)</div>
+                <div class="text-xs text-slate-500">Order baru di luar matriks kuartalan. Otomatis masuk jalur <strong>SLA Kilat (≤2 Hari / Ad-Hoc)</strong>.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- FORM UTAMA 1-PINTU -->
+        <form id="form-1pintu" onsubmit="handleUnitSubmit(event)" class="space-y-5">
+          <!-- IDENTITAS UNIT & PIC -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Unit Sekolah / Bagian *</label>
+              <select id="u-unit" required onchange="populateUnitPlansDropdown()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600">
+                <option value="">-- Pilih Unit --</option>
+                <option value="KB-TK">KB-TK</option>
+                <option value="SD">SD</option>
+                <option value="SMP">SMP</option>
+                <option value="SMA">SMA</option>
+                <option value="PINUS - PAUD">PINUS - PAUD</option>
+                <option value="PINUS - SD">PINUS - SD</option>
+                <option value="PINUS - PKBM">PINUS - PKBM</option>
+                <option value="PK3">PK3</option>
+                <option value="CHAPLAIN">CHAPLAIN</option>
+                <option value="PENDIDIKAN">PENDIDIKAN</option>
+                <option value="SDM">SDM</option>
+                <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+                <option value="YAYASAN">YAYASAN</option>
+                <option value="All Unit">All Unit</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemohon / PIC Unit *</label>
+              <input type="text" id="u-pemohon" required placeholder="Contoh: Bu Anjar / Pak Heri" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp PIC *</label>
+              <input type="text" id="u-hp" required placeholder="0812xxxxxxxx" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+            </div>
+          </div>
+
+          <!-- KHUSUS CABANG B1: DROPDOWN PILIH RENCANA KUARTALAN EKSISTING -->
+          <div id="box-b1-selector" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <label class="block text-xs font-extrabold text-amber-900 mb-1">Pilih Program Rencana Kuartalan (Cabang A) yang Akan Dilengkapi Teknisnya *</label>
+            <select id="u-existing-plan" onchange="fillFromSelectedPlan()" class="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm font-medium">
+              <option value="">-- Pilih Unit terlebih dahulu di atas --</option>
+            </select>
+            <p id="b1-plan-preview" class="text-xs text-amber-800 mt-1.5"></p>
+          </div>
+
+          <!-- FIELD CABANG A (RENCANA KUARTALAN VBP) & B2 (AD-HOC BARU) -->
+          <div id="box-vbp-fields" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div id="wrap-kuartal">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Target Kuartal *</label>
+                <select id="u-kuartal" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <option value="Q1 (Jul-Sep)">Q1 (Jul - Sep)</option>
+                  <option value="Q2 (Okt-Des)" selected>Q2 (Okt - Des)</option>
+                  <option value="Q3 (Jan-Mar)">Q3 (Jan - Mar)</option>
+                  <option value="Q4 (Apr-Jun)">Q4 (Apr - Jun)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Domain Utama (5 Pilar FSCM) *</label>
+                <select id="u-domain" onchange="updateSubDomainOptions('u-domain', 'u-subdomain')" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <option value="Identitas & Panggilan">1. Identitas & Panggilan</option>
+                  <option value="Keunggulan Akademik & Proses Belajar">2. Keunggulan Akademik & Proses Belajar</option>
+                  <option value="Pengembangan Potensi & Kehidupan Siswa">3. Pengembangan Potensi & Kehidupan Siswa</option>
+                  <option value="Kemitraan Orang Tua & Komunitas">4. Kemitraan Orang Tua & Komunitas</option>
+                  <option value="Tata Kelola, Layanan & Bukti Kualitas">5. Tata Kelola, Layanan & Bukti Kualitas</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Sub-Domain FSCM *</label>
+                <select id="u-subdomain" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Focus Area *</label>
+                <select id="u-tingkat" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <option value="Kegiatan">Kegiatan (Event / Aktivitas)</option>
+                  <option value="Praktik">Praktik (Habituasi / Pembimbingan)</option>
+                  <option value="Gerakan">Gerakan (Kampanye / Aksi Bersama)</option>
+                  <option value="Kebijakan">Kebijakan (Aturan / Sistem Sekolah)</option>
+                  <option value="Prinsip">Prinsip (Nilai Dasar / Filosofi)</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Judul Konten / Nama Kegiatan *</label>
+                <input type="text" id="u-judul" placeholder="Contoh: Kokurikuler SMA: Entrepreneurship Week 2026" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Value / Bukti Nyata yang Ingin Ditonjolkan (Bahan Konseptor VBP) *</label>
+              <textarea id="u-value" rows="2" placeholder="Jelaskan dampak karakter, iman, atau keunggulan belajar siswa yang terlihat nyata dalam program ini..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <!-- FIELD JADWAL & TEKNIS LAPANGAN (OPSIONAL DI CABANG A, WAJIB DI CABANG B) -->
+          <div class="border-t border-slate-200 pt-4 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h4 id="heading-teknis" class="text-sm font-extrabold text-slate-800">Jadwal & Detail Teknis Lapangan (Opsional di Cabang A — Wajib di Cabang B)</h4>
+              <!-- PREVIEW SLA REAL-TIME -->
+              <div id="sla-live-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-300">
+                Estimasi SLA: Menunggu Tanggal Event
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kebutuhan Layanan *</label>
+                <select id="u-kebutuhan" onchange="toggleStudioHelper()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <option value="Liputan/Dokumentasi & Desain/Konten">Liputan/Dokumentasi & Desain/Konten</option>
+                  <option value="Liputan/Dokumentasi">Liputan/Dokumentasi Saja</option>
+                  <option value="Desain/Konten">Desain/Konten Medsos Saja</option>
+                  <option value="Studio / Rekaman">Studio / Rekaman Video-Audio</option>
+                  <option value="Peminjaman Alat">Peminjaman Alat Dokumentasi</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai Event / Tayang <span id="req-tgl-star" class="hidden text-red-600">*</span></label>
+                <input type="date" id="u-tgl-mulai" onchange="recalculateLiveSLA()" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai Event</label>
+                <input type="date" id="u-tgl-selesai" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Jam Pelaksanaan & Lokasi Spesifik <span id="req-lok-star" class="hidden text-red-600">*</span></label>
+                <input type="text" id="u-waktu-lokasi" placeholder="Contoh: 07:30 - 11:00 | Aula Gedung F / Taman Ragunan" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Link Brief / Rundown / Folder Aset (Google Drive)</label>
+                <input type="url" id="u-link-brief" placeholder="https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <!-- HELPER KHUSUS STUDIO / PEMINJAMAN ALAT -->
+            <div id="box-studio-helper" class="hidden bg-indigo-50 border border-indigo-200 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-indigo-900 mb-1">Jadwal Gladi Bersih / Waktu Ambil-Kembali Alat</label>
+                <input type="text" id="u-studio-gladi" placeholder="Contoh: Gladi H-1 jam 13.00 / Ambil alat 07.00" class="w-full rounded-lg border border-indigo-300 bg-white px-3 py-1.5 text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-indigo-900 mb-1">Daftar Alat / Jumlah Peserta Studio / Live-Tapping</label>
+                <input type="text" id="u-studio-alat" placeholder="Contoh: 2 Mic Clip-on, Kamera Sony, Tapping 3 Narasumber" class="w-full rounded-lg border border-indigo-300 bg-white px-3 py-1.5 text-xs">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Detail Teknis Lapangan / Output yang Diminta <span id="req-det-star" class="hidden text-red-600">*</span></label>
+              <textarea id="u-detail-teknis" rows="2" placeholder="Contoh: Mohon liputan foto & video Reels IG, wawancara 2 siswa, dan poster pengumuman H-3..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <p class="text-xs text-slate-500">Data langsung tersimpan ke sheet <strong>Master_Konten</strong> & dipantau oleh Konseptor VBP serta Kasie Publikasi.</p>
+            <button type="submit" id="btn-submit-unit" class="px-6 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-sm shadow-md transition">
+              Kirim Rencana Kuartalan (Cabang A)
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- TABEL MONITORING STATUS PENGAJUAN UNIT -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h3 class="text-base font-extrabold text-slate-900">Daftar Rencana Kuartalan & Order Aktif</h3>
+          <input type="text" id="unit-search" onkeyup="renderUnitTable()" placeholder="Cari judul, ID, atau unit..." class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs w-64">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="p-2.5 font-bold">ID & Jalur</th>
+                <th class="p-2.5 font-bold">Unit & Kuartal</th>
+                <th class="p-2.5 font-bold">Judul & Domain FSCM</th>
+                <th class="p-2.5 font-bold">Tgl Event & SLA</th>
+                <th class="p-2.5 font-bold">Status & PIC</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-unit" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 2: PORTAL KONSEPTOR VBP                                          -->
+    <!-- ===================================================================== -->
+    <section id="view-konseptor" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Meja Kurasi Konseptor VBP (5 Pilar FSCM)</h2>
+            <p class="text-xs text-slate-500">Ramu Value/Bukti Nyata dari Cabang A maupun order mendadak Cabang B menjadi pesan kunci VBP sebelum diajukan ke Kasie.</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="setKonseptorFilter('ALL')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+            <button onclick="setKonseptorFilter('KILAT')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">SLA Kilat / Ad-Hoc</button>
+            <button onclick="setKonseptorFilter('CABANG_A')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Cabang A (Kuartalan)</button>
+            <button onclick="setKonseptorFilter('ANTREAN')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Perlu Dikonsep</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-blue-950 text-white">
+                <th class="p-2.5">ID / Tipe</th>
+                <th class="p-2.5">Unit & Judul</th>
+                <th class="p-2.5">Domain & Focus Area</th>
+                <th class="p-2.5">Kategori SLA</th>
+                <th class="p-2.5">Status</th>
+                <th class="p-2.5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-konseptor" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 3: PORTAL KASIE PUBLIKASI (PAK YESI — ACC, SLA & KUOTA SLOT)     -->
+    <!-- ===================================================================== -->
+    <section id="view-kasie" class="hidden space-y-6">
+      <!-- KPI SUMMARY -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-red-200 p-4 shadow-sm">
+          <div class="text-xs font-bold text-red-700">SLA Kilat / Ad-Hoc Aktif</div>
+          <div id="kpi-kilat" class="text-2xl font-extrabold text-red-900 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-amber-200 p-4 shadow-sm">
+          <div class="text-xs font-bold text-amber-700">Menunggu ACC Kasie</div>
+          <div id="kpi-acc" class="text-2xl font-extrabold text-amber-900 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-blue-200 p-4 shadow-sm">
+          <div class="text-xs font-bold text-blue-700">Siap / In Progress</div>
+          <div id="kpi-prod" class="text-2xl font-extrabold text-blue-900 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-emerald-200 p-4 shadow-sm">
+          <div class="text-xs font-bold text-emerald-700">Selesai (Done)</div>
+          <div id="kpi-done" class="text-2xl font-extrabold text-emerald-900 mt-1">0</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Kendali ACC Kasie, SLA Otomatis & Kuota Slot Harian (Maks. 2/Hari)</h2>
+            <p class="text-xs text-slate-500">Prioritaskan order <strong>SLA KILAT (≤2 Hari / Ad-Hoc)</strong> dan gunakan <strong>Auto-Shift +1H</strong> bila slot harian penuh.</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="setKasieFilter('ALL')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+            <button onclick="setKasieFilter('KILAT')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">SLA Kilat / Ad-Hoc</button>
+            <button onclick="setKasieFilter('ACC')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Menunggu ACC</button>
+            <button onclick="setKasieFilter('PROD')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Sedang Produksi</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-900 text-white">
+                <th class="p-2.5">ID & Jalur</th>
+                <th class="p-2.5">Unit & Judul</th>
+                <th class="p-2.5">Tgl Event & Kategori SLA</th>
+                <th class="p-2.5">Jadwal Produksi & Slot</th>
+                <th class="p-2.5">PIC & Status</th>
+                <th class="p-2.5 text-center">Kendali</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-kasie" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL KONSEPTOR VBP                                                     -->
+  <!-- ======================================================================= -->
+  <div id="modal-konseptor" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="mk-badge-id" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 class="text-lg font-extrabold text-slate-900">Kurasi Pesan Kunci VBP & Format Konten</h3>
+        </div>
+        <button onclick="closeModal('modal-konseptor')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">×</button>
+      </div>
+
+      <input type="hidden" id="mk-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
+        <div><strong>Unit & Pemohon:</strong> <span id="mk-info-unit"></span></div>
+        <div><strong>Value / Bukti Nyata dari Unit:</strong> <span id="mk-info-value" class="text-slate-700"></span></div>
+        <div><strong>Detail Teknis Cabang B:</strong> <span id="mk-info-teknis" class="text-teal-800 font-medium"></span></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Domain FSCM</label>
+          <select id="mk-domain" onchange="updateSubDomainOptions('mk-domain', 'mk-subdomain')" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Identitas & Panggilan">Identitas & Panggilan</option>
+            <option value="Keunggulan Akademik & Proses Belajar">Keunggulan Akademik & Proses Belajar</option>
+            <option value="Pengembangan Potensi & Kehidupan Siswa">Pengembangan Potensi & Kehidupan Siswa</option>
+            <option value="Kemitraan Orang Tua & Komunitas">Kemitraan Orang Tua & Komunitas</option>
+            <option value="Tata Kelola, Layanan & Bukti Kualitas">Tata Kelola, Layanan & Bukti Kualitas</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Sub-Domain FSCM</label>
+          <select id="mk-subdomain" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs"></select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Tingkat Focus Area</label>
+          <select id="mk-tingkat" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Kegiatan">Kegiatan</option>
+            <option value="Praktik">Praktik</option>
+            <option value="Gerakan">Gerakan</option>
+            <option value="Kebijakan">Kebijakan</option>
+            <option value="Prinsip">Prinsip</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Format & Channel Tayang</label>
+          <input type="text" id="mk-format" placeholder="Contoh: Reels IG, Carousel, YouTube" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Judul Konten / Kegiatan</label>
+        <input type="text" id="mk-judul" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Konsep VBP & Pesan Kunci (Angle Narasi)</label>
+        <textarea id="mk-konsep" rows="3" placeholder="Tuliskan pesan utama VBP yang menghubungkan kegiatan dengan karakter/keunggulan Athalia..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="submitKonseptor('Draft Plan')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50">
+          Simpan Draft Plan
+        </button>
+        <button onclick="submitKonseptor('Menunggu ACC Kasie')" class="px-4 py-2 rounded-lg bg-blue-800 text-white text-xs font-bold hover:bg-blue-900">
+          Ajukan ACC Kasie
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL KASIE (PAK YESI — ACC & SLA)                                      -->
+  <!-- ======================================================================= -->
+  <div id="modal-kasie" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="ks-badge-sla" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold"></span>
+          <h3 id="ks-title" class="text-lg font-extrabold text-slate-900 mt-1">ACC & Penjadwalan Produksi</h3>
+        </div>
+        <button onclick="closeModal('modal-kasie')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">×</button>
+      </div>
+
+      <input type="hidden" id="ks-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
+        <div><strong>Konsep VBP:</strong> <span id="ks-konsep"></span></div>
+        <div><strong>Teknis & Waktu Event:</strong> <span id="ks-teknis"></span></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Tanggal Mulai Produksi / Liputan</label>
+          <input type="date" id="ks-tgl-prod" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Deadline Tayang / Selesai</label>
+          <input type="date" id="ks-deadline" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">PIC Produksi</label>
+          <select id="ks-pic" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Yesi">Yesi</option>
+            <option value="Indri">Indri</option>
+            <option value="Dodai">Dodai</option>
+            <option value="Wahyu">Wahyu</option>
+            <option value="Nia">Nia</option>
+            <option value="Magang">Magang</option>
+            <option value="Tim Publikasi">Tim Publikasi</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Prioritas</label>
+          <select id="ks-prioritas" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Normal">Normal</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Status Keputusan</label>
+          <select id="ks-status" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Siap Produksi">ACC - Siap Produksi</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done (Selesai)</option>
+            <option value="Revisi VBP">Kembalikan (Revisi VBP)</option>
+            <option value="Canceled">Canceled</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Catatan Arahan Kasie</label>
+        <input type="text" id="ks-catatan" placeholder="Contoh: ACC - Prioritaskan liputan utama, geser jadwal reguler" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Link Hasil Tayang / Dokumentasi (Isi saat Done)</label>
+        <input type="url" id="ks-link-hasil" placeholder="https://..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-kasie')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700">Batal</button>
+        <button onclick="submitKasie()" class="px-5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Simpan Keputusan Kasie</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // STATE & REFERENSI 5 DOMAIN FSCM
+    // =========================================================================
+    let ALL_RECORDS = [];
+    let SERVER_DATE = new Date().toISOString().slice(0, 10);
+    let CURRENT_BRANCH = 'A'; // 'A' = Rencana Kuartalan | 'B' = Permintaan Teknis / Ad-Hoc
+    let CURRENT_B_MODE = 'B1'; // 'B1' = Update Kuartalan | 'B2' = Ad-Hoc Baru
+    let KONSEPTOR_FILTER = 'ALL';
+    let KASIE_FILTER = 'ALL';
+
+    const FSCM_SUBDOMAINS = {
+      "Identitas & Panggilan": [
+        "Identitas Kristiani",
+        "Visi Pembentukan Seutuhnya",
+        "Budaya Kasih & Rasa Memiliki"
+      ],
+      "Keunggulan Akademik & Proses Belajar": [
+        "Pembelajaran Aktif & Bermakna",
+        "Kompetensi Masa Depan",
+        "Pendampingan Belajar Individual"
+      ],
+      "Pengembangan Potensi & Kehidupan Siswa": [
+        "Minat, Bakat & Ekstrakurikuler",
+        "Kepemimpinan & Tanggung Jawab",
+        "Kesehatan Mental & Kesejahteraan Siswa"
+      ],
+      "Kemitraan Orang Tua & Komunitas": [
+        "Sinergi Sekolah & Keluarga",
+        "Keterbukaan & Komunikasi",
+        "Kepercayaan & Kesaksian Nyata"
+      ],
+      "Tata Kelola, Layanan & Bukti Kualitas": [
+        "Profesionalisme Guru & Staf",
+        "Fasilitas & Lingkungan Aman",
+        "Rekam Jejak & Dampak Lulusan"
+      ]
+    };
+
+    window.onload = function() {
+      updateSubDomainOptions('u-domain', 'u-subdomain');
+      updateSubDomainOptions('mk-domain', 'mk-subdomain');
+      selectBranch('A');
+      loadData();
+    };
+
+    function updateSubDomainOptions(domainSelectId, subSelectId, selectedVal) {
+      const dom = document.getElementById(domainSelectId).value;
+      const subEl = document.getElementById(subSelectId);
+      const list = FSCM_SUBDOMAINS[dom] || [];
+      subEl.innerHTML = list.map(s => `<option value="${s}">${s}</option>`).join('');
+      if (selectedVal && list.includes(selectedVal)) {
+        subEl.value = selectedVal;
+      }
+    }
+
+    function loadData() {
+      document.getElementById('loading-banner').classList.remove('hidden');
+      google.script.run
+        .withSuccessHandler(res => {
+          ALL_RECORDS = res.records || [];
+          SERVER_DATE = res.serverDate || SERVER_DATE;
+          document.getElementById('loading-banner').classList.add('hidden');
+          populateUnitPlansDropdown();
+          renderUnitTable();
+          renderKonseptorTable();
+          renderKasieTable();
+        })
+        .withFailureHandler(err => {
+          document.getElementById('loading-banner').classList.add('hidden');
+          alert('Gagal memuat data: ' + err.message);
+        })
+        .getInitialData();
+    }
+
+    function switchRole(role) {
+      ['unit', 'konseptor', 'kasie'].forEach(r => {
+        document.getElementById('view-' + r).classList.toggle('hidden', r !== role);
+        const btn = document.getElementById('nav-' + r);
+        if (r === role) {
+          btn.classList.add('tab-active');
+          btn.classList.remove('text-slate-300');
+        } else {
+          btn.classList.remove('tab-active');
+          btn.classList.add('text-slate-300');
+        }
+      });
+    }
+
+    // =========================================================================
+    // LOGIKA CABANG A vs CABANG B (B1 & B2) + KALKULATOR SLA REAL-TIME
+    // =========================================================================
+    function selectBranch(branch) {
+      CURRENT_BRANCH = branch;
+      const cardA = document.getElementById('card-branch-A');
+      const cardB = document.getElementById('card-branch-B');
+      const subB = document.getElementById('branch-b-submode');
+      const btnSubmit = document.getElementById('btn-submit-unit');
+
+      if (branch === 'A') {
+        cardA.className = 'branch-card-active-a cursor-pointer rounded-xl border-2 p-4 transition';
+        cardB.className = 'cursor-pointer rounded-xl border-2 border-slate-200 hover:border-teal-500 p-4 transition';
+        subB.classList.add('hidden');
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('box-vbp-fields').classList.remove('hidden');
+        document.getElementById('wrap-kuartal').classList.remove('hidden');
+
+        // Teknis opsional di Cabang A
+        setTeknisRequired(false);
+        btnSubmit.textContent = 'Kirim Rencana Kuartalan (Cabang A)';
+        btnSubmit.className = 'px-6 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-sm shadow-md transition';
+      } else {
+        cardB.className = 'branch-card-active-b cursor-pointer rounded-xl border-2 p-4 transition';
+        cardA.className = 'cursor-pointer rounded-xl border-2 border-slate-200 hover:border-blue-500 p-4 transition';
+        subB.classList.remove('hidden');
+        toggleBMode(CURRENT_B_MODE);
+      }
+      recalculateLiveSLA();
+    }
+
+    function toggleBMode(mode) {
+      CURRENT_B_MODE = mode;
+      const btnSubmit = document.getElementById('btn-submit-unit');
+      setTeknisRequired(true);
+
+      if (mode === 'B1') {
+        document.getElementById('box-b1-selector').classList.remove('hidden');
+        document.getElementById('box-vbp-fields').classList.add('hidden');
+        populateUnitPlansDropdown();
+        btnSubmit.textContent = 'Simpan Detail Teknis & Terapkan SLA (Cabang B1)';
+        btnSubmit.className = 'px-6 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow-md transition';
+      } else {
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('box-vbp-fields').classList.remove('hidden');
+        document.getElementById('wrap-kuartal').classList.add('hidden');
+        btnSubmit.textContent = 'Kirim Permintaan Ad-Hoc / SLA Kilat (Cabang B2)';
+        btnSubmit.className = 'px-6 py-2.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-sm shadow-md transition';
+      }
+      recalculateLiveSLA();
+    }
+
+    function setTeknisRequired(isReq) {
+      ['req-tgl-star', 'req-lok-star', 'req-det-star'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', !isReq);
+      });
+      document.getElementById('u-tgl-mulai').required = isReq;
+      document.getElementById('u-waktu-lokasi').required = isReq;
+      document.getElementById('u-detail-teknis').required = isReq;
+    }
+
+    function toggleStudioHelper() {
+      const keb = document.getElementById('u-kebutuhan').value;
+      const show = (keb === 'Studio / Rekaman' || keb === 'Peminjaman Alat');
+      document.getElementById('box-studio-helper').classList.toggle('hidden', !show);
+    }
+
+    function populateUnitPlansDropdown() {
+      const unit = document.getElementById('u-unit').value;
+      const sel = document.getElementById('u-existing-plan');
+      if (!unit) {
+        sel.innerHTML = '<option value="">-- Pilih Unit terlebih dahulu di atas --</option>';
+        return;
+      }
+      const plans = ALL_RECORDS.filter(r =>
+        r.unit === unit &&
+        r.tipeOrder === 'Rencana Kuartalan' &&
+        r.status !== 'Done' &&
+        r.status !== 'Canceled'
+      );
+      if (plans.length === 0) {
+        sel.innerHTML = '<option value="">(Tidak ada Rencana Kuartalan aktif untuk unit ini — gunakan B2 Ad-Hoc)</option>';
+        return;
+      }
+      sel.innerHTML = '<option value="">-- Pilih Rencana Kuartalan (' + plans.length + ' tersedia) --</option>' +
+        plans.map(p => `<option value="${p.rowIndex}">[${p.id}] ${p.judul} (${p.targetKuartal})</option>`).join('');
+    }
+
+    function fillFromSelectedPlan() {
+      const rowIdx = Number(document.getElementById('u-existing-plan').value);
+      const item = ALL_RECORDS.find(r => r.rowIndex === rowIdx);
+      const prev = document.getElementById('b1-plan-preview');
+      if (!item) {
+        prev.textContent = '';
+        return;
+      }
+      prev.textContent = `Domain: ${item.domainFscm} (${item.subDomainFscm}) | Value VBP: ${item.valueBukti}`;
+      if (item.tglMulaiEvent) document.getElementById('u-tgl-mulai').value = item.tglMulaiEvent;
+      if (item.tglSelesaiEvent) document.getElementById('u-tgl-selesai').value = item.tglSelesaiEvent;
+      if (item.waktuLokasi) document.getElementById('u-waktu-lokasi').value = item.waktuLokasi;
+      if (item.kebutuhan) document.getElementById('u-kebutuhan').value = item.kebutuhan;
+      recalculateLiveSLA();
+    }
+
+    function recalculateLiveSLA() {
+      const badge = document.getElementById('sla-live-badge');
+      const tglStr = document.getElementById('u-tgl-mulai').value;
+
+      if (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B2') {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800 border border-red-300';
+        badge.textContent = 'Aturan Aktif: SLA KILAT (≤2 Hari / Ad-Hoc • Maks. 1x24 Jam / 2 Hari Kerja)';
+        return;
+      }
+
+      if (!tglStr) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-300';
+        badge.textContent = CURRENT_BRANCH === 'A'
+          ? 'Cabang A: Terjadwal Kuartalan (SLA dihitung saat Tgl Event diisi)'
+          : 'Estimasi SLA: Isi Tanggal Event untuk cek SLA';
+        return;
+      }
+
+      const today = new Date(SERVER_DATE + 'T00:00:00');
+      const evDate = new Date(tglStr + 'T00:00:00');
+      const diffDays = Math.round((evDate - today) / 86400000);
+
+      if (diffDays <= 2) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800 border border-red-300';
+        badge.textContent = `H-${Math.max(0, diffDays)}: SLA KILAT (≤2 Hari / Ad-Hoc)`;
+      } else if (diffDays <= 7) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300';
+        badge.textContent = `H-${diffDays}: SLA PRIORITAS (3–7 Hari)`;
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        badge.textContent = `H-${diffDays}: SLA REGULER (>7 Hari)`;
+      }
+    }
+
+    function handleUnitSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-unit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan ke Master_Konten...';
+
+      // Gabungkan helper studio/alat ke detail teknis jika terisi
+      let detTeknis = document.getElementById('u-detail-teknis').value.trim();
+      const gladi = document.getElementById('u-studio-gladi').value.trim();
+      const alat = document.getElementById('u-studio-alat').value.trim();
+      if (gladi || alat) {
+        detTeknis += `\n[Studio/Alat] Gladi/Ambil: ${gladi || '-'} | Kebutuhan: ${alat || '-'}`;
+      }
+
+      // CABANG B1: Update baris Rencana Kuartalan yang sudah ada
+      if (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B1') {
+        const rowIndex = Number(document.getElementById('u-existing-plan').value);
+        if (!rowIndex) {
+          alert('Silakan pilih Rencana Kuartalan dari daftar terlebih dahulu.');
+          btn.disabled = false;
+          toggleBMode('B1');
+          return;
+        }
+        const payloadB1 = {
+          rowIndex: rowIndex,
+          pemohon: document.getElementById('u-pemohon').value.trim(),
+          noHp: document.getElementById('u-hp').value.trim(),
+          kebutuhan: document.getElementById('u-kebutuhan').value,
+          tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
+          tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
+          waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
+          linkBrief: document.getElementById('u-link-brief').value.trim(),
+          detailTeknis: detTeknis
+        };
+        google.script.run
+          .withSuccessHandler(res => {
+            alert(`Berhasil! Detail teknis untuk ${res.id} diperbarui.\nKategori SLA Aktif: ${res.kategoriSla}\nStatus: ${res.status}`);
+            document.getElementById('form-1pintu').reset();
+            selectBranch('A');
+            btn.disabled = false;
+            loadData();
+          })
+          .withFailureHandler(err => {
+            alert('Error: ' + err.message);
+            btn.disabled = false;
+          })
+          .updateUnitTechnicalDetail(payloadB1);
+        return;
+      }
+
+      // CABANG A (Rencana Kuartalan) ATAU CABANG B2 (Ad-Hoc Baru)
+      const isAdHoc = (CURRENT_BRANCH === 'B' && CURRENT_B_MODE === 'B2');
+      const judul = document.getElementById('u-judul').value.trim();
+      if (!judul) {
+        alert('Judul Konten / Nama Kegiatan wajib diisi.');
+        btn.disabled = false;
+        return;
+      }
+
+      const payloadNew = {
+        tipeOrder: isAdHoc ? 'Ad-Hoc' : 'Rencana Kuartalan',
+        unit: document.getElementById('u-unit').value,
+        pemohon: document.getElementById('u-pemohon').value.trim(),
+        noHp: document.getElementById('u-hp').value.trim(),
+        targetKuartal: document.getElementById('u-kuartal').value,
+        domainFscm: document.getElementById('u-domain').value,
+        subDomainFscm: document.getElementById('u-subdomain').value,
+        tingkatFocus: document.getElementById('u-tingkat').value,
+        judul: judul,
+        valueBukti: document.getElementById('u-value').value.trim(),
+        kebutuhan: document.getElementById('u-kebutuhan').value,
+        tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
+        tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
+        waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
+        linkBrief: document.getElementById('u-link-brief').value.trim(),
+        detailTeknis: detTeknis,
+        prioritas: isAdHoc ? 'Urgent' : 'Normal'
+      };
+
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(`Berhasil terkirim! ID: ${res.id}\nJalur: ${payloadNew.tipeOrder}\nKategori SLA: ${res.kategoriSla}`);
+          document.getElementById('form-1pintu').reset();
+          selectBranch('A');
+          btn.disabled = false;
+          loadData();
+        })
+        .withFailureHandler(err => {
+          alert('Error: ' + err.message);
+          btn.disabled = false;
+        })
+        .submitNewRequest(payloadNew);
+    }
+
+    // =========================================================================
+    // RENDER TABEL UNIT, KONSEPTOR & KASIE
+    // =========================================================================
+    function slaBadgeHtml(sla) {
+      if (!sla) return '<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600">-</span>';
+      if (sla.includes('KILAT')) return `<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 font-bold">${sla}</span>`;
+      if (sla.includes('PRIORITAS')) return `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">${sla}</span>`;
+      if (sla.includes('REGULER')) return `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${sla}</span>`;
+      return `<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">${sla}</span>`;
+    }
+
+    function tipeBadgeHtml(tipe) {
+      return tipe === 'Ad-Hoc'
+        ? '<span class="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[10px]">Cabang B: Ad-Hoc</span>'
+        : '<span class="px-2 py-0.5 rounded bg-blue-700 text-white font-bold text-[10px]">Cabang A: Kuartalan</span>';
+    }
+
+    function renderUnitTable() {
+      const q = (document.getElementById('unit-search').value || '').toLowerCase();
+      const filtered = ALL_RECORDS.filter(r =>
+        (r.id + r.unit + r.judul + r.domainFscm).toLowerCase().includes(q)
+      );
+      document.getElementById('tbody-unit').innerHTML = filtered.map(r => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2.5 align-top">
+            <div class="font-bold text-slate-900">${r.id}</div>
+            <div class="mt-1">${tipeBadgeHtml(r.tipeOrder)}</div>
+          </td>
+          <td class="p-2.5 align-top">
+            <div class="font-bold text-slate-800">${r.unit}</div>
+            <div class="text-slate-500">${r.targetKuartal}</div>
+          </td>
+          <td class="p-2.5 align-top">
+            <div class="font-bold text-slate-900">${r.judul}</div>
+            <div class="text-slate-500">${r.domainFscm} • <em>${r.tingkatFocus}</em></div>
+          </td>
+          <td class="p-2.5 align-top">
+            <div class="font-medium">${r.tglMulaiEvent || 'Belum ada tgl'}</div>
+            <div class="mt-1">${slaBadgeHtml(r.kategoriSla)}</div>
+          </td>
+          <td class="p-2.5 align-top">
+            <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-bold">${r.status}</span>
+            <div class="text-slate-500 mt-1">PIC: ${r.picProduksi || '-'}</div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function setKonseptorFilter(f) {
+      KONSEPTOR_FILTER = f;
+      renderKonseptorTable();
+    }
+
+    function renderKonseptorTable() {
+      const list = ALL_RECORDS.filter(r => {
+        if (KONSEPTOR_FILTER === 'KILAT') return (r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc';
+        if (KONSEPTOR_FILTER === 'CABANG_A') return r.tipeOrder === 'Rencana Kuartalan';
+        if (KONSEPTOR_FILTER === 'ANTREAN') return ['Antrean Konseptor', 'Draft Plan', 'Revisi VBP'].includes(r.status);
+        return true;
+      });
+
+      document.getElementById('tbody-konseptor').innerHTML = list.map(r => `
+        <tr class="hover:bg-blue-50/40">
+          <td class="p-2.5 align-top">
+            <div class="font-bold">${r.id}</div>
+            <div class="mt-1">${tipeBadgeHtml(r.tipeOrder)}</div>
+          </td>
+          <td class="p-2.5 align-top">
+            <span class="font-bold text-blue-800">${r.unit}</span> — <span class="font-bold text-slate-900">${r.judul}</span>
+            <p class="text-slate-500 mt-0.5 line-clamp-2">${r.valueBukti || '-'}</p>
+          </td>
+          <td class="p-2.5 align-top">
+            <div class="font-semibold">${r.domainFscm}</div>
+            <div class="text-slate-500">${r.subDomainFscm} (${r.tingkatFocus})</div>
+          </td>
+          <td class="p-2.5 align-top">${slaBadgeHtml(r.kategoriSla)}</td>
+          <td class="p-2.5 align-top"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold">${r.status}</span></td>
+          <td class="p-2.5 align-top text-center">
+            <button onclick="openKonseptorModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-800 text-white font-bold hover:bg-blue-900">
+              Kurasi VBP
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openKonseptorModal(rowIndex) {
+      const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
+      if (!r) return;
+      document.getElementById('mk-rowIndex').value = r.rowIndex;
+      document.getElementById('mk-badge-id').textContent = `${r.id} • ${r.tipeOrder} • ${r.kategoriSla}`;
+      document.getElementById('mk-info-unit').textContent = `${r.unit} (${r.pemohon})`;
+      document.getElementById('mk-info-value').textContent = r.valueBukti || '-';
+      document.getElementById('mk-info-teknis').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
+
+      document.getElementById('mk-domain').value = r.domainFscm || 'Identitas & Panggilan';
+      updateSubDomainOptions('mk-domain', 'mk-subdomain', r.subDomainFscm);
+      document.getElementById('mk-tingkat').value = r.tingkatFocus || 'Kegiatan';
+      document.getElementById('mk-format').value = r.formatChannel || '';
+      document.getElementById('mk-judul').value = r.judul || '';
+      document.getElementById('mk-konsep').value = r.konsepVbp || '';
+
+      document.getElementById('modal-konseptor').classList.remove('hidden');
+    }
+
+    function submitKonseptor(nextStatus) {
+      const payload = {
+        rowIndex: Number(document.getElementById('mk-rowIndex').value),
+        domainFscm: document.getElementById('mk-domain').value,
+        subDomainFscm: document.getElementById('mk-subdomain').value,
+        tingkatFocus: document.getElementById('mk-tingkat').value,
+        formatChannel: document.getElementById('mk-format').value.trim(),
+        judul: document.getElementById('mk-judul').value.trim(),
+        valueBukti: document.getElementById('mk-info-value').textContent,
+        konsepVbp: document.getElementById('mk-konsep').value.trim(),
+        status: nextStatus
+      };
+      google.script.run
+        .withSuccessHandler(() => {
+          closeModal('modal-konseptor');
+          loadData();
+        })
+        .withFailureHandler(err => alert(err.message))
+        .saveConceptData(payload);
+    }
+
+    function setKasieFilter(f) {
+      KASIE_FILTER = f;
+      renderKasieTable();
+    }
+
+    function renderKasieTable() {
+      // Update KPI
+      document.getElementById('kpi-kilat').textContent = ALL_RECORDS.filter(r => (r.kategoriSla || '').includes('KILAT') && r.status !== 'Done').length;
+      document.getElementById('kpi-acc').textContent = ALL_RECORDS.filter(r => r.status === 'Menunggu ACC Kasie').length;
+      document.getElementById('kpi-prod').textContent = ALL_RECORDS.filter(r => ['Siap Produksi', 'In Progress'].includes(r.status)).length;
+      document.getElementById('kpi-done').textContent = ALL_RECORDS.filter(r => r.status === 'Done').length;
+
+      const list = ALL_RECORDS.filter(r => {
+        if (KASIE_FILTER === 'KILAT') return (r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc';
+        if (KASIE_FILTER === 'ACC') return r.status === 'Menunggu ACC Kasie';
+        if (KASIE_FILTER === 'PROD') return ['Siap Produksi', 'In Progress'].includes(r.status);
+        return true;
+      });
+
+      document.getElementById('tbody-kasie').innerHTML = list.map(r => {
+        const isFull = (r.cekSlotHarian || '').includes('PENUH');
+        const slotHtml = r.cekSlotHarian && r.cekSlotHarian !== '-'
+          ? `<span class="px-2 py-0.5 rounded font-bold ${isFull ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">${r.cekSlotHarian}</span>`
+          : '<span class="text-slate-400">-</span>';
+
+        const shiftBtn = (isFull && !(r.kategoriSla || '').includes('KILAT'))
+          ? `<button onclick="triggerAutoShift(${r.rowIndex})" class="mt-1 px-2 py-1 rounded bg-amber-600 text-white font-bold text-[10px] hover:bg-amber-700">Auto-Shift +1H</button>`
+          : '';
+
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-2.5 align-top">
+              <div class="font-bold">${r.id}</div>
+              <div class="mt-1">${tipeBadgeHtml(r.tipeOrder)}</div>
+            </td>
+            <td class="p-2.5 align-top">
+              <div class="font-bold text-slate-900">[${r.unit}] ${r.judul}</div>
+              <div class="text-slate-500 mt-0.5">${r.kebutuhan}</div>
+            </td>
+            <td class="p-2.5 align-top">
+              <div class="font-semibold">Event: ${r.tglMulaiEvent || '-'}</div>
+              <div class="mt-1">${slaBadgeHtml(r.kategoriSla)}</div>
+            </td>
+            <td class="p-2.5 align-top">
+              <div>Prod: ${r.tglMulaiProduksi || '-'} → ${r.deadlineTayang || '-'}</div>
+              <div class="mt-1">${slotHtml} ${shiftBtn}</div>
+            </td>
+            <td class="p-2.5 align-top">
+              <div class="font-bold text-slate-800">${r.picProduksi || '-'}</div>
+              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-bold">${r.status}</span>
+            </td>
+            <td class="p-2.5 align-top text-center">
+              <button onclick="openKasieModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-700">
+                ACC / Atur
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openKasieModal(rowIndex) {
+      const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
+      if (!r) return;
+      document.getElementById('ks-rowIndex').value = r.rowIndex;
+      document.getElementById('ks-title').textContent = `[${r.unit}] ${r.judul}`;
+      const b = document.getElementById('ks-badge-sla');
+      b.textContent = `${r.tipeOrder} • ${r.kategoriSla}`;
+      b.className = (r.kategoriSla || '').includes('KILAT')
+        ? 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-red-100 text-red-800'
+        : 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800';
+
+      document.getElementById('ks-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
+      document.getElementById('ks-teknis').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
+
+      // Rekomendasi tanggal produksi otomatis jika belum diisi
+      const defaultStart = r.tglMulaiProduksi || r.tglMulaiEvent || SERVER_DATE;
+      document.getElementById('ks-tgl-prod').value = defaultStart;
+
+      let defaultDeadline = r.deadlineTayang;
+      if (!defaultDeadline && defaultStart) {
+        const d = new Date(defaultStart + 'T00:00:00');
+        const addDays = (r.kategoriSla || '').includes('KILAT') ? 1 : ((r.kategoriSla || '').includes('PRIORITAS') ? 2 : 4);
+        d.setDate(d.getDate() + addDays);
+        defaultDeadline = d.toISOString().slice(0, 10);
+      }
+      document.getElementById('ks-deadline').value = defaultDeadline || '';
+      document.getElementById('ks-pic').value = r.picProduksi || 'Tim Publikasi';
+      document.getElementById('ks-prioritas').value = r.prioritas || 'Normal';
+      document.getElementById('ks-status').value = ['Siap Produksi', 'In Progress', 'Done', 'Revisi VBP', 'Canceled'].includes(r.status) ? r.status : 'Siap Produksi';
+      document.getElementById('ks-catatan').value = r.catatanKasie || '';
+      document.getElementById('ks-link-hasil').value = r.linkHasil || '';
+
+      document.getElementById('modal-kasie').classList.remove('hidden');
+    }
+
+    function submitKasie() {
+      const payload = {
+        rowIndex: Number(document.getElementById('ks-rowIndex').value),
+        tglMulaiProduksi: document.getElementById('ks-tgl-prod').value,
+        deadlineTayang: document.getElementById('ks-deadline').value,
+        picProduksi: document.getElementById('ks-pic').value,
+        prioritas: document.getElementById('ks-prioritas').value,
+        status: document.getElementById('ks-status').value,
+        catatanKasie: document.getElementById('ks-catatan').value.trim(),
+        linkHasil: document.getElementById('ks-link-hasil').value.trim()
+      };
+      google.script.run
+        .withSuccessHandler(() => {
+          closeModal('modal-kasie');
+          loadData();
+        })
+        .withFailureHandler(err => alert(err.message))
+        .saveKasieApproval(payload);
+    }
+
+    function triggerAutoShift(rowIndex) {
+      if (!confirm('Geser jadwal produksi tugas reguler ini +1 hari untuk memberi ruang pada SLA Kilat / Ad-Hoc?')) return;
+      google.script.run
+        .withSuccessHandler(() => loadData())
+        .withFailureHandler(err => alert(err.message))
+        .applyAutoShift(rowIndex);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
