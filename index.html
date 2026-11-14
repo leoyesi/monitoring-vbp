@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Workflow Konten & Produksi Sekolah</title>
+  <title>Monitoring VBP & Produksi Konten — Sekolah Athalia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -15,7 +15,7 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen antialiased">
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden max-w-sm bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all"></div>
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden max-w-sm bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium"></div>
 
   <!-- LOADING OVERLAY -->
   <div id="loader" class="fixed inset-0 bg-slate-900/20 backdrop-blur-[1px] z-40 hidden items-center justify-center">
@@ -39,10 +39,10 @@
       </div>
 
       <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t">
-        <button onclick="closeConflictModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">
+        <button type="button" onclick="closeConflictModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">
           Batal & Ubah Tanggal
         </button>
-        <button onclick="confirmOverrideKasie()" class="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-xs">
+        <button type="button" onclick="confirmOverrideKasie()" class="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-xs">
           Opsi 2: Override Darurat (Paksa Masuk)
         </button>
       </div>
@@ -58,7 +58,7 @@
       <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Portal Konten Sekolah</h1>
       <p class="text-sm text-slate-500 mt-1 mb-6">Masukkan PIN divisi untuk membuka ruang kerja Anda.</p>
 
-      <form onsubmit="event.preventDefault(); login();">
+      <form id="loginForm">
         <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">PIN Akses</label>
         <input id="pinInput" type="password" inputmode="numeric" placeholder="••••" required
           class="w-full px-4 py-3.5 text-center text-xl tracking-[0.4em] font-bold border border-slate-300 rounded-2xl mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
@@ -73,47 +73,43 @@
 
   <!-- MAIN WORKSPACE -->
   <div id="appBox" class="hidden max-w-7xl mx-auto p-4 md:p-8 fade-in">
-    <!-- TOP NAVBAR -->
     <header class="bg-white px-6 py-4 rounded-2xl shadow-xs border border-slate-200/80 mb-6 flex flex-wrap justify-between items-center gap-4">
       <div class="flex items-center gap-3.5">
         <div id="roleDot" class="w-3 h-10 rounded-full bg-indigo-600"></div>
         <div>
           <div class="flex items-center gap-2">
             <span id="roleBadge" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700"></span>
-            <span class="text-xs text-slate-400">• Single Source Workflow</span>
+            <span class="text-xs text-slate-400">• Publikasi Athalia</span>
           </div>
           <h2 id="workspaceTitle" class="text-lg md:text-xl font-extrabold text-slate-900 mt-0.5"></h2>
         </div>
       </div>
       <div class="flex items-center gap-2.5">
-        <button onclick="loadTasks()" class="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition">
+        <button type="button" onclick="loadTasks()" class="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition">
           ↻ Refresh
         </button>
-        <button onclick="logout()" class="px-4 py-2 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition">
+        <button type="button" onclick="logout()" class="px-4 py-2 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition">
           Keluar
         </button>
       </div>
     </header>
 
-    <!-- ==================== VIEW 1: KEPALA SEKOLAH ==================== -->
+    <!-- VIEW 1: KEPALA SEKOLAH -->
     <section id="view-kepsek" class="hidden grid lg:grid-cols-12 gap-6">
       <div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 h-fit">
         <h3 class="font-extrabold text-base text-slate-900 mb-1">Input Kebutuhan Konten</h3>
         <p class="text-xs text-slate-500 mb-5">Cukup isi arahan inti. Konseptor akan mengolahnya sesuai VBP.</p>
-
         <div class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1.5">Judul / Topik Konten</label>
             <input id="ksJudul" type="text" placeholder="Misal: Video Ucapan Hari Pahlawan"
               class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
           </div>
-
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1.5">Pesan Utama / Arahan</label>
             <textarea id="ksPesan" rows="3" placeholder="Poin penting yang ingin disampaikan..."
               class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
           </div>
-
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1.5">Tipe Order</label>
@@ -130,13 +126,11 @@
               </select>
             </div>
           </div>
-
-          <button onclick="submitKepsek()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-xs">
+          <button type="button" onclick="submitKepsek()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-xs">
             + Kirim ke Konseptor
           </button>
         </div>
       </div>
-
       <div class="lg:col-span-8 space-y-4">
         <div id="ksStats" class="grid grid-cols-3 gap-3"></div>
         <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
@@ -146,9 +140,8 @@
       </div>
     </section>
 
-    <!-- ==================== VIEW 2: KONSEPTOR ==================== -->
+    <!-- VIEW 2: KONSEPTOR -->
     <section id="view-konseptor" class="hidden space-y-6">
-      <!-- Radar Kuota 10 Hari -->
       <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80">
         <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
           <h3 class="font-extrabold text-xs uppercase tracking-wider text-slate-600">Radar Kuota Produksi (10 Hari ke Depan)</h3>
@@ -162,32 +155,26 @@
       </div>
 
       <div class="grid lg:grid-cols-12 gap-6">
-        <!-- Form Olah Materi VBP -->
         <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 h-fit">
           <div class="flex justify-between items-center mb-4">
             <h3 id="knFormTitle" class="font-extrabold text-base text-slate-900">Buat Content Plan Baru</h3>
-            <button onclick="resetKnForm()" class="text-xs font-bold text-slate-400 hover:text-slate-700">Reset</button>
+            <button type="button" onclick="resetKnForm()" class="text-xs font-bold text-slate-400 hover:text-slate-700">Reset</button>
           </div>
-
           <div id="knRevisiAlert" class="hidden mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
             <span class="font-bold block mb-0.5">Catatan Revisi VBP dari Kasie:</span>
             <span id="knRevisiText"></span>
           </div>
-
           <input type="hidden" id="knId" />
           <input type="hidden" id="knCatatanKasie" />
-
           <div class="space-y-3">
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Judul Konten</label>
               <input id="knJudul" type="text" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
             </div>
-
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Arahan Awal Kasek / Catatan</label>
               <textarea id="knPesan" rows="2" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-slate-50"></textarea>
             </div>
-
             <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Order</label>
@@ -204,19 +191,16 @@
                 </select>
               </div>
             </div>
-
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Olahan Konsep & Sudut Pandang VBP</label>
               <textarea id="knKonsepVbp" rows="3" placeholder="Jelaskan angle VBP, hook, dan pesan kunci..."
                 class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
             </div>
-
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Link Naskah / Folder Bahan (GDrive)</label>
               <input id="knBrief" type="url" placeholder="https://drive.google.com/..."
                 class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
             </div>
-
             <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Usulan Mulai</label>
@@ -227,19 +211,16 @@
                 <input id="knDeadline" type="date" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" />
               </div>
             </div>
-
             <div class="grid grid-cols-2 gap-2.5 pt-2">
-              <button onclick="saveKonseptor('Draft Plan')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
+              <button type="button" onclick="saveKonseptor('Draft Plan')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
                 Simpan Draft
               </button>
-              <button onclick="saveKonseptor('Menunggu ACC Kasie')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-xs">
+              <button type="button" onclick="saveKonseptor('Menunggu ACC Kasie')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-xs">
                 Ajukan ACC Kasie →
               </button>
             </div>
           </div>
         </div>
-
-        <!-- Daftar Matrik & Antrean -->
         <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
           <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
             <h3 class="font-extrabold text-base text-slate-900">Matrik Content Plan & Antrean Kasek</h3>
@@ -254,9 +235,8 @@
       </div>
     </section>
 
-    <!-- ==================== VIEW 3: KASIE (YESI) ==================== -->
+    <!-- VIEW 3: KASIE (YESI) -->
     <section id="view-kasie" class="hidden space-y-6">
-      <!-- Live Workload Personel & Radar -->
       <div class="grid lg:grid-cols-12 gap-6">
         <div class="lg:col-span-6 bg-white p-5 rounded-2xl shadow-xs border border-slate-200/80">
           <h3 class="font-extrabold text-xs uppercase tracking-wider text-slate-500 mb-3">Beban Kerja Aktif Tim Produksi</h3>
@@ -268,7 +248,6 @@
         </div>
       </div>
 
-      <!-- Antrean ACC VBP & Penugasan -->
       <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -280,14 +259,13 @@
         <div id="kasieQueue" class="space-y-4"></div>
       </div>
 
-      <!-- Pantauan Tugas Aktif -->
       <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <h3 class="font-extrabold text-base text-slate-900 mb-4">Monitoring Penugasan Berjalan & Selesai</h3>
         <div id="kasieActiveList" class="grid md:grid-cols-2 gap-3"></div>
       </div>
     </section>
 
-    <!-- ==================== VIEW 4: TIM PRODUKSI ==================== -->
+    <!-- VIEW 4: TIM PRODUKSI -->
     <section id="view-produksi" class="hidden space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
@@ -307,21 +285,17 @@
         <div id="prList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
 
-      <!-- Embed Google Calendar -->
       <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
         <h3 class="font-extrabold text-base text-slate-900 mb-3">Timeline Produksi (Google Calendar)</h3>
         <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-          <iframe id="calFrame" src="" style="border: 0" width="100%" height="520" frameborder="0" scrolling="no"></iframe>
+          <iframe id="calFrame" src="https://calendar.google.com/calendar/embed?src=publikasi%40sekolahathalia.sch.id&ctz=Asia%2FJakarta" style="border: 0" width="100%" height="520" frameborder="0" scrolling="no"></iframe>
         </div>
       </div>
     </section>
   </div>
 
 <script>
-  // ================= KONFIGURASI FRONTEND =================
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbztsR7pV34gNdrf8iC1hyLIjubjklh7UttQ6eeMDfexjUhCUNwDZzxF_u8DfaLkOgHD/exec';
-  const CALENDAR_EMBED_URL = 'https://calendar.google.com/calendar/embed?src=publikasi%40sekolahathalia.sch.id&ctz=Asia%2FJakarta';
-  // ========================================================
 
   let state = {
     pin: sessionStorage.getItem('wk_pin') || '',
@@ -332,10 +306,13 @@
     pendingKasiePayload: null
   };
 
-  // Auto-restore session jika refresh halaman
-  window.addEventListener('DOMContentLoaded', () => {
-    if (CALENDAR_EMBED_URL.startsWith('http')) {
-      document.getElementById('calFrame').src = CALENDAR_EMBED_URL;
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('loginForm');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        login();
+      });
     }
     if (state.pin && state.role) {
       enterWorkspace();
@@ -346,9 +323,7 @@
   function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
     t.innerText = msg;
-    t.className = `fixed bottom-5 right-5 z-50 max-w-sm px-4 py-3 rounded-xl shadow-lg text-sm font-semibold fade-in ${
-      isError ? 'bg-rose-600 text-white' : 'bg-slate-900 text-white'
-    }`;
+    t.className = 'fixed bottom-5 right-5 z-50 max-w-sm px-4 py-3 rounded-xl shadow-lg text-sm font-semibold ' + (isError ? 'bg-rose-600 text-white' : 'bg-slate-900 text-white');
     t.classList.remove('hidden');
     setTimeout(() => t.classList.add('hidden'), 3800);
   }
@@ -361,7 +336,11 @@
 
   function esc(str) {
     if (!str) return '';
-    return String(str).replace(/[&<>"']/g, m => ({ '&':'&','<':'<','>':'>','"':'"',"'":''' }[m]));
+    return String(str)
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
+      .replace(/"/g, '"');
   }
 
   async function apiCall(action, payload = {}) {
@@ -370,11 +349,11 @@
       const res = await fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ pin: state.pin, action, payload })
+        body: JSON.stringify({ pin: state.pin, action: action, payload: payload })
       });
       return await res.json();
     } catch (e) {
-      return { status: 'error', message: 'Gagal terhubung ke server GAS. Periksa URL Web App.' };
+      return { status: 'error', message: 'Gagal terhubung ke GAS. Pastikan Deploy GAS berstatus Anyone.' };
     } finally {
       setLoading(false);
     }
@@ -384,6 +363,9 @@
     const pin = document.getElementById('pinInput').value.trim();
     if (!pin) return;
     state.pin = pin;
+    const err = document.getElementById('loginErr');
+    err.classList.add('hidden');
+
     const res = await apiCall('login');
     if (res.status === 'ok') {
       state.role = res.role;
@@ -394,8 +376,7 @@
       enterWorkspace();
       loadTasks();
     } else {
-      const err = document.getElementById('loginErr');
-      err.innerText = res.message;
+      err.innerText = res.message || 'PIN tidak dikenali.';
       err.classList.remove('hidden');
     }
   }
@@ -418,10 +399,10 @@
 
     document.getElementById('roleBadge').innerText = meta.badge;
     document.getElementById('workspaceTitle').innerText = meta.title;
-    document.getElementById('roleDot').className = `w-3 h-10 rounded-full ${meta.color}`;
+    document.getElementById('roleDot').className = 'w-3 h-10 rounded-full ' + meta.color;
 
     ['kepsek', 'konseptor', 'kasie', 'produksi'].forEach(r => {
-      document.getElementById(`view-${r}`).classList.toggle('hidden', r !== state.role);
+      document.getElementById('view-' + r).classList.toggle('hidden', r !== state.role);
     });
   }
 
@@ -448,13 +429,13 @@
       'In Progress': 'bg-blue-100 text-blue-800',
       'Done': 'bg-emerald-100 text-emerald-800'
     };
-    return `<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${map[status] || 'bg-slate-100'}">${esc(status)}</span>`;
+    return '<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ' + (map[status] || 'bg-slate-100') + '">' + esc(status) + '</span>';
   }
 
   function orderTags(t) {
     let tags = '';
-    if (t.tipeOrder === 'Ad-Hoc') tags += `<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-600 text-white">AD-HOC</span> `;
-    if (t.prioritas === 'Urgent') tags += `<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800">URGENT</span> `;
+    if (t.tipeOrder === 'Ad-Hoc') tags += '<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-600 text-white">AD-HOC</span> ';
+    if (t.prioritas === 'Urgent') tags += '<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800">URGENT</span> ';
     return tags;
   }
 
@@ -465,7 +446,7 @@
       const d = new Date();
       d.setDate(d.getDate() + i);
       const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
-      const dStr = `${y}-${m}-${day}`;
+      const dStr = y + '-' + m + '-' + day;
       const label = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
 
       const count = state.tasks.filter(t =>
@@ -477,15 +458,12 @@
       if (count === 1) style = 'bg-amber-50 border-amber-200 text-amber-800';
       if (count >= state.maxSlot) style = 'bg-rose-50 border-rose-300 text-rose-800 font-extrabold';
 
-      html += `<div class="p-2 rounded-xl border text-center ${style}">
-        <div class="text-[11px]">${label}</div>
-        <div class="text-xs font-bold mt-0.5">${count}/${state.maxSlot}</div>
-      </div>`;
+      html += '<div class="p-2 rounded-xl border text-center ' + style + '"><div class="text-[11px]">' + label + '</div><div class="text-xs font-bold mt-0.5">' + count + '/' + state.maxSlot + '</div></div>';
     }
     el.innerHTML = html;
   }
 
-  // ==================== 1. KEPSEK LOGIC ====================
+  // KEPSEK
   async function submitKepsek() {
     const judul = document.getElementById('ksJudul').value.trim();
     const pesanKasek = document.getElementById('ksPesan').value.trim();
@@ -507,28 +485,27 @@
     const done = state.tasks.filter(t => t.status === 'Done').length;
     const active = total - done;
 
-    document.getElementById('ksStats').innerHTML = `
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80"><div class="text-xs text-slate-500 font-semibold">Total Konten</div><div class="text-2xl font-extrabold mt-1">${total}</div></div>
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80"><div class="text-xs text-slate-500 font-semibold">Dalam Proses</div><div class="text-2xl font-extrabold text-indigo-600 mt-1">${active}</div></div>
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80"><div class="text-xs text-slate-500 font-semibold">Selesai</div><div class="text-2xl font-extrabold text-emerald-600 mt-1">${done}</div></div>
-    `;
+    document.getElementById('ksStats').innerHTML =
+      '<div class="bg-white p-4 rounded-2xl border border-slate-200/80"><div class="text-xs text-slate-500 font-semibold">Total Konten</div><div class="text-2xl font-extrabold mt-1">' + total + '</div></div>' +
+      '<div class="bg-white p-4 rounded-2xl border border-slate-200/80"><div class="text-xs text-slate-500 font-semibold">Dalam Proses</div><div class="text-2xl font-extrabold text-indigo-600 mt-1">' + active + '</div></div>' +
+      '<div class="bg-white p-4 rounded-2xl border border-slate-200/80"><div class="text-xs text-slate-500 font-semibold">Selesai</div><div class="text-2xl font-extrabold text-emerald-600 mt-1">' + done + '</div></div>';
 
-    document.getElementById('ksList').innerHTML = state.tasks.map(t => `
-      <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 flex flex-wrap justify-between items-center gap-3">
-        <div class="space-y-1 max-w-xl">
-          <div>${orderTags(t)} <span class="text-[11px] font-semibold text-slate-400">${esc(t.id)}</span></div>
-          <h4 class="font-bold text-slate-900 text-sm">${esc(t.judul)}</h4>
-          <p class="text-xs text-slate-500">Jadwal: ${esc(t.tglMulai || 'Menunggu penjadwalan')} ${t.deadline ? 's/d ' + esc(t.deadline) : ''} ${t.pic ? '• PIC: <b>' + esc(t.pic) + '</b>' : ''}</p>
-        </div>
-        <div class="flex items-center gap-2.5">
-          ${statusBadge(t.status)}
-          ${t.linkHasil ? `<a href="${esc(t.linkHasil)}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700">Lihat Hasil ↗</a>` : ''}
-        </div>
-      </div>
-    `).join('') || '<p class="text-sm text-slate-400">Belum ada data konten.</p>';
+    document.getElementById('ksList').innerHTML = state.tasks.map(t =>
+      '<div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 flex flex-wrap justify-between items-center gap-3">' +
+        '<div class="space-y-1 max-w-xl">' +
+          '<div>' + orderTags(t) + '<span class="text-[11px] font-semibold text-slate-400">' + esc(t.id) + '</span></div>' +
+          '<h4 class="font-bold text-slate-900 text-sm">' + esc(t.judul) + '</h4>' +
+          '<p class="text-xs text-slate-500">Jadwal: ' + esc(t.tglMulai || 'Menunggu penjadwalan') + (t.deadline ? ' s/d ' + esc(t.deadline) : '') + (t.pic ? ' • PIC: <b>' + esc(t.pic) + '</b>' : '') + '</p>' +
+        '</div>' +
+        '<div class="flex items-center gap-2.5">' +
+          statusBadge(t.status) +
+          (t.linkHasil ? '<a href="' + esc(t.linkHasil) + '" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700">Lihat Hasil ↗</a>' : '') +
+        '</div>' +
+      '</div>'
+    ).join('') || '<p class="text-sm text-slate-400">Belum ada data konten.</p>';
   }
 
-  // ==================== 2. KONSEPTOR LOGIC ====================
+  // KONSEPTOR
   function editKonseptor(id) {
     const t = state.tasks.find(x => x.id === id);
     if (!t) return;
@@ -593,129 +570,88 @@
     if (filter === 'ACTION') list = list.filter(t => ['Antrean Konseptor', 'Revisi VBP', 'Draft Plan'].includes(t.status));
     if (filter === 'ACC') list = list.filter(t => t.status === 'Menunggu ACC Kasie');
 
-    document.getElementById('knList').innerHTML = list.map(t => `
-      <div class="p-4 rounded-xl border border-slate-200/80 hover:border-sky-300 transition bg-slate-50/40">
-        <div class="flex justify-between items-start gap-2 mb-1.5">
-          <div>${orderTags(t)} <span class="text-[11px] font-bold text-slate-400">${esc(t.sumber)}</span></div>
-          ${statusBadge(t.status)}
-        </div>
-        <h4 class="font-bold text-slate-900 text-sm">${esc(t.judul)}</h4>
-        <p class="text-xs text-slate-600 mt-1 line-clamp-2">${esc(t.konsepVbp || t.pesanKasek || '-')}</p>
-        <div class="flex justify-between items-center mt-3 pt-2.5 border-t border-slate-200/60">
-          <span class="text-[11px] font-semibold text-slate-500">Slot: ${esc(t.tglMulai || '-')} s/d ${esc(t.deadline || '-')}</span>
-          <button onclick="editKonseptor('${esc(t.id)}')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-sky-600 text-white text-xs font-bold transition">
-            Olah / Edit
-          </button>
-        </div>
-      </div>
-    `).join('') || '<p class="text-sm text-slate-400">Tidak ada item pada filter ini.</p>';
+    document.getElementById('knList').innerHTML = list.map(t =>
+      '<div class="p-4 rounded-xl border border-slate-200/80 hover:border-sky-300 transition bg-slate-50/40">' +
+        '<div class="flex justify-between items-start gap-2 mb-1.5">' +
+          '<div>' + orderTags(t) + '<span class="text-[11px] font-bold text-slate-400">' + esc(t.sumber) + '</span></div>' +
+          statusBadge(t.status) +
+        '</div>' +
+        '<h4 class="font-bold text-slate-900 text-sm">' + esc(t.judul) + '</h4>' +
+        '<p class="text-xs text-slate-600 mt-1 line-clamp-2">' + esc(t.konsepVbp || t.pesanKasek || '-') + '</p>' +
+        '<div class="flex justify-between items-center mt-3 pt-2.5 border-t border-slate-200/60">' +
+          '<span class="text-[11px] font-semibold text-slate-500">Slot: ' + esc(t.tglMulai || '-') + ' s/d ' + esc(t.deadline || '-') + '</span>' +
+          '<button type="button" onclick="editKonseptor(\'' + esc(t.id) + '\')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-sky-600 text-white text-xs font-bold transition">Olah / Edit</button>' +
+        '</div>' +
+      '</div>'
+    ).join('') || '<p class="text-sm text-slate-400">Tidak ada item pada filter ini.</p>';
   }
 
-  // ==================== 3. KASIE (YESI) LOGIC ====================
+  // KASIE
   function renderKasieWorkload() {
     const el = document.getElementById('kasieWorkload');
     el.innerHTML = state.teamMembers.map(member => {
       const activeTasks = state.tasks.filter(t => t.pic === member && (t.status === 'Siap Produksi' || t.status === 'In Progress'));
-      return `
-        <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-xs text-slate-900">${esc(member)}</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${activeTasks.length > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700'}">
-              ${activeTasks.length} Aktif
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1.5 truncate">
-            ${activeTasks.length > 0 ? esc(activeTasks[0].judul) : 'Tersedia untuk penugasan'}
-          </p>
-        </div>
-      `;
+      return '<div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">' +
+        '<div class="flex justify-between items-center">' +
+          '<span class="font-bold text-xs text-slate-900">' + esc(member) + '</span>' +
+          '<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ' + (activeTasks.length > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700') + '">' + activeTasks.length + ' Aktif</span>' +
+        '</div>' +
+        '<p class="text-[11px] text-slate-500 mt-1.5 truncate">' + (activeTasks.length > 0 ? esc(activeTasks[0].judul) : 'Tersedia untuk penugasan') + '</p>' +
+      '</div>';
     }).join('');
   }
 
   function renderKasie() {
-    // Sort: Ad-Hoc & Urgent paling atas
     const pending = state.tasks
       .filter(t => t.status === 'Menunggu ACC Kasie')
       .sort((a, b) => (b.tipeOrder === 'Ad-Hoc') - (a.tipeOrder === 'Ad-Hoc') || (b.prioritas === 'Urgent') - (a.prioritas === 'Urgent'));
 
-    document.getElementById('kasiePendingCount').innerText = `${pending.length} Antrean`;
+    document.getElementById('kasiePendingCount').innerText = pending.length + ' Antrean';
 
-    const picOptions = `<option value="">-- Pilih PIC Produksi --</option>` +
-      state.teamMembers.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+    const picOptions = '<option value="">-- Pilih PIC Produksi --</option>' +
+      state.teamMembers.map(m => '<option value="' + esc(m) + '">' + esc(m) + '</option>').join('');
 
-    document.getElementById('kasieQueue').innerHTML = pending.map(t => `
-      <div class="p-5 rounded-2xl border-2 ${t.tipeOrder === 'Ad-Hoc' ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'}">
-        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
-          <div>${orderTags(t)} <span class="text-xs font-bold text-slate-400">${esc(t.id)} • ${esc(t.sumber)}</span></div>
-          ${t.linkBrief ? `<a href="${esc(t.linkBrief)}" target="_blank" class="text-xs font-bold text-violet-700 bg-violet-50 px-3 py-1 rounded-lg hover:bg-violet-100">Buka Brief / Aset GDrive ↗</a>` : '<span class="text-xs text-slate-400">Tanpa link brief</span>'}
-        </div>
+    document.getElementById('kasieQueue').innerHTML = pending.map(t =>
+      '<div class="p-5 rounded-2xl border-2 ' + (t.tipeOrder === 'Ad-Hoc' ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white') + '">' +
+        '<div class="flex flex-wrap justify-between items-center gap-2 mb-3">' +
+          '<div>' + orderTags(t) + '<span class="text-xs font-bold text-slate-400">' + esc(t.id) + ' • ' + esc(t.sumber) + '</span></div>' +
+          (t.linkBrief ? '<a href="' + esc(t.linkBrief) + '" target="_blank" class="text-xs font-bold text-violet-700 bg-violet-50 px-3 py-1 rounded-lg hover:bg-violet-100">Buka Brief / Aset GDrive ↗</a>' : '<span class="text-xs text-slate-400">Tanpa link brief</span>') +
+        '</div>' +
+        '<h4 class="font-extrabold text-base text-slate-900 mb-3">' + esc(t.judul) + '</h4>' +
+        '<div class="grid md:grid-cols-2 gap-3 mb-4">' +
+          '<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80"><span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Arahan Asli Kepala Sekolah</span><p class="text-xs text-slate-700 leading-relaxed">' + esc(t.pesanKasek || '(Inisiatif Content Plan Konseptor)') + '</p></div>' +
+          '<div class="p-3.5 rounded-xl bg-violet-50/60 border border-violet-200/80"><span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 block mb-1">Hasil Olahan VBP Konseptor</span><p class="text-xs text-slate-800 leading-relaxed">' + esc(t.konsepVbp || '-') + '</p></div>' +
+        '</div>' +
+        '<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3 border-t border-slate-200">' +
+          '<div><label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tunjuk Personel (PIC)</label><select id="ks-pic-' + t.id + '" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-semibold bg-white">' + picOptions + '</select></div>' +
+          '<div><label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tgl Mulai</label><input id="ks-start-' + t.id + '" type="date" value="' + esc(t.tglMulai) + '" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs" /></div>' +
+          '<div><label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Deadline</label><input id="ks-end-' + t.id + '" type="date" value="' + esc(t.deadline) + '" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs" /></div>' +
+          '<div><label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Catatan ACC / Revisi</label><input id="ks-note-' + t.id + '" type="text" placeholder="Opsional / alasan revisi..." class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs" /></div>' +
+        '</div>' +
+        '<div class="flex flex-wrap justify-end gap-2 mt-3">' +
+          '<button type="button" onclick="submitKasie(\'' + t.id + '\', \'revisi\')" class="px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition">↩ Kembalikan (Revisi VBP)</button>' +
+          '<button type="button" onclick="submitKasie(\'' + t.id + '\', \'acc\')" class="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition shadow-xs">✓ ACC & Tugaskan ke Produksi</button>' +
+        '</div>' +
+      '</div>'
+    ).join('') || '<p class="text-sm text-slate-400">Semua materi sudah di-ACC. Tidak ada antrean menunggu.</p>';
 
-        <h4 class="font-extrabold text-base text-slate-900 mb-3">${esc(t.judul)}</h4>
-
-        <!-- Perbandingan Arahan Kasek vs Olahan VBP Konseptor -->
-        <div class="grid md:grid-cols-2 gap-3 mb-4">
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Arahan Asli Kepala Sekolah</span>
-            <p class="text-xs text-slate-700 leading-relaxed">${esc(t.pesanKasek || '(Inisiatif Content Plan Konseptor)')}</p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-violet-50/60 border border-violet-200/80">
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 block mb-1">Hasil Olahan VBP Konseptor</span>
-            <p class="text-xs text-slate-800 leading-relaxed">${esc(t.konsepVbp || '-')}</p>
-          </div>
-        </div>
-
-        <!-- Bar Kontrol Penugasan Kasie -->
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3 border-t border-slate-200">
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tunjuk Personel (PIC)</label>
-            <select id="ks-pic-${t.id}" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-semibold bg-white">${picOptions}</select>
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Tgl Mulai</label>
-            <input id="ks-start-${t.id}" type="date" value="${esc(t.tglMulai)}" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs" />
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Deadline</label>
-            <input id="ks-end-${t.id}" type="date" value="${esc(t.deadline)}" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs" />
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Catatan ACC / Revisi</label>
-            <input id="ks-note-${t.id}" type="text" placeholder="Opsional / alasan revisi..." class="w-full border border-slate-300 rounded-xl px-2.5 py-2 text-xs" />
-          </div>
-        </div>
-
-        <div class="flex flex-wrap justify-end gap-2 mt-3">
-          <button onclick="submitKasie('${t.id}', 'revisi')" class="px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition">
-            ↩ Kembalikan (Revisi VBP)
-          </button>
-          <button onclick="submitKasie('${t.id}', 'acc')" class="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition shadow-xs">
-            ✓ ACC & Tugaskan ke Produksi
-          </button>
-        </div>
-      </div>
-    `).join('') || '<p class="text-sm text-slate-400">Semua materi sudah di-ACC. Tidak ada antrean menunggu.</p>';
-
-    // Monitoring Aktif
     const active = state.tasks.filter(t => ['Siap Produksi', 'In Progress', 'Done'].includes(t.status));
-    document.getElementById('kasieActiveList').innerHTML = active.map(t => `
-      <div class="p-3.5 rounded-xl border border-slate-200 flex justify-between items-center gap-2 bg-slate-50/50">
-        <div>
-          <div class="text-xs font-bold text-slate-900">${esc(t.judul)}</div>
-          <div class="text-[11px] text-slate-500 mt-0.5">PIC: <b>${esc(t.pic)}</b> • ${esc(t.tglMulai)} s/d ${esc(t.deadline)}</div>
-        </div>
-        ${statusBadge(t.status)}
-      </div>
-    `).join('');
+    document.getElementById('kasieActiveList').innerHTML = active.map(t =>
+      '<div class="p-3.5 rounded-xl border border-slate-200 flex justify-between items-center gap-2 bg-slate-50/50">' +
+        '<div><div class="text-xs font-bold text-slate-900">' + esc(t.judul) + '</div><div class="text-[11px] text-slate-500 mt-0.5">PIC: <b>' + esc(t.pic) + '</b> • ' + esc(t.tglMulai) + ' s/d ' + esc(t.deadline) + '</div></div>' +
+        statusBadge(t.status) +
+      '</div>'
+    ).join('');
   }
 
   async function submitKasie(id, decision, extra = {}) {
     const payload = {
-      id,
-      decision,
-      pic: document.getElementById(`ks-pic-${id}`).value,
-      tglMulai: document.getElementById(`ks-start-${id}`).value,
-      deadline: document.getElementById(`ks-end-${id}`).value,
-      catatanKasie: document.getElementById(`ks-note-${id}`).value.trim(),
+      id: id,
+      decision: decision,
+      pic: document.getElementById('ks-pic-' + id).value,
+      tglMulai: document.getElementById('ks-start-' + id).value,
+      deadline: document.getElementById('ks-end-' + id).value,
+      catatanKasie: document.getElementById('ks-note-' + id).value.trim(),
       ...extra
     };
 
@@ -723,17 +659,12 @@
     if (res.status === 'conflict') {
       state.pendingKasiePayload = payload;
       document.getElementById('conflictReason').innerText = res.reason;
-      document.getElementById('conflictList').innerHTML = (res.conflictingTasks || []).map(ct => `
-        <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border text-xs">
-          <div>
-            <div class="font-bold text-slate-800">${esc(ct.judul)}</div>
-            <div class="text-[11px] text-slate-500">PIC: ${esc(ct.pic)} • ${esc(ct.tglMulai)} s/d ${esc(ct.deadline)}</div>
-          </div>
-          <button onclick="shiftAndAssignKasie('${esc(ct.id)}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-[11px]">
-            Geser Tugas Ini +1 Hari
-          </button>
-        </div>
-      `).join('');
+      document.getElementById('conflictList').innerHTML = (res.conflictingTasks || []).map(ct =>
+        '<div class="flex justify-between items-center bg-white p-2.5 rounded-lg border text-xs">' +
+          '<div><div class="font-bold text-slate-800">' + esc(ct.judul) + '</div><div class="text-[11px] text-slate-500">PIC: ' + esc(ct.pic) + ' • ' + esc(ct.tglMulai) + ' s/d ' + esc(ct.deadline) + '</div></div>' +
+          '<button type="button" onclick="shiftAndAssignKasie(\'' + esc(ct.id) + '\')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-[11px]">Geser Tugas Ini +1 Hari</button>' +
+        '</div>'
+      ).join('');
       const m = document.getElementById('conflictModal');
       m.classList.remove('hidden'); m.classList.add('flex');
       return;
@@ -751,7 +682,7 @@
   async function shiftAndAssignKasie(shiftTaskId) {
     closeConflictModal();
     if (!state.pendingKasiePayload) return;
-    await submitKasie(state.pendingKasiePayload.id, 'acc', { shiftTaskId });
+    await submitKasie(state.pendingKasiePayload.id, 'acc', { shiftTaskId: shiftTaskId });
   }
 
   async function confirmOverrideKasie() {
@@ -760,12 +691,12 @@
     await submitKasie(state.pendingKasiePayload.id, 'acc', { forceOverride: true });
   }
 
-  // ==================== 4. TIM PRODUKSI LOGIC ====================
+  // PRODUKSI
   function initProduksiFilter() {
     const sel = document.getElementById('prPicFilter');
     const current = sel.value;
-    sel.innerHTML = `<option value="ALL">Semua Personel</option>` +
-      state.teamMembers.map(m => `<option value="${esc(m)}" ${current === m ? 'selected' : ''}>${esc(m)}</option>`).join('');
+    sel.innerHTML = '<option value="ALL">Semua Personel</option>' +
+      state.teamMembers.map(m => '<option value="' + esc(m) + '"' + (current === m ? ' selected' : '') + '>' + esc(m) + '</option>').join('');
   }
 
   function renderProduksi() {
@@ -777,45 +708,41 @@
     if (statF === 'ACTIVE') list = list.filter(t => t.status !== 'Done');
     if (statF === 'DONE') list = list.filter(t => t.status === 'Done');
 
-    document.getElementById('prList').innerHTML = list.map(t => `
-      <div class="p-5 rounded-2xl border ${t.tipeOrder === 'Ad-Hoc' ? 'border-rose-300 bg-rose-50/10' : 'border-slate-200 bg-white'} flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center gap-2 mb-2">
-            <span class="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-emerald-50 text-emerald-700">${esc(t.pic)}</span>
-            <span class="text-[11px] font-bold text-slate-500">DL: ${esc(t.deadline)}</span>
-          </div>
-          <div class="mb-1">${orderTags(t)}</div>
-          <h4 class="font-extrabold text-sm text-slate-900">${esc(t.judul)}</h4>
-          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">${esc(t.konsepVbp || t.pesanKasek || '-')}</p>
-          ${t.catatanKasie ? `<p class="text-[11px] text-violet-700 bg-violet-50 px-2.5 py-1.5 rounded-lg mt-2"><b>Catatan Kasie:</b> ${esc(t.catatanKasie)}</p>` : ''}
-          ${t.linkBrief ? `<a href="${esc(t.linkBrief)}" target="_blank" class="inline-block mt-3 text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 rounded-lg">Buka Naskah & Aset ↗</a>` : ''}
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
-          <input id="pr-link-${t.id}" type="url" value="${esc(t.linkHasil)}" placeholder="Tempel link GDrive hasil jadi..."
-            class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs" />
-          <div class="flex gap-2">
-            <select id="pr-stat-${t.id}" class="flex-1 border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-bold bg-slate-50">
-              <option value="Siap Produksi" ${t.status === 'Siap Produksi' ? 'selected' : ''}>Siap Produksi</option>
-              <option value="In Progress" ${t.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-              <option value="Done" ${t.status === 'Done' ? 'selected' : ''}>Done (Selesai)</option>
-            </select>
-            <button onclick="updateProduksi('${t.id}')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
-              Simpan
-            </button>
-          </div>
-        </div>
-      </div>
-    `).join('') || '<p class="text-sm text-slate-400 col-span-full">Tidak ada tugas pada filter ini.</p>';
+    document.getElementById('prList').innerHTML = list.map(t =>
+      '<div class="p-5 rounded-2xl border ' + (t.tipeOrder === 'Ad-Hoc' ? 'border-rose-300 bg-rose-50/10' : 'border-slate-200 bg-white') + ' flex flex-col justify-between">' +
+        '<div>' +
+          '<div class="flex justify-between items-center gap-2 mb-2">' +
+            '<span class="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-emerald-50 text-emerald-700">' + esc(t.pic) + '</span>' +
+            '<span class="text-[11px] font-bold text-slate-500">DL: ' + esc(t.deadline) + '</span>' +
+          '</div>' +
+          '<div class="mb-1">' + orderTags(t) + '</div>' +
+          '<h4 class="font-extrabold text-sm text-slate-900">' + esc(t.judul) + '</h4>' +
+          '<p class="text-xs text-slate-600 mt-1.5 leading-relaxed">' + esc(t.konsepVbp || t.pesanKasek || '-') + '</p>' +
+          (t.catatanKasie ? '<p class="text-[11px] text-violet-700 bg-violet-50 px-2.5 py-1.5 rounded-lg mt-2"><b>Catatan Kasie:</b> ' + esc(t.catatanKasie) + '</p>' : '') +
+          (t.linkBrief ? '<a href="' + esc(t.linkBrief) + '" target="_blank" class="inline-block mt-3 text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 rounded-lg">Buka Naskah & Aset ↗</a>' : '') +
+        '</div>' +
+        '<div class="mt-4 pt-3 border-t border-slate-100 space-y-2">' +
+          '<input id="pr-link-' + t.id + '" type="url" value="' + esc(t.linkHasil) + '" placeholder="Tempel link GDrive hasil jadi..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs" />' +
+          '<div class="flex gap-2">' +
+            '<select id="pr-stat-' + t.id + '" class="flex-1 border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-bold bg-slate-50">' +
+              '<option value="Siap Produksi"' + (t.status === 'Siap Produksi' ? ' selected' : '') + '>Siap Produksi</option>' +
+              '<option value="In Progress"' + (t.status === 'In Progress' ? ' selected' : '') + '>In Progress</option>' +
+              '<option value="Done"' + (t.status === 'Done' ? ' selected' : '') + '>Done (Selesai)</option>' +
+            '</select>' +
+            '<button type="button" onclick="updateProduksi(\'' + t.id + '\')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">Simpan</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    ).join('') || '<p class="text-sm text-slate-400 col-span-full">Tidak ada tugas pada filter ini.</p>';
   }
 
   async function updateProduksi(id) {
-    const status = document.getElementById(`pr-stat-${id}`).value;
-    const linkHasil = document.getElementById(`pr-link-${id}`).value.trim();
+    const status = document.getElementById('pr-stat-' + id).value;
+    const linkHasil = document.getElementById('pr-link-' + id).value.trim();
     if (status === 'Done' && !linkHasil) {
       return showToast('Tempelkan link Google Drive hasil jadi sebelum mengubah status ke Done.', true);
     }
-    const res = await apiCall('updateProduksiTask', { id, status, linkHasil });
+    const res = await apiCall('updateProduksiTask', { id: id, status: status, linkHasil: linkHasil });
     showToast(res.message, res.status !== 'ok');
     if (res.status === 'ok') loadTasks();
   }
