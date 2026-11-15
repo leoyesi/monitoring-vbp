@@ -297,9 +297,13 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="text-base font-extrabold text-slate-900">Jadwal & Daftar Order (Per Tahun • Bulan • Minggu)</h3>
-            <p class="text-xs text-slate-500">Klik header minggu untuk membuka atau menutup daftar.</p>
+            <p class="text-xs text-slate-500">Fokus pada Tanggal Event & Unit di sisi kiri, serta Jadwal Produksi/Terbitan Konten & Detail di sisi tengah.</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="flt-date-basis" onchange="onDateBasisChange(this.value)" class="rounded-lg border border-blue-300 bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-900">
+              <option value="EVENT">Dasar Waktu: 📅 Tanggal Event</option>
+              <option value="PUBLISH">Dasar Waktu: 🚀 Terbitan Konten</option>
+            </select>
             <button type="button" onclick="toggleAllAccordions(true)" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50">
               Buka Semua
             </button>
@@ -350,7 +354,7 @@
             <option value="ALL">Status: Semua</option>
             <option value="DONE">Status: Selesai (Done)</option>
           </select>
-          <input type="text" id="flt-search" onkeyup="renderAllGroupedViews()" placeholder="Cari judul / ID..." class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+          <input type="text" id="flt-search" onkeyup="renderAllGroupedViews()" placeholder="Cari judul / PIC / ID..." class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
         </div>
 
         <div id="grouped-unit-container" class="space-y-4"></div>
@@ -446,7 +450,7 @@
               <h2 class="text-lg font-extrabold text-slate-900">Kendali ACC Kasie & Slot Harian</h2>
               <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">🔓 PIN Terverifikasi</span>
             </div>
-            <p class="text-xs text-slate-500">Atur tanggal produksi, PIC, dan geser jadwal reguler (+1H) bila slot penuh.</p>
+            <p class="text-xs text-slate-500">Bandingkan <strong>Tanggal Event</strong> (kiri) dengan <strong>Jadwal Produksi & Terbitan Konten</strong> (tengah), lalu atur PIC atau geser jadwal (+1H).</p>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
             <!-- DROPDOWN FILTER UNIT UNTUK KASIE -->
@@ -475,6 +479,11 @@
               </optgroup>
             </select>
 
+            <select id="ks-date-basis" onchange="onDateBasisChange(this.value)" class="rounded-lg border border-blue-300 bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-900">
+              <option value="EVENT">Urut: 📅 Tgl Event</option>
+              <option value="PUBLISH">Urut: 🚀 Tgl Terbitan</option>
+            </select>
+
             <button onclick="triggerSyncAllCalendar()" id="btn-sync-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
               Sync ke Google Calendar
             </button>
@@ -499,7 +508,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h2 class="text-lg font-extrabold text-slate-900">Penugasan Tim, Grafik WOLA & Google Calendar</h2>
-            <p class="text-xs text-slate-500">Pantau beban kerja (Workload Analysis), daftar tugas & brief teknis, serta jadwal kalender tim.</p>
+            <p class="text-xs text-slate-500">Lihat jelas kapan <strong>Tanggal Event (Liputan)</strong> vs <strong>Jadwal Produksi & Terbitan Konten</strong>, serta beban kerja WOLA.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" onclick="openWolaGuideModal()" class="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold">
@@ -527,11 +536,17 @@
             <button onclick="setTeamPicFilter('Magang')" id="pic-btn-Magang" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Magang</button>
           </div>
 
-          <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-            <label for="wola-month-filter" class="text-xs font-bold text-slate-700 whitespace-nowrap">📅 Periode WOLA:</label>
-            <select id="wola-month-filter" onchange="renderWolaDashboard()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800">
-              <option value="ALL">Semua Bulan Aktif</option>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="tim-date-basis" onchange="onDateBasisChange(this.value)" class="rounded-xl border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-900">
+              <option value="EVENT">Urut Daftar: 📅 Tanggal Event</option>
+              <option value="PUBLISH">Urut Daftar: 🚀 Jadwal Terbitan Konten</option>
             </select>
+            <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+              <label for="wola-month-filter" class="text-xs font-bold text-slate-700 whitespace-nowrap">📅 Periode WOLA:</label>
+              <select id="wola-month-filter" onchange="renderWolaDashboard()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800">
+                <option value="ALL">Semua Bulan Aktif</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -714,7 +729,7 @@
         <div><strong>Unit & Pemohon:</strong> <span id="kp-unit-info"></span></div>
         <div><strong>Target Kuartal & Pilar:</strong> <span id="kp-pilar-info"></span></div>
         <div><strong>Bukti Nyata yang Ditonjolkan:</strong> <span id="kp-value-info" class="text-slate-700"></span></div>
-        <div><strong>Jadwal & Lokasi Event:</strong> <span id="kp-jadwal-info" class="text-teal-800 font-semibold"></span></div>
+        <div><strong>📅 Jadwal & Lokasi Event:</strong> <span id="kp-jadwal-info" class="text-teal-800 font-semibold"></span></div>
         <div><strong>Kebutuhan & Teknis:</strong> <span id="kp-teknis-info"></span></div>
       </div>
 
@@ -751,8 +766,16 @@
       <input type="hidden" id="mt-rowIndex">
       <div class="bg-slate-50 rounded-xl p-3.5 text-xs space-y-2 border border-slate-200">
         <div><strong>PIC Produksi:</strong> <span id="mt-pic" class="font-bold text-blue-800"></span></div>
-        <div><strong>Jadwal Produksi:</strong> <span id="mt-prod-date"></span></div>
-        <div><strong>Waktu & Lokasi Acara:</strong> <span id="mt-lokasi"></span></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2">
+            <span class="text-[10px] font-extrabold text-blue-700 uppercase block">📅 Jadwal Event (Liputan)</span>
+            <span id="mt-lokasi" class="font-bold text-blue-950"></span>
+          </div>
+          <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-2">
+            <span class="text-[10px] font-extrabold text-indigo-700 uppercase block">🚀 Produksi & Terbitan Konten</span>
+            <span id="mt-prod-date" class="font-bold text-indigo-950"></span>
+          </div>
+        </div>
         <div><strong>Layanan & Format:</strong> <span id="mt-format"></span></div>
         <div><strong>Pesan Kunci VBP:</strong> <span id="mt-konsep" class="text-slate-700"></span></div>
         <div><strong>Detail Teknis Unit:</strong> <span id="mt-teknis" class="text-teal-800 font-medium"></span></div>
@@ -797,7 +820,7 @@
       <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
         <div><strong>Unit:</strong> <span id="mk-info-unit"></span></div>
         <div><strong>Bukti Nyata Unit:</strong> <span id="mk-info-value" class="text-slate-700"></span></div>
-        <div><strong>Info Teknis:</strong> <span id="mk-info-teknis" class="text-teal-800 font-medium"></span></div>
+        <div><strong>📅 Info Event & Teknis:</strong> <span id="mk-info-teknis" class="text-teal-800 font-medium"></span></div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -861,25 +884,26 @@
       <div class="flex items-center justify-between border-b pb-3">
         <div>
           <span id="ks-badge-sla" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold"></span>
-          <h3 id="ks-title" class="text-base font-extrabold text-slate-900 mt-1">ACC & Jadwal Produksi</h3>
+          <h3 id="ks-title" class="text-base font-extrabold text-slate-900 mt-1">ACC & Jadwal Produksi / Terbitan</h3>
         </div>
         <button onclick="closeModal('modal-kasie')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
       </div>
 
       <input type="hidden" id="ks-rowIndex">
-      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1.5 border border-slate-200">
+        <div><strong>📅 Jadwal Event (Hari-H):</strong> <span id="ks-event-date" class="font-bold text-blue-800"></span></div>
         <div><strong>Pesan VBP:</strong> <span id="ks-konsep"></span></div>
-        <div><strong>Teknis & Waktu:</strong> <span id="ks-teknis"></span></div>
+        <div><strong>Teknis & Lokasi:</strong> <span id="ks-teknis"></span></div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-indigo-50/60 p-3 rounded-xl border border-indigo-200">
         <div>
-          <label class="block text-xs font-bold mb-1">Tgl Mulai Produksi</label>
-          <input type="date" id="ks-tgl-prod" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+          <label class="block text-xs font-extrabold text-indigo-950 mb-1">🎬 Tgl Mulai Produksi Konten</label>
+          <input type="date" id="ks-tgl-prod" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-semibold">
         </div>
         <div>
-          <label class="block text-xs font-bold mb-1">Deadline Tayang</label>
-          <input type="date" id="ks-deadline" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+          <label class="block text-xs font-extrabold text-indigo-950 mb-1">🚀 Jadwal Terbitan / Tayang Konten</label>
+          <input type="date" id="ks-deadline" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-semibold">
         </div>
       </div>
 
@@ -950,12 +974,14 @@
     let KONSEPTOR_FILTER = 'ALL';
     let KASIE_FILTER = 'ALL';
     let TEAM_PIC_FILTER = 'ALL';
+    let DATE_GROUP_BASIS = 'EVENT'; // 'EVENT' atau 'PUBLISH'
     let WOLA_PANEL_OPEN = true;
 
     let wolaBarChartObj = null;
     let wolaUnitPieObj = null;
     let wolaServicePieObj = null;
 
+    const DAY_NAMES_SHORT_ID = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
     const MONTH_NAMES_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const SHORT_MONTH_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -976,6 +1002,61 @@
 
     function isSchoolUnit(unit) {
       return SCHOOL_UNITS.includes(String(unit || '').trim());
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"');
+    }
+
+    function formatShortDateId(isoDateStr) {
+      if (!isoDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)) return '';
+      const [y, m, d] = isoDateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const dayName = DAY_NAMES_SHORT_ID[dt.getDay()];
+      return `${dayName}, ${String(d).padStart(2, '0')} ${SHORT_MONTH_ID[m - 1]} ${y}`;
+    }
+
+    function formatCompactDateId(isoDateStr) {
+      if (!isoDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)) return '';
+      const [y, m, d] = isoDateStr.split('-').map(Number);
+      return `${String(d).padStart(2, '0')} ${SHORT_MONTH_ID[m - 1]}`;
+    }
+
+    function parseWaktuLokasi(waktuLokasiStr) {
+      const raw = String(waktuLokasiStr || '').trim();
+      if (!raw || raw === '-') return { jam: '', lokasi: '' };
+      if (raw.includes('|')) {
+        const parts = raw.split('|');
+        return {
+          jam: parts[0].trim(),
+          lokasi: parts.slice(1).join('|').trim()
+        };
+      }
+      if (/\d{1,2}[:.]\d{2}/.test(raw) && raw.length <= 22) {
+        return { jam: raw, lokasi: '' };
+      }
+      return { jam: '', lokasi: raw };
+    }
+
+    function getGroupingDate(r) {
+      if (DATE_GROUP_BASIS === 'PUBLISH') {
+        return r.deadlineTayang || r.tglMulaiProduksi || r.tglMulaiEvent || '';
+      }
+      return r.tglMulaiEvent || '';
+    }
+
+    function onDateBasisChange(newBasis) {
+      DATE_GROUP_BASIS = newBasis;
+      ['flt-date-basis', 'ks-date-basis', 'tim-date-basis'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = newBasis;
+      });
+      populateTimeFilterOptions();
+      renderAllGroupedViews();
     }
 
     function updateSubDomainOptions(domainSelectId, subSelectId, selectedVal) {
@@ -1402,8 +1483,9 @@
       const months = new Map();
 
       ALL_RECORDS.forEach(r => {
-        if (r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) {
-          const info = getWeekBounds(r.tglMulaiEvent);
+        const gDate = getGroupingDate(r);
+        if (gDate && /^\d{4}-\d{2}-\d{2}$/.test(gDate)) {
+          const info = getWeekBounds(gDate);
           years.add(info.year);
           months.set(info.monthKey, info.monthLabel);
         }
@@ -1443,15 +1525,16 @@
         if (unit !== 'ALL' && r.unit !== unit) return false;
         if (st === 'ACTIVE' && (r.status === 'Done' || r.status === 'Canceled')) return false;
         if (st === 'DONE' && r.status !== 'Done') return false;
-        if (q && !(r.id + r.unit + r.judul + r.domainFscm + r.picProduksi).toLowerCase().includes(q)) return false;
+        if (q && !(r.id + r.unit + r.judul + r.domainFscm + r.picProduksi + r.pemohon).toLowerCase().includes(q)) return false;
 
-        const hasDate = r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent);
+        const gDate = getGroupingDate(r);
+        const hasDate = gDate && /^\d{4}-\d{2}-\d{2}$/.test(gDate);
         if (yr === 'UNSCHEDULED') return !hasDate;
-        if (yr !== 'ALL' && (!hasDate || !r.tglMulaiEvent.startsWith(yr))) return false;
-        if (mo !== 'ALL' && (!hasDate || !r.tglMulaiEvent.startsWith(mo))) return false;
+        if (yr !== 'ALL' && (!hasDate || !gDate.startsWith(yr))) return false;
+        if (mo !== 'ALL' && (!hasDate || !gDate.startsWith(mo))) return false;
 
-        if (wk === 'THIS_WEEK') return hasDate && getWeekBounds(r.tglMulaiEvent).weekKey === thisWeekKey;
-        if (wk === 'NEXT_WEEK') return hasDate && getWeekBounds(r.tglMulaiEvent).weekKey === nextWeekKey;
+        if (wk === 'THIS_WEEK') return hasDate && getWeekBounds(gDate).weekKey === thisWeekKey;
+        if (wk === 'NEXT_WEEK') return hasDate && getWeekBounds(gDate).weekKey === nextWeekKey;
 
         return true;
       });
@@ -1471,11 +1554,12 @@
       const unscheduled = [];
 
       records.forEach(r => {
-        if (!r.tglMulaiEvent || !/^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) {
+        const gDate = getGroupingDate(r);
+        if (!gDate || !/^\d{4}-\d{2}-\d{2}$/.test(gDate)) {
           unscheduled.push(r);
           return;
         }
-        const info = getWeekBounds(r.tglMulaiEvent);
+        const info = getWeekBounds(gDate);
         if (!yearMap.has(info.year)) yearMap.set(info.year, new Map());
         const monthMap = yearMap.get(info.year);
 
@@ -1518,7 +1602,7 @@
 
           Array.from(mObj.weeks.keys()).sort().forEach(wKey => {
             const wObj = mObj.weeks.get(wKey);
-            wObj.items.sort((a, b) => a.tglMulaiEvent.localeCompare(b.tglMulaiEvent));
+            wObj.items.sort((a, b) => getGroupingDate(a).localeCompare(getGroupingDate(b)));
 
             const isThisWeek = (wKey === thisWeekKey);
             const isNextWeek = (wKey === nextWeekKey);
@@ -1535,7 +1619,7 @@
                   </div>
                   <span class="text-[11px] font-bold text-slate-500">${wObj.items.length} item</span>
                 </summary>
-                <div class="divide-y divide-slate-100 bg-white">
+                <div class="divide-y divide-slate-200/80 bg-white">
                   ${wObj.items.map(r => renderOrderItemRow(r, mode)).join('')}
                 </div>
               </details>
@@ -1549,13 +1633,16 @@
       });
 
       if (unscheduled.length > 0) {
+        const unschedTitle = DATE_GROUP_BASIS === 'PUBLISH'
+          ? '▾ Belum Ada Jadwal Terbitan Konten'
+          : '▾ Belum Ada Tanggal Event (Rencana Kuartalan)';
         html += `
           <details open class="order-week-accordion border border-amber-300 rounded-xl overflow-hidden bg-white">
             <summary class="cursor-pointer select-none bg-amber-50 px-4 py-2.5 flex items-center justify-between">
-              <span class="text-xs sm:text-sm font-extrabold text-amber-900">▾ Belum Ada Tanggal Event (Rencana Kuartalan)</span>
+              <span class="text-xs sm:text-sm font-extrabold text-amber-900">${unschedTitle}</span>
               <span class="text-xs font-bold text-amber-800">${unscheduled.length} item</span>
             </summary>
-            <div class="divide-y divide-slate-100">
+            <div class="divide-y divide-slate-200/80">
               ${unscheduled.map(r => renderOrderItemRow(r, mode)).join('')}
             </div>
           </details>
@@ -1565,15 +1652,63 @@
       return html;
     }
 
+    function toggleOrderRowDetail(btn, detailId) {
+      const el = document.getElementById(detailId);
+      if (!el) return;
+      const isHidden = el.classList.toggle('hidden');
+      btn.textContent = isHidden ? 'Lihat Detail ▼' : 'Tutup Detail ▲';
+    }
+
+    // =========================================================================
+    // RENDER BARIS ORDER: FOKUS TANGGAL EVENT - UNIT + JADWAL TERBITAN + DROPDOWN
+    // =========================================================================
     function renderOrderItemRow(r, mode) {
-      const tipeBadge = r.tipeOrder === 'Ad-Hoc'
-        ? '<span class="px-1.5 py-0.5 rounded bg-red-600 text-white font-bold text-[10px]">Ad-Hoc</span>'
-        : '<span class="px-1.5 py-0.5 rounded bg-blue-700 text-white font-bold text-[10px]">Kuartalan</span>';
+      const detailId = `row-detail-${mode}-${r.rowIndex}`;
+      const { jam, lokasi } = parseWaktuLokasi(r.waktuLokasi);
 
-      const slaClass = (r.kategoriSla || '').includes('KILAT') ? 'bg-red-100 text-red-800'
-        : ((r.kategoriSla || '').includes('PRIORITAS') ? 'bg-amber-100 text-amber-800'
-        : ((r.kategoriSla || '').includes('REGULER') ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'));
+      // 1. Format Tanggal Event (Zona Kiri)
+      let eventDateDisplay = '<span class="text-xs font-bold text-amber-700">Belum ada tgl event</span>';
+      if (r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) {
+        const startFmt = formatShortDateId(r.tglMulaiEvent);
+        if (r.tglSelesaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglSelesaiEvent) && r.tglSelesaiEvent !== r.tglMulaiEvent) {
+          eventDateDisplay = `<span class="text-sm font-extrabold text-blue-700 leading-tight">${formatCompactDateId(r.tglMulaiEvent)} – ${formatShortDateId(r.tglSelesaiEvent)}</span>`;
+        } else {
+          eventDateDisplay = `<span class="text-sm font-extrabold text-blue-700 leading-tight">${startFmt}</span>`;
+        }
+      }
 
+      const slaClass = (r.kategoriSla || '').includes('KILAT') ? 'bg-red-100 text-red-800 border-red-200'
+        : ((r.kategoriSla || '').includes('PRIORITAS') ? 'bg-amber-100 text-amber-800 border-amber-200'
+        : ((r.kategoriSla || '').includes('REGULER') ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'));
+
+      const slaShortText = (r.kategoriSla || '').includes('KILAT') ? 'SLA Kilat'
+        : ((r.kategoriSla || '').includes('PRIORITAS') ? 'Prioritas'
+        : ((r.kategoriSla || '').includes('REGULER') ? 'Reguler' : (r.kategoriSla || '-')));
+
+      // 2. Jadwal Produksi & Terbitan Konten (Zona Tengah - Terpisah jelas dari Tanggal Event!)
+      const hasProdStart = r.tglMulaiProduksi && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiProduksi);
+      const hasPublishDate = r.deadlineTayang && /^\d{4}-\d{2}-\d{2}$/.test(r.deadlineTayang);
+
+      let publishScheduleHtml = '';
+      if (hasProdStart || hasPublishDate) {
+        const prodTxt = hasProdStart ? formatCompactDateId(r.tglMulaiProduksi) : '-';
+        const pubTxt = hasPublishDate ? formatShortDateId(r.deadlineTayang) : 'Belum ditentukan';
+        publishScheduleHtml = `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-950 text-[11px] font-semibold">
+            <span>🎬 Prod: <strong>${prodTxt}</strong></span>
+            <span class="text-indigo-400">→</span>
+            <span>🚀 Terbitan Konten: <strong class="text-indigo-700 underline decoration-indigo-300">${pubTxt}</strong></span>
+          </span>
+        `;
+      } else {
+        publishScheduleHtml = `
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-medium">
+            🚀 Jadwal Terbitan Konten: <em class="text-slate-500">Belum dijadwalkan Kasie</em>
+          </span>
+        `;
+      }
+
+      // 3. Tombol Aksi (Zona Kanan)
       let actionHtml = '';
       if (mode === 'kepsek') {
         actionHtml = `<button onclick="openKepsekModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 shrink-0">Tinjau & ACC</button>`;
@@ -1591,37 +1726,89 @@
           </div>
         `;
       } else if (mode === 'tim') {
-        const pts = getRecordWolaPoints(r);
         actionHtml = `
-          <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 font-bold text-[10px]">${pts} Poin</span>
-          <button onclick="openTeamModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Brief & Setor Hasil</button>
+          <button onclick="openTeamModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Setor Hasil</button>
         `;
       }
 
-      const prodInfo = (mode === 'tim' || mode === 'kasie') && r.tglMulaiProduksi
-        ? ` • Produksi: <strong class="text-blue-800">${r.tglMulaiProduksi} s/d ${r.deadlineTayang || r.tglMulaiProduksi}</strong>`
-        : '';
+      const pts = getRecordWolaPoints(r);
+      const tipeBadge = r.tipeOrder === 'Ad-Hoc'
+        ? '<span class="px-1.5 py-0.5 rounded bg-red-600 text-white font-bold text-[10px]">Ad-Hoc</span>'
+        : '<span class="px-1.5 py-0.5 rounded bg-blue-600 text-white font-bold text-[10px]">Kuartalan</span>';
 
       const statusBadgeClass = r.status === 'Menunggu ACC Kepsek'
         ? 'bg-amber-100 border-amber-300 text-amber-900'
-        : (r.status === 'Revisi Unit' ? 'bg-red-100 border-red-300 text-red-900' : 'bg-slate-100 border-slate-200 text-slate-800');
+        : (r.status === 'Revisi Unit' ? 'bg-red-100 border-red-300 text-red-900'
+        : (r.status === 'Done' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-100 border-slate-200 text-slate-800'));
 
       return `
-        <div class="p-3 hover:bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div class="space-y-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="font-extrabold text-xs text-slate-900">${r.id}</span>
-              ${tipeBadge}
-              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-bold text-[11px]">${r.unit}</span>
-              <span class="px-2 py-0.5 rounded font-bold text-[10px] ${slaClass}">${r.kategoriSla || '-'}</span>
+        <div class="p-3.5 hover:bg-slate-50/90 transition flex flex-col md:flex-row md:items-start justify-between gap-3">
+          <!-- ZONA KIRI: TANGGAL EVENT & UNIT (JANGKAR PEMINDAIAN UTAMA) -->
+          <div class="md:w-52 shrink-0 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-start gap-1.5 border-b md:border-b-0 pb-2 md:pb-0 border-slate-100">
+            <div>
+              <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">📅 Tanggal Event</div>
+              ${eventDateDisplay}
+              ${jam ? `<div class="text-[11px] text-slate-600 font-semibold mt-0.5">⏰ ${escapeHtml(jam)}</div>` : ''}
             </div>
-            <div class="text-xs sm:text-sm font-bold text-slate-900">${r.judul}</div>
-            <div class="text-[11px] text-slate-500">
-              Event: <strong class="text-slate-700">${r.tglMulaiEvent || 'Belum ditentukan'}</strong>${prodInfo} • Pemohon: <strong>${r.pemohon || '-'}</strong> • PIC: <strong class="text-slate-800">${r.picProduksi || '-'}</strong>
+            <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
+              <span class="px-2.5 py-0.5 rounded-md bg-slate-100 border border-slate-300 text-slate-900 font-extrabold text-xs uppercase tracking-tight">
+                ${escapeHtml(r.unit)}
+              </span>
+              <span class="px-1.5 py-0.5 rounded border font-bold text-[10px] ${slaClass}">
+                ${escapeHtml(slaShortText)}
+              </span>
             </div>
           </div>
-          <div class="flex items-center justify-between sm:justify-end gap-2">
-            <span class="px-2.5 py-1 rounded-lg border font-bold text-[11px] ${statusBadgeClass}">${r.status}</span>
+
+          <!-- ZONA TENGAH: JUDUL KEGIATAN, JADWAL PRODUKSI/TERBITAN & DROPDOWN DETAIL -->
+          <div class="flex-1 min-w-0 space-y-1.5">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-sm sm:text-[15px] font-extrabold text-slate-900 leading-snug">${escapeHtml(r.judul)}</span>
+              <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 font-bold text-[10px]">
+                ${pts} POIN
+              </span>
+              ${tipeBadge}
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              ${publishScheduleHtml}
+              <span class="text-slate-600 font-medium">
+                👤 PIC Tim: <strong class="text-slate-900">${escapeHtml(r.picProduksi || 'Belum ditunjuk')}</strong>
+              </span>
+            </div>
+
+            <div class="pt-0.5">
+              <button type="button" onclick="toggleOrderRowDetail(this, '${detailId}')"
+                class="text-[11px] font-extrabold text-blue-700 hover:text-blue-900 uppercase tracking-wide inline-flex items-center gap-1">
+                Lihat Detail ▼
+              </button>
+
+              <!-- DROPDOWN DETAIL KEBUTUHAN (TERSEMBUNYI SECARA DEFAULT) -->
+              <div id="${detailId}" class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1.5 leading-relaxed">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  <div><strong class="text-slate-900">Kebutuhan Layanan:</strong> ${escapeHtml(r.kebutuhan || '-')} ${r.formatChannel ? `(${escapeHtml(r.formatChannel)})` : ''}</div>
+                  <div><strong class="text-slate-900">Lokasi Acara:</strong> ${escapeHtml(lokasi || r.waktuLokasi || '-')}</div>
+                  <div><strong class="text-slate-900">Pemohon Unit:</strong> ${escapeHtml(r.pemohon || '-')} ${r.noHp && r.noHp !== '-' ? `(${escapeHtml(r.noHp)})` : ''}</div>
+                  <div><strong class="text-slate-900">Kode Sistem & Kuartal:</strong> <span class="font-mono font-bold text-slate-800">${escapeHtml(r.id)}</span> • ${escapeHtml(r.targetKuartal || '-')}</div>
+                </div>
+                <div><strong class="text-slate-900">Detail Teknis / Output:</strong> ${escapeHtml(r.detailTeknis || '-')}</div>
+                <div><strong class="text-slate-900">Pesan Kunci VBP / Bukti Nyata:</strong> ${escapeHtml(r.konsepVbp || r.valueBukti || '-')}</div>
+                ${r.catatanKasie ? `<div class="text-amber-900 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg"><strong>Catatan Pimpinan/Kasie:</strong> ${escapeHtml(r.catatanKasie)}</div>` : ''}
+                ${(r.linkBrief || r.linkHasil) ? `
+                  <div class="flex flex-wrap items-center gap-3 pt-1">
+                    ${r.linkBrief ? `<a href="${escapeHtml(r.linkBrief)}" target="_blank" rel="noopener" class="text-blue-700 underline font-bold">📎 Buka Brief Unit ↗</a>` : ''}
+                    ${r.linkHasil ? `<a href="${escapeHtml(r.linkHasil)}" target="_blank" rel="noopener" class="text-emerald-700 underline font-bold">✅ Buka Hasil Tayang ↗</a>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- ZONA KANAN: STATUS & TOMBOL AKSI -->
+          <div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-2 shrink-0 pt-1 md:pt-0">
+            <span class="px-2.5 py-1 rounded-lg border font-bold text-[11px] whitespace-nowrap ${statusBadgeClass}">
+              ${escapeHtml(r.status)}
+            </span>
             ${actionHtml}
           </div>
         </div>
@@ -1772,7 +1959,7 @@
         ? r.tglMulaiProduksi
         : ((r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) ? r.tglMulaiEvent : '');
       if (!refDate) return '';
-      return refDate.slice(0, 7); // YYYY-MM
+      return refDate.slice(0, 7);
     }
 
     function formatMonthKeyLabel(mKey) {
@@ -1933,7 +2120,6 @@
     function renderWolaCharts(wolaRecords, points) {
       if (typeof Chart === 'undefined') return;
 
-      // 1. Horizontal Bar Chart Beban Kerja Personel
       const barCanvas = document.getElementById('wolaPersonelBarChart');
       if (barCanvas) {
         if (wolaBarChartObj) wolaBarChartObj.destroy();
@@ -1961,7 +2147,6 @@
         });
       }
 
-      // 2. Pie Chart Order Per Unit
       const unitCanvas = document.getElementById('wolaUnitPieChart');
       if (unitCanvas) {
         const unitCounts = {};
@@ -1992,7 +2177,6 @@
         });
       }
 
-      // 3. Pie Chart Proporsi Layanan
       const srvCanvas = document.getElementById('wolaServicePieChart');
       if (srvCanvas) {
         const srvCounts = { 'Liputan & Desain': 0, 'Liputan Foto/Video': 0, 'Desain Grafis': 0, 'Studio / Alat': 0 };
@@ -2103,14 +2287,16 @@
           text += `- Nihil\n`;
         } else {
           tasks.forEach(tk => {
-            text += `- [${tk.tglMulaiProduksi || tk.tglMulaiEvent || '-'}] ${tk.judul} (${tk.unit})\n`;
+            const evTxt = tk.tglMulaiEvent || '-';
+            const pubTxt = tk.deadlineTayang || tk.tglMulaiProduksi || '-';
+            text += `- Event ${evTxt} | Terbit ${pubTxt}: ${tk.judul} (${tk.unit})\n`;
           });
         }
         text += `\n`;
       });
 
       navigator.clipboard.writeText(text).then(() => {
-        alert('Rekap penugasan & poin WOLA berhasil disalin ke clipboard!');
+        alert('Rekap penugasan (Event & Jadwal Terbitan) serta poin WOLA berhasil disalin ke clipboard!');
       });
     }
 
@@ -2161,8 +2347,8 @@
       document.getElementById('mt-badge').textContent = `${r.id} • ${r.unit} • ${r.kategoriSla} (${getRecordWolaPoints(r)} Poin WOLA)`;
       document.getElementById('mt-title').textContent = r.judul;
       document.getElementById('mt-pic').textContent = r.picProduksi || '-';
-      document.getElementById('mt-prod-date').textContent = `${r.tglMulaiProduksi || r.tglMulaiEvent || '-'} s/d ${r.deadlineTayang || '-'}`;
-      document.getElementById('mt-lokasi').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'}`;
+      document.getElementById('mt-lokasi').textContent = `${formatShortDateId(r.tglMulaiEvent) || r.tglMulaiEvent || 'Belum ditentukan'} | ${r.waktuLokasi || '-'}`;
+      document.getElementById('mt-prod-date').textContent = `${formatCompactDateId(r.tglMulaiProduksi) || '-'} s/d ${formatShortDateId(r.deadlineTayang) || r.deadlineTayang || '-'}`;
       document.getElementById('mt-format').textContent = `${r.kebutuhan} (${r.formatChannel || 'Sesuai brief'})`;
       document.getElementById('mt-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
       document.getElementById('mt-teknis').textContent = r.detailTeknis || '-';
@@ -2242,8 +2428,11 @@
         ? 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-red-100 text-red-800'
         : 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800';
 
+      document.getElementById('ks-event-date').textContent = r.tglMulaiEvent
+        ? `${formatShortDateId(r.tglMulaiEvent)}${r.tglSelesaiEvent && r.tglSelesaiEvent !== r.tglMulaiEvent ? ' s/d ' + formatShortDateId(r.tglSelesaiEvent) : ''}`
+        : 'Belum ditentukan';
       document.getElementById('ks-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
-      document.getElementById('ks-teknis').textContent = `${r.tglMulaiEvent || '-'} | ${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
+      document.getElementById('ks-teknis').textContent = `${r.waktuLokasi || '-'} | ${r.detailTeknis || '-'}`;
 
       const defaultStart = r.tglMulaiProduksi || r.tglMulaiEvent || SERVER_DATE;
       document.getElementById('ks-tgl-prod').value = defaultStart;
