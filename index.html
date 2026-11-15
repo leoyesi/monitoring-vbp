@@ -1114,7 +1114,7 @@
     let CURRENT_FLOW = 'A';
     let OPTIONAL_TEKNIS_OPEN = false;
     let KEPSEK_FILTER = 'PENDING';
-    let KONSEPTOR_FILTER = 'ANTREAN'; // Default langsung menampilkan antrean yang butuh dikerjakan Konseptor
+    let KONSEPTOR_FILTER = 'ANTREAN';
     let KASIE_FILTER = 'ALL';
     let TEAM_PIC_FILTER = 'ALL';
     let DATE_GROUP_BASIS = 'EVENT';
@@ -1184,6 +1184,17 @@
       selectFlow('A');
       loadData();
     };
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        ['modal-wola-guide', 'modal-pin', 'modal-kepsek', 'modal-tim', 'modal-konseptor', 'modal-kasie'].forEach(closeModal);
+      }
+    });
+
+    function closeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.add('hidden');
+    }
 
     function isSchoolUnit(unit) {
       return SCHOOL_UNITS.includes(String(unit || '').trim());
@@ -2138,7 +2149,6 @@
 
       const baseRecords = getKonseptorBaseRecords();
 
-      // Update counter pada tombol quick filter
       const cntAntrean = baseRecords.filter(r => ['Antrean Konseptor', 'Draft Plan', 'Revisi VBP'].includes(r.status)).length;
       const cntNoSub = baseRecords.filter(r => !r.subDomainFscm || r.subDomainFscm === 'Ditentukan Konseptor').length;
       const cntRevisi = baseRecords.filter(r => r.status === 'Revisi VBP').length;
@@ -2187,7 +2197,6 @@
         return;
       }
 
-      // Kelompokkan datar per Bulan (tanpa kotak Tahun dan kotak Minggu)
       const monthGroups = new Map();
       const unscheduled = [];
 
@@ -3326,4 +3335,219 @@
     }
 
     function onKasieTotalPoinManualChange() {
-      const newTotal = parseFloat(document.get
+      const newTotal = parseFloat(document.getElementById('ks-total-poin').value);
+      if (isNaN(newTotal) || newTotal < 0 || KASIE_SUBTASKS_STATE.length === 0) return;
+
+      if (KASIE_SUBTASKS_STATE.length === 1) {
+        KASIE_SUBTASKS_STATE[0].points = Math.round(newTotal * 10) / 10;
+        renderKasieSubtaskRows();
+        return;
+      }
+
+      const oldSum = KASIE_SUBTASKS_STATE.reduce((acc, r) => acc + (Number(r.points) || 0), 0);
+      let allocated = 0;
+
+      KASIE_SUBTASKS_STATE.forEach((row, idx) => {
+        if (idx === KASIE_SUBTASKS_STATE.length - 1) {
+          row.points = Math.max(0, Math.round((newTotal - allocated) * 10) / 10);
+        } else {
+          const share = oldSum > 0
+            ? (Number(row.points) / oldSum) * newTotal
+            : newTotal / KASIE_SUBTASKS_STATE.length;
+          const rounded = Math.round(share * 10) / 10;
+          row.points = rounded;
+          allocated += rounded;
+        }
+      });
+
+      renderKasieSubtaskRows();
+    }
+
+    function getRecordEventDays(r) {
+      if (!r || !r.tglMulaiEvent || !r.tglSelesaiEvent) return 1;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent) || !/^\d{4}-\d{2}-\d{2}$/.test(r.tglSelesaiEvent)) return 1;
+      const d1 = new Date(r.tglMulaiEvent + 'T00:00:00');
+      const d2 = new Date(r.tglSelesaiEvent + 'T00:00:00');
+      const diff = Math.round((d2 - d1) / 86400000) + 1;
+      return (diff > 1 && diff <= 14) ? diff : 1;
+    }
+
+    function applySubtaskPreset(presetKey) {
+      const days = getRecordEventDays(KASIE_CURRENT_RECORD);
+      const prevPicsByRole = {};
+      KASIE_SUBTASKS_STATE.forEach(item => {
+        if (item.pic) prevPicsByRole[item.role.toLowerCase()] = item.pic;
+      });
+
+      let template = [];
+      if (presetKey === 'SIT_IN') {
+        template = [
+          { role: 'Konseptor / Copywriter', points: 1 },
+          { role: 'Liputan Foto / Video', points: 2 * days },
+          { role: 'Desain Grafis', points: 1.5 },
+          { role: 'Editor Video', points: 2 }
+        ];
+      } else if (presetKey === 'LIPUTAN_EDIT') {
+        template = [
+          { role: 'Liputan Foto / Video', points: 2 * days },
+          { role: 'Editor Video', points: 2 }
+        ];
+      } else if (presetKey === 'DESAIN_ONLY') {
+        template = [
+          { role: 'Konseptor / Copywriter', points: 1 },
+          { role: 'Desain Grafis', points: 1.5 }
+        ];
+      }
+
+      KASIE_SUBTASKS_STATE = template.map(t => ({
+        role: t.role,
+        pic: prevPicsByRole[t.role.toLowerCase()] || '',
+        points: t.points
+      }));
+
+      renderKasieSubtaskRows();
+      syncTotalPoinFromSubtasks();
+    }
+
+    function autoAssignLightestPics() {
+      const targetMonth = getKasieTargetMonthKey();
+      const { points } = computeTeamWolaSnapshot(targetMonth);
+      const simPoints = Object.assign({}, points);
+
+      if (KASIE_CURRENT_RECORD) {
+        TIM_PUBLIKASI.forEach(staff => {
+          const existingPts = getPersonPointsForRecord(KASIE_CURRENT_RECORD, staff);
+          if (existingPts > 0) {
+            simPoints[staff] = Math.max(0, Math.round((simPoints[staff] - existingPts) * 10) / 10);
+          }
+        });
+      }
+
+      KASIE_SUBTASKS_STATE.forEach(row => {
+        const sorted = [...TIM_PUBLIKASI].sort((a, b) => (simPoints[a] || 0) - (simPoints[b] || 0));
+        const chosen = sorted[0];
+        if (chosen) {
+          row.pic = chosen;
+          simPoints[chosen] = Math.round(((simPoints[chosen] || 0) + (Number(row.points) || 0)) * 10) / 10;
+        }
+      });
+
+      renderKasieSubtaskRows();
+    }
+
+    function resetKasiePointsAuto() {
+      if (!KASIE_CURRENT_RECORD) return;
+      const autoBase = computeAutoBasePoints(KASIE_CURRENT_RECORD);
+      const days = getRecordEventDays(KASIE_CURRENT_RECORD);
+
+      if (KASIE_SUBTASKS_STATE.length === 1) {
+        KASIE_SUBTASKS_STATE[0].points = autoBase;
+      } else {
+        KASIE_SUBTASKS_STATE.forEach(row => {
+          const lowRole = (row.role || '').toLowerCase();
+          if (lowRole.includes('liputan')) {
+            row.points = 2 * days;
+          } else {
+            const match = SUBTASK_ROLE_OPTIONS.find(o => o.role.toLowerCase() === lowRole);
+            if (match) row.points = match.defaultPts;
+          }
+        });
+      }
+
+      renderKasieSubtaskRows();
+      syncTotalPoinFromSubtasks();
+    }
+
+    async function submitKasie() {
+      const rowIndex = Number(document.getElementById('ks-rowIndex').value);
+      const status = document.getElementById('ks-status').value;
+      const catatanKasie = document.getElementById('ks-catatan').value.trim();
+
+      if (status === 'Revisi VBP' && !catatanKasie) {
+        alert('Tuliskan catatan revisi untuk Konseptor VBP terlebih dahulu.');
+        document.getElementById('ks-catatan').focus();
+        return;
+      }
+
+      const validSubtasks = KASIE_SUBTASKS_STATE.filter(s => (s.pic || '').trim() !== '');
+      const kebLow = ((KASIE_CURRENT_RECORD && KASIE_CURRENT_RECORD.kebutuhan) || '').toLowerCase();
+
+      if (['Siap Produksi', 'In Progress'].includes(status) && validSubtasks.length === 0 && !kebLow.includes('peminjaman')) {
+        alert('Pilih minimal satu petugas / PIC pada daftar sub-tugas sebelum ACC.');
+        return;
+      }
+
+      const formattedPic = validSubtasks.length > 0
+        ? validSubtasks.map(s => `${s.role.trim() || 'Tugas Produksi'}: ${s.pic.trim()} (${Number(s.points) || 0}p)`).join(', ')
+        : 'Belum ditunjuk';
+
+      const totalBobot = Math.round(KASIE_SUBTASKS_STATE.reduce((acc, s) => acc + (Number(s.points) || 0), 0) * 10) / 10;
+
+      const btn = document.getElementById('btn-submit-kasie');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      try {
+        await callGasPost('saveKasieApproval', {
+          pin: getSavedPin('kasie'),
+          payload: {
+            rowIndex,
+            tglMulaiProduksi: document.getElementById('ks-tgl-prod').value,
+            deadlineTayang: document.getElementById('ks-deadline').value,
+            picProduksi: formattedPic,
+            subTugas: validSubtasks,
+            bobot: totalBobot,
+            poinWola: totalBobot,
+            prioritas: document.getElementById('ks-prioritas').value,
+            status,
+            catatanKasie,
+            linkHasil: document.getElementById('ks-link-hasil').value.trim()
+          }
+        });
+        closeModal('modal-kasie');
+        await loadData();
+      } catch (err) {
+        alert('Error menyimpan ACC Kasie: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Simpan & ACC Penugasan';
+      }
+    }
+
+    async function triggerAutoShift(rowIndex) {
+      if (!confirm('Slot harian penuh. Geser jadwal produksi/terbitan +1 hari kerja?')) return;
+      try {
+        const res = await callGasPost('autoShiftSchedule', {
+          pin: getSavedPin('kasie'),
+          payload: { rowIndex }
+        });
+        alert(res.message || 'Jadwal berhasil digeser +1 hari.');
+        await loadData();
+      } catch (err) {
+        alert('Gagal menggeser jadwal: ' + err.message);
+      }
+    }
+
+    async function triggerSyncAllCalendar() {
+      const btn = document.getElementById('btn-sync-cal');
+      if (!btn) return;
+      btn.disabled = true;
+      const origText = btn.textContent;
+      btn.textContent = 'Menyinkronkan...';
+
+      try {
+        const res = await callGasPost('syncAllToCalendar', {
+          pin: getSavedPin('kasie')
+        });
+        alert(res.message || 'Sinkronisasi ke Google Calendar berhasil!');
+        await loadData();
+      } catch (err) {
+        alert('Gagal sinkronisasi Google Calendar: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+  </script>
+</body>
+</html>
