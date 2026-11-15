@@ -91,10 +91,10 @@
           <button type="button" onclick="selectFlow('B1')" id="card-flow-B1" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-teal-500 p-4">
             <div class="flex items-center justify-between mb-1.5">
               <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-teal-700 text-white">CABANG B1</span>
-              <span class="text-[11px] font-bold text-teal-700">Menjelang Acara</span>
+              <span class="text-[11px] font-bold text-teal-700">Menjelang Acara / Revisi</span>
             </div>
-            <div class="text-sm font-extrabold text-slate-900">Lengkapi Teknis Program</div>
-            <p class="text-xs text-slate-600 mt-1">Isi tanggal, jam & lokasi untuk program kuartalan yang sudah terdaftar.</p>
+            <div class="text-sm font-extrabold text-slate-900">Lengkapi Teknis / Revisi</div>
+            <p class="text-xs text-slate-600 mt-1">Isi tanggal, jam & lokasi atau perbaiki revisi program yang sudah terdaftar.</p>
           </button>
 
           <button type="button" onclick="selectFlow('B2')" id="card-flow-B2" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-red-500 p-4">
@@ -113,23 +113,31 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Unit *</label>
-                <select id="u-unit" required onchange="populateUnitPlansDropdown()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                <select id="u-unit" required onchange="onUnitSelectionChange()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
                   <option value="">-- Pilih Unit --</option>
-                  <option value="KB-TK">KB-TK</option>
-                  <option value="SD">SD</option>
-                  <option value="SMP">SMP</option>
-                  <option value="SMA">SMA</option>
-                  <option value="PINUS - PAUD">PINUS - PAUD</option>
-                  <option value="PINUS - SD">PINUS - SD</option>
-                  <option value="PINUS - PKBM">PINUS - PKBM</option>
-                  <option value="PK3">PK3</option>
-                  <option value="CHAPLAIN">CHAPLAIN</option>
-                  <option value="PENDIDIKAN">PENDIDIKAN</option>
-                  <option value="SDM">SDM</option>
-                  <option value="UMUM - HUMAS">UMUM - HUMAS</option>
-                  <option value="YAYASAN">YAYASAN</option>
-                  <option value="All Unit">All Unit</option>
+                  <optgroup label="Unit Sekolah (Melalui ACC Kepsek)">
+                    <option value="KB-TK">KB-TK</option>
+                    <option value="SD">SD</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                    <option value="PINUS - PAUD">PINUS - PAUD</option>
+                    <option value="PINUS - SD">PINUS - SD</option>
+                    <option value="PINUS - PKBM">PINUS - PKBM</option>
+                  </optgroup>
+                  <optgroup label="Unit Non-Sekolah / Yayasan (Langsung Konseptor)">
+                    <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+                    <option value="PK3">PK3</option>
+                    <option value="CHAPLAIN">CHAPLAIN</option>
+                    <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+                    <option value="SARPRAS">SARPRAS</option>
+                    <option value="KEUANGAN">KEUANGAN</option>
+                    <option value="PENDIDIKAN">PENDIDIKAN</option>
+                    <option value="SDM">SDM</option>
+                    <option value="YAYASAN">YAYASAN</option>
+                    <option value="All Unit">All Unit</option>
+                  </optgroup>
                 </select>
+                <p id="unit-routing-hint" class="hidden text-[11px] font-semibold mt-1"></p>
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Nama PIC Unit *</label>
@@ -143,11 +151,12 @@
           </div>
 
           <div id="box-b1-selector" class="hidden bg-teal-50 border border-teal-200 rounded-xl p-4 space-y-2">
-            <label class="block text-xs font-extrabold text-teal-900">Langkah 3: Pilih Program Kuartalan yang Akan Dilengkapi *</label>
+            <label class="block text-xs font-extrabold text-teal-900">Langkah 3: Pilih Program yang Akan Dilengkapi / Direvisi *</label>
             <select id="u-existing-plan" onchange="fillFromSelectedPlan()" class="w-full rounded-lg border border-teal-300 bg-white px-3 py-2.5 text-sm font-semibold">
               <option value="">-- Pilih Unit terlebih dahulu di atas --</option>
             </select>
             <p id="b1-plan-preview" class="text-xs text-teal-800"></p>
+            <div id="b1-revision-note" class="hidden bg-amber-50 border border-amber-300 rounded-lg p-2.5 text-xs text-amber-900 font-medium"></div>
           </div>
 
           <div id="box-vbp-fields" class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-3">
@@ -313,20 +322,27 @@
           </select>
           <select id="flt-unit" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
             <option value="ALL">Semua Unit</option>
-            <option value="KB-TK">KB-TK</option>
-            <option value="SD">SD</option>
-            <option value="SMP">SMP</option>
-            <option value="SMA">SMA</option>
-            <option value="PINUS - PAUD">PINUS - PAUD</option>
-            <option value="PINUS - SD">PINUS - SD</option>
-            <option value="PINUS - PKBM">PINUS - PKBM</option>
-            <option value="PK3">PK3</option>
-            <option value="CHAPLAIN">CHAPLAIN</option>
-            <option value="PENDIDIKAN">PENDIDIKAN</option>
-            <option value="SDM">SDM</option>
-            <option value="UMUM - HUMAS">UMUM - HUMAS</option>
-            <option value="YAYASAN">YAYASAN</option>
-            <option value="All Unit">All Unit</option>
+            <optgroup label="Unit Sekolah">
+              <option value="KB-TK">KB-TK</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="PINUS - PAUD">PINUS - PAUD</option>
+              <option value="PINUS - SD">PINUS - SD</option>
+              <option value="PINUS - PKBM">PINUS - PKBM</option>
+            </optgroup>
+            <optgroup label="Non-Sekolah / Yayasan">
+              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+              <option value="PK3">PK3</option>
+              <option value="CHAPLAIN">CHAPLAIN</option>
+              <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+              <option value="SARPRAS">SARPRAS</option>
+              <option value="KEUANGAN">KEUANGAN</option>
+              <option value="PENDIDIKAN">PENDIDIKAN</option>
+              <option value="SDM">SDM</option>
+              <option value="YAYASAN">YAYASAN</option>
+              <option value="All Unit">All Unit</option>
+            </optgroup>
           </select>
           <select id="flt-status" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
             <option value="ACTIVE">Status: Aktif Saja</option>
@@ -348,14 +364,14 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="text-lg font-extrabold text-slate-900">Persetujuan Kepala Sekolah (ACC Unit)</h2>
+              <h2 class="text-lg font-extrabold text-slate-900">Persetujuan Kepala Sekolah (ACC Unit Sekolah)</h2>
               <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">🔓 PIN Terverifikasi</span>
             </div>
-            <p class="text-xs text-slate-500">Tinjau rencana kuartalan dan order Ad-Hoc dari unit sebelum masuk ke Konseptor VBP.</p>
+            <p class="text-xs text-slate-500">Tinjau rencana kuartalan dan order Ad-Hoc dari unit sekolah sebelum masuk ke Konseptor VBP.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <select id="kp-unit-filter" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold">
-              <option value="ALL">Semua Unit</option>
+              <option value="ALL">Semua Unit Sekolah</option>
               <option value="KB-TK">KB-TK</option>
               <option value="SD">SD</option>
               <option value="SMP">SMP</option>
@@ -363,13 +379,6 @@
               <option value="PINUS - PAUD">PINUS - PAUD</option>
               <option value="PINUS - SD">PINUS - SD</option>
               <option value="PINUS - PKBM">PINUS - PKBM</option>
-              <option value="PK3">PK3</option>
-              <option value="CHAPLAIN">CHAPLAIN</option>
-              <option value="PENDIDIKAN">PENDIDIKAN</option>
-              <option value="SDM">SDM</option>
-              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
-              <option value="YAYASAN">YAYASAN</option>
-              <option value="All Unit">All Unit</option>
             </select>
             <button onclick="setKepsekFilter('PENDING')" id="kp-flt-PENDING" class="kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 text-white">
               Menunggu ACC (<span id="kp-pending-count">0</span>)
@@ -394,7 +403,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-extrabold text-slate-900">Meja Kurasi Konseptor VBP</h2>
-            <p class="text-xs text-slate-500">Lengkapi pesan kunci VBP untuk program yang sudah di-ACC Kepsek, lalu ajukan ke Kasie.</p>
+            <p class="text-xs text-slate-500">Lengkapi pesan kunci VBP untuk program yang sudah di-ACC Kepsek (atau dari unit non-sekolah), lalu ajukan ke Kasie.</p>
           </div>
           <div class="flex flex-wrap gap-1.5">
             <button onclick="setKonseptorFilter('ANTREAN')" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Siap Dikonsep</button>
@@ -770,6 +779,7 @@
 
     let ALL_RECORDS = [];
     let CALENDAR_ID = '';
+    let SCHOOL_UNITS = ['KB-TK', 'SD', 'SMP', 'SMA', 'PINUS - PAUD', 'PINUS - SD', 'PINUS - PKBM'];
     let PIN_REQUIRED = { kepsek: true, konseptor: false, kasie: true };
     let PENDING_PIN_ROLE = null;
     let SERVER_DATE = new Date().toISOString().slice(0, 10);
@@ -798,6 +808,10 @@
       loadData();
     };
 
+    function isSchoolUnit(unit) {
+      return SCHOOL_UNITS.includes(String(unit || '').trim());
+    }
+
     function updateSubDomainOptions(domainSelectId, subSelectId, selectedVal) {
       const dom = document.getElementById(domainSelectId).value;
       const subEl = document.getElementById(subSelectId);
@@ -820,22 +834,34 @@
 
         ALL_RECORDS = data.records || [];
         CALENDAR_ID = data.calendarId || '';
+        if (Array.isArray(data.schoolUnits) && data.schoolUnits.length > 0) {
+          SCHOOL_UNITS = data.schoolUnits;
+        }
         if (data.pinRequired) PIN_REQUIRED = data.pinRequired;
         SERVER_DATE = data.serverDate || SERVER_DATE;
         loadEl.classList.add('hidden');
 
-        // Perbarui ikon kunci di navigasi sesuai setting PIN di Kode.gs
+        // Perbarui ikon kunci di navigasi sesuai setting PIN di Code.gs
         document.getElementById('nav-kepsek').textContent = '2. Kepsek (ACC)' + (PIN_REQUIRED.kepsek ? ' 🔒' : '');
         document.getElementById('nav-konseptor').textContent = '3. Konseptor VBP' + (PIN_REQUIRED.konseptor ? ' 🔒' : '');
         document.getElementById('nav-kasie').textContent = '4. Kasie (ACC)' + (PIN_REQUIRED.kasie ? ' 🔒' : '');
+
+        // Sinkronkan filter unit Kepsek dengan SCHOOL_UNITS dari Code.gs
+        const kpUnitSel = document.getElementById('kp-unit-filter');
+        const prevKpUnit = kpUnitSel.value;
+        kpUnitSel.innerHTML = '<option value="ALL">Semua Unit Sekolah</option>' +
+          SCHOOL_UNITS.map(u => `<option value="${u}">${u}</option>`).join('');
+        if (prevKpUnit && (prevKpUnit === 'ALL' || SCHOOL_UNITS.includes(prevKpUnit))) {
+          kpUnitSel.value = prevKpUnit;
+        }
 
         if (CALENDAR_ID) {
           document.getElementById('gcal-iframe').src =
             `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Asia%2FJakarta&mode=WEEK`;
         }
 
+        onUnitSelectionChange();
         populateTimeFilterOptions();
-        populateUnitPlansDropdown();
         renderAllGroupedViews();
         updateKPIs();
       } catch (err) {
@@ -926,6 +952,25 @@
     // =========================================================================
     // FORM UNIT (CABANG A, B1, B2)
     // =========================================================================
+    function onUnitSelectionChange() {
+      const unit = document.getElementById('u-unit').value;
+      const hintEl = document.getElementById('unit-routing-hint');
+
+      if (!unit) {
+        hintEl.classList.add('hidden');
+      } else if (isSchoolUnit(unit)) {
+        hintEl.classList.remove('hidden');
+        hintEl.className = 'text-[11px] font-semibold mt-1 text-amber-800';
+        hintEl.textContent = 'Alur Unit Sekolah: Pengajuan masuk ke ACC Kepala Sekolah terlebih dahulu.';
+      } else {
+        hintEl.classList.remove('hidden');
+        hintEl.className = 'text-[11px] font-semibold mt-1 text-blue-700';
+        hintEl.textContent = 'Alur Non-Sekolah: Pengajuan langsung masuk ke Antrean Konseptor VBP.';
+      }
+
+      populateUnitPlansDropdown();
+    }
+
     function selectFlow(flow) {
       CURRENT_FLOW = flow;
       document.getElementById('card-flow-A').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'A' ? 'flow-active-a' : 'border-slate-200 hover:border-blue-400');
@@ -991,31 +1036,63 @@
     function populateUnitPlansDropdown() {
       const unit = document.getElementById('u-unit').value;
       const sel = document.getElementById('u-existing-plan');
+      document.getElementById('b1-plan-preview').textContent = '';
+      document.getElementById('b1-revision-note').classList.add('hidden');
+
       if (!unit) {
         sel.innerHTML = '<option value="">-- Pilih Unit terlebih dahulu di atas --</option>';
         return;
       }
+      // Tampilkan Rencana Kuartalan aktif ATAU order apapun yang berstatus Revisi Unit
       const plans = ALL_RECORDS.filter(r =>
-        r.unit === unit && r.tipeOrder === 'Rencana Kuartalan' && r.status !== 'Done' && r.status !== 'Canceled'
+        r.unit === unit &&
+        r.status !== 'Done' &&
+        r.status !== 'Canceled' &&
+        (r.tipeOrder === 'Rencana Kuartalan' || r.status === 'Revisi Unit')
       );
       if (plans.length === 0) {
-        sel.innerHTML = '<option value="">(Belum ada Rencana Kuartalan aktif — gunakan Cabang B2)</option>';
+        sel.innerHTML = '<option value="">(Belum ada Rencana Kuartalan / Revisi aktif — gunakan Cabang B2)</option>';
         return;
       }
       sel.innerHTML = `<option value="">-- Pilih Program (${plans.length} tersedia) --</option>` +
-        plans.map(p => `<option value="${p.rowIndex}">[${p.id}] ${p.judul} (${p.targetKuartal})</option>`).join('');
+        plans.map(p => {
+          const revTag = p.status === 'Revisi Unit' ? ' [PERLU REVISI]' : '';
+          return `<option value="${p.rowIndex}">[${p.id}] ${p.judul} (${p.targetKuartal})${revTag}</option>`;
+        }).join('');
     }
 
     function fillFromSelectedPlan() {
       const rowIdx = Number(document.getElementById('u-existing-plan').value);
       const item = ALL_RECORDS.find(r => r.rowIndex === rowIdx);
       const prev = document.getElementById('b1-plan-preview');
-      if (!item) { prev.textContent = ''; return; }
-      prev.textContent = `Pilar: ${item.domainFscm} • Bukti Nyata: ${item.valueBukti || '-'}`;
+      const revBox = document.getElementById('b1-revision-note');
+
+      if (!item) {
+        prev.textContent = '';
+        revBox.classList.add('hidden');
+        return;
+      }
+
+      prev.textContent = `Status: ${item.status} • Pilar: ${item.domainFscm} • Bukti Nyata: ${item.valueBukti || '-'}`;
+
+      if (item.status === 'Revisi Unit' && item.catatanKasie) {
+        revBox.classList.remove('hidden');
+        revBox.innerHTML = `<strong>Catatan Revisi:</strong> ${item.catatanKasie}`;
+      } else {
+        revBox.classList.add('hidden');
+      }
+
+      if (item.pemohon && !document.getElementById('u-pemohon').value) document.getElementById('u-pemohon').value = item.pemohon;
+      if (item.noHp && item.noHp !== '-' && !document.getElementById('u-hp').value) document.getElementById('u-hp').value = item.noHp;
       if (item.tglMulaiEvent) document.getElementById('u-tgl-mulai').value = item.tglMulaiEvent;
       if (item.tglSelesaiEvent) document.getElementById('u-tgl-selesai').value = item.tglSelesaiEvent;
       if (item.waktuLokasi) document.getElementById('u-waktu-lokasi').value = item.waktuLokasi;
       if (item.kebutuhan) document.getElementById('u-kebutuhan').value = item.kebutuhan;
+      if (item.linkBrief) document.getElementById('u-link-brief').value = item.linkBrief;
+      if (item.detailTeknis && !item.detailTeknis.startsWith('Menunggu detail teknis')) {
+        document.getElementById('u-detail-teknis').value = item.detailTeknis;
+      }
+      toggleStudioHelper();
       recalculateLiveSLA();
     }
 
@@ -1066,7 +1143,7 @@
         if (CURRENT_FLOW === 'B1') {
           const rowIndex = Number(document.getElementById('u-existing-plan').value);
           if (!rowIndex) {
-            alert('Pilih program kuartalan terlebih dahulu.');
+            alert('Pilih program kuartalan / revisi terlebih dahulu.');
             btn.disabled = false;
             selectFlow('B1');
             return;
@@ -1084,8 +1161,9 @@
               detailTeknis: detTeknis
             }
           });
-          alert(`Tersimpan! ID: ${res.id}\nStatus: ${res.status} | SLA: ${res.kategoriSla}`);
+          alert(`Tersimpan!\nID: ${res.id}\nStatus: ${res.status}\nSLA: ${res.kategoriSla}`);
           document.getElementById('form-1pintu').reset();
+          onUnitSelectionChange();
           selectFlow('A');
           await loadData();
           return;
@@ -1122,9 +1200,14 @@
           }
         });
 
-        alert(`Berhasil terkirim!\nID: ${res.id}\nStatus: Menunggu ACC Kepsek`);
+        const alurInfo = res.needsKepsekAcc
+          ? 'Diteruskan ke meja ACC Kepala Sekolah.'
+          : 'Unit Non-Sekolah: Langsung masuk ke Antrean Konseptor VBP.';
+        alert(`Berhasil terkirim!\nID: ${res.id}\nStatus: ${res.status}\n${alurInfo}`);
+
         document.getElementById('form-1pintu').reset();
         OPTIONAL_TEKNIS_OPEN = false;
+        onUnitSelectionChange();
         selectFlow('A');
         await loadData();
       } catch (err) {
@@ -1385,19 +1468,20 @@
       const unitRecs = getFilteredRecords(null);
       document.getElementById('grouped-unit-container').innerHTML = buildGroupedHierarchyHtml(unitRecs, 'unit');
 
-      // Filter Kepsek
+      // Filter Kepsek (hanya unit sekolah sesuai SCHOOL_UNITS di Code.gs)
       const kpUnit = document.getElementById('kp-unit-filter').value;
-      const kepsekPendingAll = ALL_RECORDS.filter(r => r.status === 'Menunggu ACC Kepsek');
+      const kepsekPendingAll = ALL_RECORDS.filter(r => isSchoolUnit(r.unit) && r.status === 'Menunggu ACC Kepsek');
       document.getElementById('kp-pending-count').textContent = kepsekPendingAll.length;
 
       const kepsekRecs = ALL_RECORDS.filter(r => {
+        if (!isSchoolUnit(r.unit)) return false;
         if (kpUnit !== 'ALL' && r.unit !== kpUnit) return false;
         if (KEPSEK_FILTER === 'PENDING') return r.status === 'Menunggu ACC Kepsek';
         return r.status !== 'Done' && r.status !== 'Canceled';
       });
       document.getElementById('grouped-kepsek-container').innerHTML = buildGroupedHierarchyHtml(kepsekRecs, 'kepsek');
 
-      // Filter Konseptor (hanya yang sudah lolos ACC Kepsek)
+      // Filter Konseptor (yang sudah lolos ACC Kepsek atau dari unit non-sekolah)
       const konseptorRecs = ALL_RECORDS.filter(r => {
         if (['Menunggu ACC Kepsek', 'Revisi Unit', 'Done', 'Canceled'].includes(r.status)) return false;
         if (KONSEPTOR_FILTER === 'KILAT') return (r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc';
