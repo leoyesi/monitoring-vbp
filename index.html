@@ -67,44 +67,65 @@
     <!-- ===================================================================== -->
     <!-- VIEW 1: PORTAL UNIT                                                   -->
     <!-- ===================================================================== -->
-    <section id="view-unit" class="space-y-6">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
-        <div class="flex items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Langkah 1: Pilih Keperluan Anda</h2>
-            <p class="text-xs text-slate-500">Klik salah satu kotak di bawah sesuai kebutuhan unit.</p>
+    <section id="view-unit" class="space-y-5">
+
+      <!-- BANNER NOTIFIKASI 1-KLIK UNTUK PROGRAM BERSTATUS REVISI UNIT -->
+      <div id="unit-revision-banner" class="hidden bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 shadow-sm space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[11px] font-extrabold uppercase">Perlu Tindakan</span>
+            <h3 class="text-sm font-extrabold text-amber-950">Ada Program yang Diminta Revisi (<span id="rev-banner-count">0</span>)</h3>
           </div>
-          <button onclick="loadData()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-600">
-            ↻ Refresh
-          </button>
+          <span class="text-[11px] font-semibold text-amber-800 hidden sm:inline">Klik tombol di samping item untuk langsung memperbaiki</span>
+        </div>
+        <div id="unit-revision-list" class="space-y-2"></div>
+      </div>
+
+      <div id="form-unit-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Langkah 1: Pilih Jenis Pengajuan</h2>
+            <p class="text-xs text-slate-500">Pilih pengajuan baru di bawah, atau klik tombol di kanan untuk melengkapi jadwal program kuartalan.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="selectFlow('B1')" id="btn-mode-b1" class="px-3 py-1.5 text-xs font-extrabold rounded-lg border-2 border-teal-600 bg-teal-50 text-teal-900 hover:bg-teal-100 transition">
+              ✏️ Lengkapi Jadwal / Revisi Program Terdaftar
+            </button>
+            <button type="button" onclick="loadData()" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-600">
+              ↻ Refresh
+            </button>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <!-- 2 PILIHAN UTAMA YANG RINGKAS & JELAS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
           <button type="button" onclick="selectFlow('A')" id="card-flow-A" class="flow-card flow-active-a text-left rounded-xl border-2 p-4">
             <div class="flex items-center justify-between mb-1.5">
-              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-700 text-white">CABANG A</span>
-              <span class="text-[11px] font-bold text-blue-700">Awal Kuartal</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-700 text-white">1. PROGRAM TERENCANA</span>
+              <span class="text-[11px] font-bold text-blue-700">Rencana Kuartalan (VBP)</span>
             </div>
-            <div class="text-sm font-extrabold text-slate-900">Rencana Kuartalan (VBP)</div>
-            <p class="text-xs text-slate-600 mt-1">Daftarkan program kuartalan & nilai VBP. Tanggal boleh menyusul.</p>
-          </button>
-
-          <button type="button" onclick="selectFlow('B1')" id="card-flow-B1" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-teal-500 p-4">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-teal-700 text-white">CABANG B1</span>
-              <span class="text-[11px] font-bold text-teal-700">Menjelang Acara / Revisi</span>
-            </div>
-            <div class="text-sm font-extrabold text-slate-900">Lengkapi Teknis / Revisi</div>
-            <p class="text-xs text-slate-600 mt-1">Isi tanggal, jam & lokasi atau perbaiki revisi program yang sudah terdaftar.</p>
+            <div class="text-sm font-extrabold text-slate-900">Daftarkan Program Kerja Kuartalan</div>
+            <p class="text-xs text-slate-600 mt-1">Untuk program rutin/kuartalan unit. Tanggal & jam boleh menyusul jika belum pasti.</p>
           </button>
 
           <button type="button" onclick="selectFlow('B2')" id="card-flow-B2" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-red-500 p-4">
             <div class="flex items-center justify-between mb-1.5">
-              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-red-700 text-white">CABANG B2</span>
-              <span class="text-[11px] font-bold text-red-700">SLA Kilat</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-red-700 text-white">2. ORDER MENDADAK / PINJAM ALAT</span>
+              <span class="text-[11px] font-bold text-red-700">Ad-Hoc • SLA Kilat</span>
             </div>
-            <div class="text-sm font-extrabold text-slate-900">Order Baru / Mendadak</div>
-            <p class="text-xs text-slate-600 mt-1">Pengajuan baru (Ad-Hoc) di luar rencana kuartalan.</p>
+            <div class="text-sm font-extrabold text-slate-900">Pengajuan Baru Mendadak / Booking Alat</div>
+            <p class="text-xs text-slate-600 mt-1">Untuk kebutuhan mendadak di luar rencana kuartalan, booking studio, atau <strong>Peminjaman Alat</strong>.</p>
+          </button>
+        </div>
+
+        <!-- BANNER INDIKATOR SAAT MODE LENGKAPI TEKNIS / REVISI AKTIF -->
+        <div id="mode-b1-active-bar" class="hidden mb-5 bg-teal-700 text-white rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+          <div class="text-xs">
+            <span class="font-extrabold uppercase tracking-wider bg-teal-900 px-2 py-0.5 rounded mr-1.5">Mode Update Program</span>
+            <span>Melengkapi jadwal & teknis atau memperbaiki revisi dari program kuartalan yang sudah terdaftar.</span>
+          </div>
+          <button type="button" onclick="selectFlow('A')" class="px-3 py-1 rounded-lg bg-white text-teal-900 text-xs font-extrabold hover:bg-teal-50">
+            ← Kembali ke Pengajuan Baru
           </button>
         </div>
 
@@ -151,6 +172,7 @@
             </div>
           </div>
 
+          <!-- SELECTOR PROGRAM TERDAFTAR (UNTUK LENGKAPI JADWAL / REVISI) -->
           <div id="box-b1-selector" class="hidden bg-teal-50 border border-teal-200 rounded-xl p-4 space-y-2">
             <label class="block text-xs font-extrabold text-teal-900">Langkah 3: Pilih Program yang Akan Dilengkapi / Direvisi *</label>
             <select id="u-existing-plan" onchange="fillFromSelectedPlan()" class="w-full rounded-lg border border-teal-300 bg-white px-3 py-2.5 text-sm font-semibold">
@@ -221,8 +243,8 @@
 
           <div id="toggle-teknis-wrapper" class="flex items-center justify-between bg-blue-50/70 border border-blue-200 rounded-xl px-4 py-3">
             <div>
-              <div class="text-xs font-bold text-blue-900">Sudah tahu tanggal acara & kebutuhan liputan?</div>
-              <div class="text-[11px] text-blue-700">Opsional untuk Cabang A. Bisa diisi nanti lewat Cabang B1.</div>
+              <div class="text-xs font-bold text-blue-900">Sudah tahu tanggal acara & kebutuhan liputan / alat?</div>
+              <div class="text-[11px] text-blue-700">Opsional untuk Program Kuartalan. Bisa dilengkapi nanti lewat tombol "Lengkapi Jadwal".</div>
             </div>
             <button type="button" onclick="toggleOptionalTeknis()" id="btn-toggle-teknis" class="px-3 py-1.5 rounded-lg bg-white border border-blue-300 text-xs font-bold text-blue-800 hover:bg-blue-100">
               + Isi Jadwal & Teknis
@@ -256,6 +278,11 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai (Jika >1 hari)</label>
                 <input type="date" id="u-tgl-selesai" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
               </div>
+            </div>
+
+            <!-- INFO JALUR CEPAT PEMINJAMAN ALAT -->
+            <div id="badge-bypass-alat" class="hidden bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2 text-xs text-emerald-900 font-semibold">
+              ⚡ <strong>Jalur Cepat Peminjaman Alat (0 Poin WOLA):</strong> Tidak perlu melewati Konseptor VBP — setelah disetujui (jika unit sekolah), langsung masuk ke meja <strong>Kasie Publikasi</strong> untuk pengecekan alat.
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -299,7 +326,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="text-base font-extrabold text-slate-900">Jadwal & Daftar Order (Per Tahun • Bulan • Minggu)</h3>
-            <p class="text-xs text-slate-500">Cek bentrok jadwal antar-unit, pantau status ACC & PIC tanpa PIN, serta lihat acuan rencana kuartalan.</p>
+            <p class="text-xs text-slate-500">Cek bentrok jadwal antar-unit, pantau status ACC & PIC tanpa PIN, serta lengkapi jadwal program kuartalan.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <select id="flt-date-basis" onchange="onDateBasisChange(this.value)" class="rounded-lg border border-blue-300 bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-900">
@@ -374,7 +401,7 @@
               <h2 class="text-lg font-extrabold text-slate-900">Persetujuan Kepala Sekolah (ACC Unit Sekolah)</h2>
               <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">🔓 PIN Terverifikasi</span>
             </div>
-            <p class="text-xs text-slate-500">Tinjau rencana kuartalan dan order Ad-Hoc dari unit sekolah sebelum masuk ke Konseptor VBP.</p>
+            <p class="text-xs text-slate-500">Tinjau rencana kuartalan dan order Ad-Hoc dari unit sekolah sebelum masuk ke Konseptor VBP (atau langsung ke Kasie untuk Peminjaman Alat).</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <select id="kp-unit-filter" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold">
@@ -407,11 +434,10 @@
     <!-- ===================================================================== -->
     <section id="view-konseptor" class="hidden space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
-        <!-- HEADER & TOMBOL FILTER CEPAT DENGAN COUNTER -->
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Meja Kurasi Konseptor VBP</h2>
-            <p class="text-xs text-slate-500">Tetapkan <strong>Sub-Pilar final</strong> dan racik <strong>Pesan Kunci VBP</strong> langsung dari ringkasan bukti nyata unit, lalu ajukan ke Kasie.</p>
+            <h2 class="text-lg font-extrabold text-slate-900">Meja Kurasi Konseptor VBP & Jadwal Terbitan</h2>
+            <p class="text-xs text-slate-500">Tetapkan <strong>Sub-Pilar final</strong>, racik <strong>Pesan Kunci VBP</strong>, dan atur <strong>Target Tanggal Tayang</strong> sebelum diajukan ke Kasie.</p>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
             <button onclick="setKonseptorFilter('ANTREAN')" id="k-btn-ANTREAN" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-700 text-white shadow-2xs">
@@ -432,7 +458,6 @@
           </div>
         </div>
 
-        <!-- SMART FILTER BAR (UNIT, BULAN, PILAR, CARI) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
           <div class="lg:col-span-3">
             <select id="k-flt-unit" onchange="renderKonseptorCompactView()" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800">
@@ -483,7 +508,6 @@
           </div>
         </div>
 
-        <!-- DAFTAR COMPACT ROW KONSEPTOR -->
         <div id="grouped-konseptor-container" class="space-y-3"></div>
       </div>
     </section>
@@ -539,7 +563,7 @@
               <h2 class="text-lg font-extrabold text-slate-900">Kendali ACC Kasie, Sub-Tugas & Poin WOLA</h2>
               <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold">🔓 PIN Terverifikasi</span>
             </div>
-            <p class="text-xs text-slate-500">Atur <strong>Jadwal Produksi/Terbitan</strong>, pecah <strong>Sub-Tugas</strong> (Konseptor, Liputan, Desain, Editor Video), sesuaikan <strong>Poin WOLA</strong>, dan tunjuk <strong>Personel</strong>.</p>
+            <p class="text-xs text-slate-500">Setujui <strong>Tgl Mulai Produksi</strong>, tinjau <strong>Jadwal Terbitan dari Konseptor</strong>, pecah <strong>Sub-Tugas</strong>, dan tunjuk <strong>Personel</strong>.</p>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
             <select id="ks-unit-filter" onchange="onKasieFilterChange()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800">
@@ -611,7 +635,6 @@
           </div>
         </div>
 
-        <!-- FILTER PIC & PERIODE WOLA -->
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex flex-wrap items-center gap-1.5">
             <span class="text-xs font-bold text-slate-500 mr-1">Filter PIC:</span>
@@ -638,7 +661,6 @@
           </div>
         </div>
 
-        <!-- SUB-TABS: TUGAS & WOLA VS GOOGLE CALENDAR -->
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
           <div class="flex items-center gap-2">
             <button onclick="switchTeamSubView('list')" id="sub-tim-list" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900">
@@ -653,10 +675,7 @@
           </button>
         </div>
 
-        <!-- KONTEN SUB-TAB 1: GRAFIK WOLA + DAFTAR TUGAS -->
         <div id="tim-view-list" class="space-y-5">
-
-          <!-- PANEL WORKLOAD ANALYSIS (WOLA) -->
           <div id="wola-dashboard-panel" class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
               <div>
@@ -674,13 +693,9 @@
               </div>
             </div>
 
-            <!-- 3 EXECUTIVE WOLA SUMMARY CARDS -->
             <div id="wolaSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
-
-            <!-- 6 KARTU BEBAN PERSONEL -->
             <div id="personelStats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
 
-            <!-- GRAFIK BATANG HORIZONTAL WOLA + 2 PIE CHART -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
               <div class="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
                 <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">📊 Grafik Beban Kerja Per Personel (Poin WOLA)</div>
@@ -704,15 +719,12 @@
               </div>
             </div>
 
-            <!-- PANEL ANALISA HASIL & REKOMENDASI OTOMATIS -->
             <div id="wolaInsightsPanel"></div>
           </div>
 
-          <!-- DAFTAR TUGAS TERKELOMPOK -->
           <div id="tim-tasks-container" class="space-y-4"></div>
         </div>
 
-        <!-- KONTEN SUB-TAB 2: GOOGLE CALENDAR -->
         <div id="tim-view-calendar" class="hidden space-y-3">
           <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
             Jika kalender di bawah tidak muncul di browser Anda, pastikan Anda login ke akun Google yang sudah diberi akses kalender atau klik tombol <strong>Buka Google Calendar ↗</strong> di atas.
@@ -741,7 +753,7 @@
       <div class="p-5 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
         <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-200 space-y-1">
           <div class="font-extrabold text-blue-900 text-sm">🎯 1. Standar Konversi Poin WOLA</div>
-          <p class="text-blue-800"><strong>1 POIN WOLA = 2 JAM KERJA EFEKTIF MURNI</strong>. Standar beban ideal per staf adalah <strong>20 Poin / bulan</strong> (40 jam kerja produksi murni di luar rapat & koordinasi). Peminjaman alat saja bernilai <strong>0 Poin</strong>.</p>
+          <p class="text-blue-800"><strong>1 POIN WOLA = 2 JAM KERJA EFEKTIF MURNI</strong>. Standar beban ideal per staf adalah <strong>20 Poin / bulan</strong> (40 jam kerja produksi murni di luar rapat & koordinasi). Peminjaman alat saja bernilai <strong>0 Poin</strong> (jalur cepat langsung ke Kasie).</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -753,7 +765,7 @@
               <li><strong>Liputan Foto / Video (per hari):</strong> 2 Poin</li>
               <li><strong>Editor Video (Reels / Highlight):</strong> 2 Poin</li>
               <li><strong>Paket Liputan & Desain:</strong> 3 Poin / hari</li>
-              <li><strong>Peminjaman Alat:</strong> 0 Poin</li>
+              <li><strong>Peminjaman Alat:</strong> 0 Poin (Bypass Konseptor)</li>
             </ul>
           </div>
           <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
@@ -764,11 +776,6 @@
               <li><strong class="text-rose-700">🔴 > 25 Poin:</strong> Overload (Potensi Lembur / Perlu Rebalancing)</li>
             </ul>
           </div>
-        </div>
-
-        <div class="bg-purple-50 p-3.5 rounded-xl border border-purple-200 space-y-1 text-purple-900">
-          <div class="font-bold">🧩 Mekanisme Hybrid & Pembagian Sub-Tugas di Room Kasie</div>
-          <p>Sistem menghitung bobot awal secara otomatis, lalu Kasie dapat memecahnya menjadi beberapa <strong>Sub-Tugas</strong> (mis. Konseptor, Desain Grafis, Editor Video) serta <strong>mengedit poinnya secara manual</strong> sesuai kompleksitas acara. Poin masuk secara akurat ke masing-masing personel tanpa double-counting.</p>
         </div>
       </div>
       <div class="bg-slate-50 p-3.5 border-t border-slate-200 flex justify-end shrink-0">
@@ -823,6 +830,10 @@
         <div><strong>Kebutuhan & Teknis:</strong> <span id="kp-teknis-info"></span></div>
       </div>
 
+      <div id="kp-bypass-info" class="hidden bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs text-emerald-900 font-semibold">
+        ⚡ <strong>Info Jalur Cepat:</strong> Karena layanan ini adalah <strong>Peminjaman Alat</strong>, setelah ACC Kepsek pengajuan akan langsung diteruskan ke <strong>Kasie Publikasi</strong> (tanpa melalui Konseptor VBP).
+      </div>
+
       <div>
         <label class="block text-xs font-bold mb-1">Catatan Kepala Sekolah (Opsional / Wajib jika Revisi)</label>
         <textarea id="kp-catatan" rows="2" placeholder="Contoh: ACC, silakan lanjutkan kurasi VBP dan liputan." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"></textarea>
@@ -835,7 +846,7 @@
         <button onclick="submitKepsek('REVISI')" class="px-3.5 py-2 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200">
           Minta Revisi Unit
         </button>
-        <button onclick="submitKepsek('ACC')" class="px-5 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800">
+        <button onclick="submitKepsek('ACC')" id="btn-kp-acc" class="px-5 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800">
           ✓ ACC Kepsek → Ke Konseptor
         </button>
       </div>
@@ -895,13 +906,13 @@
     </div>
   </div>
 
-  <!-- MODAL KONSEPTOR VBP (SUB-PILAR WAJIB DIISI KONSEPTOR) -->
+  <!-- MODAL KONSEPTOR VBP (TERMASUK TARGET TANGGAL TAYANG / TERBIT) -->
   <div id="modal-konseptor" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b pb-3">
         <div>
           <span id="mk-badge-id" class="text-xs font-extrabold text-blue-700"></span>
-          <h3 class="text-base font-extrabold text-slate-900">Kurasi Pesan Kunci VBP</h3>
+          <h3 class="text-base font-extrabold text-slate-900">Kurasi Pesan Kunci VBP & Jadwal Tayang</h3>
         </div>
         <button onclick="closeModal('modal-konseptor')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
       </div>
@@ -935,7 +946,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label class="block text-xs font-bold mb-1">Bentuk Program</label>
           <select id="mk-tingkat" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
@@ -948,7 +959,11 @@
         </div>
         <div>
           <label class="block text-xs font-bold mb-1">Format & Channel</label>
-          <input type="text" id="mk-format" placeholder="Contoh: Reels IG, Carousel, YouTube" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+          <input type="text" id="mk-format" placeholder="Reels IG, Carousel, YT" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1 text-indigo-950">🚀 Target Tgl Tayang / Terbit</label>
+          <input type="date" id="mk-deadline-tayang" class="w-full rounded-lg border-2 border-indigo-300 bg-indigo-50/40 px-2.5 py-2 text-xs font-semibold text-indigo-950">
         </div>
       </div>
 
@@ -973,7 +988,7 @@
     </div>
   </div>
 
-  <!-- MODAL KASIE (DENGAN EDITOR POIN WOLA, SUB-TUGAS MULTI-PERAN & SMART PIC) -->
+  <!-- MODAL KASIE (DENGAN EDITOR POIN WOLA, OTOMATISASI SUB-TUGAS & READ-ONLY JADWAL TAYANG) -->
   <div id="modal-kasie" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b pb-3">
@@ -994,15 +1009,24 @@
         <div><strong>Teknis & Lokasi:</strong> <span id="ks-teknis"></span></div>
       </div>
 
-      <!-- ZONA 1: JADWAL PRODUKSI & TERBITAN -->
+      <!-- ZONA 1: JADWAL PRODUKSI (KASIE) & TARGET TERBITAN (READ-ONLY KONSEPTOR + OVERRIDE DARURAT) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-indigo-50/60 p-3 rounded-xl border border-indigo-200">
         <div>
-          <label class="block text-xs font-extrabold text-indigo-950 mb-1">🎬 Tgl Mulai Produksi Konten</label>
+          <label class="block text-xs font-extrabold text-indigo-950 mb-1">🎬 Tgl Mulai Produksi Konten (Alokasi Tim)</label>
           <input type="date" id="ks-tgl-prod" onchange="refreshKasieSubtaskPicDropdowns()" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-semibold">
         </div>
         <div>
-          <label class="block text-xs font-extrabold text-indigo-950 mb-1">🚀 Jadwal Terbitan / Tayang Konten</label>
-          <input type="date" id="ks-deadline" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-semibold">
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-extrabold text-indigo-950">🚀 Jadwal Terbitan (Konseptor)</label>
+            <button type="button" onclick="toggleKasieDeadlineOverride()" id="btn-ks-override-deadline" class="text-[10px] font-bold text-indigo-700 hover:underline">
+              Ubah (Darurat)
+            </button>
+          </div>
+          <div id="ks-deadline-readonly-box" class="w-full rounded-lg border border-indigo-200 bg-white/80 px-2.5 py-2 text-xs font-bold text-indigo-900 flex items-center justify-between">
+            <span id="ks-deadline-readonly-text">Belum ditentukan Konseptor</span>
+            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">Read-Only</span>
+          </div>
+          <input type="date" id="ks-deadline" onchange="updateKasieDeadlineReadonlyText()" class="hidden mt-1.5 w-full rounded-lg border border-indigo-400 bg-white px-2.5 py-1.5 text-xs font-semibold">
         </div>
       </div>
 
@@ -1013,7 +1037,7 @@
             <div class="text-xs font-extrabold text-purple-950 flex items-center gap-1.5">
               <span>🧩</span> Pembagian Sub-Tugas & Penunjukan Personel
             </div>
-            <p class="text-[11px] text-purple-800">Pecah tugas per peran (mis. Konseptor, Liputan, Desain Grafis, Editor Video) atau sesuaikan poin masing-masing.</p>
+            <p class="text-[11px] text-purple-800">Sub-tugas otomatis disiapkan sesuai kebutuhan layanan unit. Kasie cukup pilih staf atau klik auto-pilih.</p>
           </div>
           <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-purple-300 shadow-2xs">
             <span class="text-[11px] font-bold text-slate-600">Total Bobot Order:</span>
@@ -1026,20 +1050,19 @@
         <div class="flex flex-wrap items-center gap-1.5">
           <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-900 mr-1">Preset Cepat:</span>
           <button type="button" onclick="applySubtaskPreset('SIT_IN')" class="px-2 py-1 rounded-md bg-white hover:bg-purple-100 border border-purple-300 text-[11px] font-bold text-purple-900">
-            + Paket Liputan Lengkap (Konseptor + Desain + Editor Video)
+            + Liputan & Desain Lengkap
           </button>
           <button type="button" onclick="applySubtaskPreset('LIPUTAN_EDIT')" class="px-2 py-1 rounded-md bg-white hover:bg-purple-100 border border-purple-300 text-[11px] font-bold text-purple-900">
             + Liputan & Editor Video
           </button>
           <button type="button" onclick="applySubtaskPreset('DESAIN_ONLY')" class="px-2 py-1 rounded-md bg-white hover:bg-purple-100 border border-purple-300 text-[11px] font-bold text-purple-900">
-            + Konseptor & Desain Grafis
+            + Konseptor & Desain
           </button>
           <button type="button" onclick="autoAssignLightestPics()" class="px-2.5 py-1 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold shadow-2xs">
             💡 Pilih Otomatis Staf Terlonggar
           </button>
         </div>
 
-        <!-- DAFTAR BARIS SUB-TUGAS DINAMIS -->
         <div id="ks-subtask-list" class="space-y-2"></div>
 
         <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -1238,9 +1261,31 @@
       return { jam: '', lokasi: raw };
     }
 
+    // Mengambil Jadwal Terbitan efektif (dari Google Sheets atau yang baru ditetapkan Konseptor)
+    function getEffectiveDeadlineTayang(r) {
+      if (!r) return '';
+      if (r.deadlineTayang && /^\d{4}-\d{2}-\d{2}$/.test(r.deadlineTayang)) return r.deadlineTayang;
+      try {
+        const localVal = localStorage.getItem('athalia_pub_date_' + r.id) || '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(localVal)) return localVal;
+      } catch (e) {}
+      return '';
+    }
+
+    function setLocalDeadlineTayang(recordId, isoDate) {
+      if (!recordId) return;
+      try {
+        if (isoDate && /^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+          localStorage.setItem('athalia_pub_date_' + recordId, isoDate);
+        } else {
+          localStorage.removeItem('athalia_pub_date_' + recordId);
+        }
+      } catch (e) {}
+    }
+
     function getGroupingDate(r) {
       if (DATE_GROUP_BASIS === 'PUBLISH') {
-        return r.deadlineTayang || r.tglMulaiProduksi || r.tglMulaiEvent || '';
+        return getEffectiveDeadlineTayang(r) || r.tglMulaiProduksi || r.tglMulaiEvent || '';
       }
       return r.tglMulaiEvent || '';
     }
@@ -1318,6 +1363,7 @@
             `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Asia%2FJakarta&mode=WEEK`;
         }
 
+        renderUnitRevisionBanner();
         onUnitSelectionChange();
         populateTimeFilterOptions();
         populateKonseptorFilterOptions();
@@ -1341,6 +1387,60 @@
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Gagal menyimpan.');
       return data;
+    }
+
+    // =========================================================================
+    // BANNER & TOMBOL 1-KLIK UNTUK "REVISI UNIT" DI TAB 1
+    // =========================================================================
+    function renderUnitRevisionBanner() {
+      const bannerEl = document.getElementById('unit-revision-banner');
+      const listEl = document.getElementById('unit-revision-list');
+      const cntEl = document.getElementById('rev-banner-count');
+      if (!bannerEl || !listEl) return;
+
+      const revItems = ALL_RECORDS.filter(r => r.status === 'Revisi Unit');
+      if (revItems.length === 0) {
+        bannerEl.classList.add('hidden');
+        return;
+      }
+
+      cntEl.textContent = revItems.length;
+      bannerEl.classList.remove('hidden');
+
+      listEl.innerHTML = revItems.map(r => `
+        <div class="bg-white border border-amber-300 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div class="space-y-0.5 text-xs">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-white font-extrabold text-[10px]">${escapeHtml(r.unit)}</span>
+              <span class="font-mono font-bold text-slate-500">${escapeHtml(r.id)}</span>
+              <strong class="text-slate-900 text-sm">${escapeHtml(r.judul)}</strong>
+            </div>
+            <p class="text-amber-900 font-medium">
+              <strong>Catatan Revisi:</strong> ${escapeHtml(r.catatanKasie || 'Mohon lengkapi atau perbaiki detail program.')}
+            </p>
+          </div>
+          <button type="button" onclick="openQuickUpdatePlan(${r.rowIndex})"
+            class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shadow-2xs shrink-0 transition">
+            Perbaiki Sekarang →
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function openQuickUpdatePlan(rowIndex) {
+      const item = ALL_RECORDS.find(r => r.rowIndex === rowIndex);
+      if (!item) return;
+
+      selectFlow('B1');
+      document.getElementById('u-unit').value = item.unit;
+      onUnitSelectionChange();
+
+      const planSel = document.getElementById('u-existing-plan');
+      planSel.value = String(item.rowIndex);
+      fillFromSelectedPlan();
+
+      const cardEl = document.getElementById('form-unit-card');
+      if (cardEl) cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // =========================================================================
@@ -1410,7 +1510,7 @@
     }
 
     // =========================================================================
-    // FORM UNIT (CABANG A, B1, B2)
+    // FORM UNIT (RINGKAS: PROGRAM KUARTALAN, ORDER MENDADAK/ALAT, & UPDATE B1)
     // =========================================================================
     function onUnitSelectionChange() {
       const unit = document.getElementById('u-unit').value;
@@ -1425,7 +1525,7 @@
       } else {
         hintEl.classList.remove('hidden');
         hintEl.className = 'text-[11px] font-semibold mt-1 text-blue-700';
-        hintEl.textContent = 'Alur Non-Sekolah: Pengajuan langsung masuk ke Antrean Konseptor VBP.';
+        hintEl.textContent = 'Alur Non-Sekolah: Pengajuan langsung diteruskan (tanpa ACC Kepsek).';
       }
 
       populateUnitPlansDropdown();
@@ -1434,8 +1534,8 @@
     function selectFlow(flow) {
       CURRENT_FLOW = flow;
       document.getElementById('card-flow-A').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'A' ? 'flow-active-a' : 'border-slate-200 hover:border-blue-400');
-      document.getElementById('card-flow-B1').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'B1' ? 'flow-active-b1' : 'border-slate-200 hover:border-teal-400');
       document.getElementById('card-flow-B2').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'B2' ? 'flow-active-b2' : 'border-slate-200 hover:border-red-400');
+      document.getElementById('mode-b1-active-bar').classList.toggle('hidden', flow !== 'B1');
 
       const btn = document.getElementById('btn-submit-unit');
 
@@ -1456,7 +1556,7 @@
         document.getElementById('box-teknis-fields').classList.remove('hidden');
         setTeknisRequired(true);
         populateUnitPlansDropdown();
-        btn.textContent = 'Simpan Detail Teknis';
+        btn.textContent = 'Simpan Detail Teknis / Revisi';
         btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow transition';
       } else {
         document.getElementById('box-b1-selector').classList.add('hidden');
@@ -1466,9 +1566,10 @@
         document.getElementById('toggle-teknis-wrapper').classList.add('hidden');
         document.getElementById('box-teknis-fields').classList.remove('hidden');
         setTeknisRequired(true);
-        btn.textContent = 'Kirim Order Ad-Hoc (SLA Kilat)';
+        btn.textContent = 'Kirim Order Mendadak / Pinjam Alat';
         btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-sm shadow transition';
       }
+      toggleStudioHelper();
       recalculateLiveSLA();
     }
 
@@ -1489,8 +1590,10 @@
 
     function toggleStudioHelper() {
       const keb = document.getElementById('u-kebutuhan').value;
-      const show = (keb === 'Studio / Rekaman' || keb === 'Peminjaman Alat');
-      document.getElementById('box-studio-helper').classList.toggle('hidden', !show);
+      const showStudio = (keb === 'Studio / Rekaman' || keb === 'Peminjaman Alat');
+      const showBypassAlat = (keb === 'Peminjaman Alat');
+      document.getElementById('box-studio-helper').classList.toggle('hidden', !showStudio);
+      document.getElementById('badge-bypass-alat').classList.toggle('hidden', !showBypassAlat);
     }
 
     function populateUnitPlansDropdown() {
@@ -1510,7 +1613,7 @@
         (r.tipeOrder === 'Rencana Kuartalan' || r.status === 'Revisi Unit')
       );
       if (plans.length === 0) {
-        sel.innerHTML = '<option value="">(Belum ada Rencana Kuartalan / Revisi aktif — gunakan Cabang B2)</option>';
+        sel.innerHTML = '<option value="">(Belum ada Rencana Kuartalan / Revisi aktif — gunakan Order Mendadak)</option>';
         return;
       }
       sel.innerHTML = `<option value="">-- Pilih Program (${plans.length} tersedia) --</option>` +
@@ -1536,7 +1639,7 @@
 
       if (item.status === 'Revisi Unit' && item.catatanKasie) {
         revBox.classList.remove('hidden');
-        revBox.innerHTML = `<strong>Catatan Revisi:</strong> ${item.catatanKasie}`;
+        revBox.innerHTML = `<strong>Catatan Revisi:</strong> ${escapeHtml(item.catatanKasie)}`;
       } else {
         revBox.classList.add('hidden');
       }
@@ -1585,11 +1688,34 @@
       }
     }
 
+    // Helper: Jalur cepat Peminjaman Alat (Bypass Konseptor -> Langsung ke Kasie)
+    async function bypassKonseptorForAlat(rowIndex, itemData) {
+      await callGasPost('saveConceptData', {
+        pin: getSavedPin('konseptor'),
+        payload: {
+          rowIndex: Number(rowIndex),
+          domainFscm: normalizeFscmDomain(itemData.domainFscm || 'Tata Kelola, Layanan & Bukti Kualitas'),
+          subDomainFscm: (itemData.subDomainFscm && itemData.subDomainFscm !== 'Ditentukan Konseptor')
+            ? itemData.subDomainFscm
+            : 'Fasilitas & Lingkungan Aman',
+          tingkatFocus: itemData.tingkatFocus || 'Kegiatan',
+          formatChannel: 'Peminjaman Alat',
+          judul: itemData.judul || 'Peminjaman Alat',
+          valueBukti: itemData.valueBukti || 'Peminjaman Alat Unit',
+          konsepVbp: '[Jalur Cepat] Peminjaman Alat — Langsung ke ACC Kasie',
+          status: 'Menunggu ACC Kasie'
+        }
+      });
+    }
+
     async function handleUnitSubmit(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-submit-unit');
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
+
+      const kebutuhanVal = document.getElementById('u-kebutuhan').value;
+      const isPeminjamanAlat = (kebutuhanVal === 'Peminjaman Alat');
 
       let detTeknis = document.getElementById('u-detail-teknis').value.trim();
       const gladi = document.getElementById('u-studio-gladi').value.trim();
@@ -1607,12 +1733,13 @@
             selectFlow('B1');
             return;
           }
+          const existingItem = ALL_RECORDS.find(x => x.rowIndex === rowIndex) || {};
           const res = await callGasPost('updateUnitTechnicalDetail', {
             payload: {
               rowIndex,
               pemohon: document.getElementById('u-pemohon').value.trim(),
               noHp: document.getElementById('u-hp').value.trim(),
-              kebutuhan: document.getElementById('u-kebutuhan').value,
+              kebutuhan: kebutuhanVal,
               tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
               tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
               waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
@@ -1620,7 +1747,14 @@
               detailTeknis: detTeknis
             }
           });
-          alert(`Tersimpan!\nID: ${res.id}\nStatus: ${res.status}\nSLA: ${res.kategoriSla}`);
+
+          let finalStatus = res.status;
+          if (isPeminjamanAlat && res.status === 'Antrean Konseptor') {
+            await bypassKonseptorForAlat(rowIndex, existingItem);
+            finalStatus = 'Menunggu ACC Kasie (Jalur Cepat Alat)';
+          }
+
+          alert(`Tersimpan!\nID: ${res.id}\nStatus: ${finalStatus}\nSLA: ${res.kategoriSla}`);
           document.getElementById('form-1pintu').reset();
           updateSubDomainOptions('u-domain', 'u-subdomain', '', true);
           onUnitSelectionChange();
@@ -1639,6 +1773,9 @@
         }
 
         const subDomVal = document.getElementById('u-subdomain').value || 'Ditentukan Konseptor';
+        const domainVal = document.getElementById('u-domain').value;
+        const tingkatVal = document.getElementById('u-tingkat').value;
+        const valueVal = document.getElementById('u-value').value.trim();
 
         const res = await callGasPost('submitNewRequest', {
           payload: {
@@ -1647,12 +1784,12 @@
             pemohon: document.getElementById('u-pemohon').value.trim(),
             noHp: document.getElementById('u-hp').value.trim(),
             targetKuartal: document.getElementById('u-kuartal').value,
-            domainFscm: document.getElementById('u-domain').value,
+            domainFscm: domainVal,
             subDomainFscm: subDomVal,
-            tingkatFocus: document.getElementById('u-tingkat').value,
+            tingkatFocus: tingkatVal,
             judul,
-            valueBukti: document.getElementById('u-value').value.trim(),
-            kebutuhan: document.getElementById('u-kebutuhan').value,
+            valueBukti: valueVal,
+            kebutuhan: kebutuhanVal,
             tglMulaiEvent: document.getElementById('u-tgl-mulai').value,
             tglSelesaiEvent: document.getElementById('u-tgl-selesai').value,
             waktuLokasi: document.getElementById('u-waktu-lokasi').value.trim(),
@@ -1662,10 +1799,28 @@
           }
         });
 
-        const alurInfo = res.needsKepsekAcc
+        let finalStatus = res.status;
+        let alurInfo = res.needsKepsekAcc
           ? 'Diteruskan ke meja ACC Kepala Sekolah.'
           : 'Unit Non-Sekolah: Langsung masuk ke Antrean Konseptor VBP.';
-        alert(`Berhasil terkirim!\nID: ${res.id}\nStatus: ${res.status}\n${alurInfo}`);
+
+        if (isPeminjamanAlat) {
+          if (!res.needsKepsekAcc && res.rowIndex) {
+            await bypassKonseptorForAlat(res.rowIndex, {
+              domainFscm: domainVal,
+              subDomainFscm: subDomVal,
+              tingkatFocus: tingkatVal,
+              judul,
+              valueBukti: valueVal
+            });
+            finalStatus = 'Menunggu ACC Kasie';
+            alurInfo = 'Jalur Cepat Peminjaman Alat: Melompati Konseptor VBP & langsung masuk ke meja ACC Kasie.';
+          } else if (res.needsKepsekAcc) {
+            alurInfo = 'Diteruskan ke ACC Kepala Sekolah (setelah di-ACC Kepsek, otomatis langsung ke meja Kasie tanpa Konseptor).';
+          }
+        }
+
+        alert(`Berhasil terkirim!\nID: ${res.id}\nStatus: ${finalStatus}\n${alurInfo}`);
 
         document.getElementById('form-1pintu').reset();
         updateSubDomainOptions('u-domain', 'u-subdomain', '', true);
@@ -2227,7 +2382,7 @@
             <div class="hidden lg:grid lg:grid-cols-12 gap-2 px-3.5 py-1.5 bg-slate-100/90 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
               <div class="col-span-2">Tgl & Unit</div>
               <div class="col-span-5">Kegiatan & Bukti Nyata Unit</div>
-              <div class="col-span-3">Pilar & Sub-Pilar FSCM</div>
+              <div class="col-span-3">Pilar, Sub-Pilar & Tayang</div>
               <div class="col-span-2 text-right">Status & Aksi</div>
             </div>
             <div class="divide-y divide-slate-200/80">
@@ -2247,7 +2402,7 @@
             <div class="hidden lg:grid lg:grid-cols-12 gap-2 px-3.5 py-1.5 bg-amber-50/60 border-b border-amber-200/70 text-[10px] font-extrabold uppercase tracking-wider text-amber-900/70">
               <div class="col-span-2">Kuartal & Unit</div>
               <div class="col-span-5">Kegiatan & Bukti Nyata Unit</div>
-              <div class="col-span-3">Pilar & Sub-Pilar FSCM</div>
+              <div class="col-span-3">Pilar, Sub-Pilar & Tayang</div>
               <div class="col-span-2 text-right">Status & Aksi</div>
             </div>
             <div class="divide-y divide-slate-200/80">
@@ -2277,10 +2432,15 @@
       const isKilat = (r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc';
       const isRevisi = r.status === 'Revisi VBP';
       const hasSubPilar = r.subDomainFscm && r.subDomainFscm !== 'Ditentukan Konseptor';
+      const pubDate = getEffectiveDeadlineTayang(r);
 
       const subPilarBadge = hasSubPilar
         ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">✓ ${escapeHtml(r.subDomainFscm)}</span>`
         : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 border border-amber-300 text-amber-800 text-[11px] font-bold">⚠ Sub-Pilar Belum Dipilih</span>`;
+
+      const pubBadge = pubDate
+        ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-900 text-[10px] font-bold">🚀 Tayang: ${formatCompactDateId(pubDate)}</span>`
+        : '';
 
       const statusStyle = isRevisi
         ? 'bg-orange-100 border-orange-300 text-orange-900'
@@ -2303,7 +2463,6 @@
       return `
         <div class="px-3.5 py-2.5 hover:bg-slate-50/90 transition ${isRevisi ? 'bg-orange-50/30' : ''}">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-center">
-            <!-- KOLOM 1: TANGGAL & UNIT -->
             <div class="lg:col-span-2 flex flex-row lg:flex-col items-center lg:items-start justify-between lg:justify-start gap-1">
               <div>${dateText}</div>
               <div class="flex flex-wrap items-center gap-1">
@@ -2314,7 +2473,6 @@
               </div>
             </div>
 
-            <!-- KOLOM 2: JUDUL & PREVIEW BUKTI NYATA / KONSEP VBP -->
             <div class="lg:col-span-5 min-w-0 space-y-0.5">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="text-sm font-extrabold text-slate-900 leading-snug">${escapeHtml(r.judul)}</span>
@@ -2339,15 +2497,13 @@
               </div>
             </div>
 
-            <!-- KOLOM 3: PILAR UTAMA & SUB-PILAR -->
             <div class="lg:col-span-3 space-y-1">
               <div class="text-[11px] font-bold text-slate-700 leading-tight">
                 ${escapeHtml(formatDomainCompact(r.domainFscm))}
               </div>
-              <div>${subPilarBadge}</div>
+              <div class="flex flex-wrap gap-1">${subPilarBadge} ${pubBadge}</div>
             </div>
 
-            <!-- KOLOM 4: STATUS & AKSI -->
             <div class="lg:col-span-2 flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-1.5 pt-1 lg:pt-0 border-t lg:border-t-0 border-slate-100">
               <span class="px-2 py-0.5 rounded-md border font-bold text-[10px] whitespace-nowrap ${statusStyle}">
                 ${escapeHtml(r.status)}
@@ -2358,7 +2514,6 @@
             </div>
           </div>
 
-          <!-- LACI DETAIL TEKNIS (OPSIONAL) -->
           <div id="${detailId}" class="hidden mt-2 p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-700 space-y-1">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
               <div><strong>PIC Unit:</strong> ${escapeHtml(r.pemohon || '-')} (${escapeHtml(r.noHp || '-')})</div>
@@ -2398,12 +2553,13 @@
         : ((r.kategoriSla || '').includes('REGULER') ? 'Reguler' : (r.kategoriSla || '-')));
 
       const hasProdStart = r.tglMulaiProduksi && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiProduksi);
-      const hasPublishDate = r.deadlineTayang && /^\d{4}-\d{2}-\d{2}$/.test(r.deadlineTayang);
+      const effectivePubDate = getEffectiveDeadlineTayang(r);
+      const hasPublishDate = effectivePubDate && /^\d{4}-\d{2}-\d{2}$/.test(effectivePubDate);
 
       let publishScheduleHtml = '';
       if (hasProdStart || hasPublishDate) {
         const prodTxt = hasProdStart ? formatCompactDateId(r.tglMulaiProduksi) : '-';
-        const pubTxt = hasPublishDate ? formatShortDateId(r.deadlineTayang) : 'Belum ditentukan';
+        const pubTxt = hasPublishDate ? formatShortDateId(effectivePubDate) : 'Belum ditentukan';
         publishScheduleHtml = `
           <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-950 text-[11px] font-semibold">
             <span>🎬 Prod: <strong>${prodTxt}</strong></span>
@@ -2414,13 +2570,24 @@
       } else {
         publishScheduleHtml = `
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-medium">
-            🚀 Jadwal Terbitan: <em class="text-slate-500">Belum dijadwalkan Kasie</em>
+            🚀 Jadwal Terbitan: <em class="text-slate-500">Belum ditetapkan Konseptor</em>
           </span>
         `;
       }
 
       let actionHtml = '';
-      if (mode === 'kepsek') {
+      if (mode === 'unit') {
+        const canUpdatePlan = r.status !== 'Done' && r.status !== 'Canceled' && (r.tipeOrder === 'Rencana Kuartalan' || r.status === 'Revisi Unit');
+        if (canUpdatePlan) {
+          const isRev = r.status === 'Revisi Unit';
+          actionHtml = `
+            <button onclick="openQuickUpdatePlan(${r.rowIndex})"
+              class="px-2.5 py-1 rounded-lg ${isRev ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300'} text-[11px] font-extrabold shrink-0 transition">
+              ${isRev ? 'Perbaiki Revisi →' : '✏️ Lengkapi Jadwal'}
+            </button>
+          `;
+        }
+      } else if (mode === 'kepsek') {
         actionHtml = `<button onclick="openKepsekModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 shrink-0">Tinjau & ACC</button>`;
       } else if (mode === 'konseptor') {
         actionHtml = `<button onclick="openKonseptorModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Kurasi VBP</button>`;
@@ -2457,7 +2624,6 @@
 
       return `
         <div class="p-3.5 hover:bg-slate-50/90 transition flex flex-col md:flex-row md:items-start justify-between gap-3">
-          <!-- ZONA KIRI: TANGGAL EVENT & UNIT -->
           <div class="md:w-52 shrink-0 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-start gap-1.5 border-b md:border-b-0 pb-2 md:pb-0 border-slate-100">
             <div>
               <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">📅 Tanggal Event</div>
@@ -2474,7 +2640,6 @@
             </div>
           </div>
 
-          <!-- ZONA TENGAH: JUDUL, JADWAL TERBITAN, RINCIAN SUB-TUGAS PIC & DROPDOWN -->
           <div class="flex-1 min-w-0 space-y-1.5">
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-sm sm:text-[15px] font-extrabold text-slate-900 leading-snug">${escapeHtml(r.judul)}</span>
@@ -2521,7 +2686,6 @@
             </div>
           </div>
 
-          <!-- ZONA KANAN: STATUS & TOMBOL AKSI -->
           <div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-2 shrink-0 pt-1 md:pt-0">
             <span class="px-2.5 py-1 rounded-lg border font-bold text-[11px] whitespace-nowrap ${statusBadgeClass}">
               ${escapeHtml(r.status)}
@@ -2540,7 +2704,6 @@
       const unitRecs = getFilteredRecords(null);
       document.getElementById('grouped-unit-container').innerHTML = buildGroupedHierarchyHtml(unitRecs, 'unit');
 
-      // Filter Kepsek
       const kpUnit = document.getElementById('kp-unit-filter').value;
       const kepsekPendingAll = ALL_RECORDS.filter(r => isSchoolUnit(r.unit) && r.status === 'Menunggu ACC Kepsek');
       document.getElementById('kp-pending-count').textContent = kepsekPendingAll.length;
@@ -2553,10 +2716,8 @@
       });
       document.getElementById('grouped-kepsek-container').innerHTML = buildGroupedHierarchyHtml(kepsekRecs, 'kepsek');
 
-      // Render Meja Kurasi Konseptor VBP (Compact Row + Smart Filter)
       renderKonseptorCompactView();
 
-      // Filter Kasie
       const ksUnit = document.getElementById('ks-unit-filter').value;
       const kasieRecs = ALL_RECORDS.filter(r => {
         if (['Menunggu ACC Kepsek', 'Revisi Unit', 'Done', 'Canceled'].includes(r.status)) return false;
@@ -2570,7 +2731,6 @@
       updateKPIs();
       renderKasieWolaStrip();
 
-      // Filter Tim Produksi & Grafik WOLA
       const teamRecs = ALL_RECORDS.filter(r => {
         if (!['Siap Produksi', 'In Progress', 'Done'].includes(r.status)) return false;
         if (TEAM_PIC_FILTER === 'ALL') return true;
@@ -2996,7 +3156,7 @@
         } else {
           tasks.forEach(tk => {
             const evTxt = tk.tglMulaiEvent || '-';
-            const pubTxt = tk.deadlineTayang || tk.tglMulaiProduksi || '-';
+            const pubTxt = getEffectiveDeadlineTayang(tk) || tk.tglMulaiProduksi || '-';
             const roles = parseAssignmentBreakdown(tk)
               .filter(b => (b.pic || '').toLowerCase().includes(t.toLowerCase()))
               .map(b => `${b.role} ${b.points}p`)
@@ -3027,11 +3187,21 @@
       document.getElementById('kp-jadwal-info').textContent = `${r.tglMulaiEvent || 'Tanggal belum ditentukan'} | ${r.waktuLokasi || '-'}`;
       document.getElementById('kp-teknis-info').textContent = `${r.kebutuhan} — ${r.detailTeknis || '-'}`;
       document.getElementById('kp-catatan').value = '';
+
+      const isAlat = (r.kebutuhan === 'Peminjaman Alat');
+      document.getElementById('kp-bypass-info').classList.toggle('hidden', !isAlat);
+      document.getElementById('btn-kp-acc').textContent = isAlat
+        ? '✓ ACC Kepsek → Langsung ke Kasie'
+        : '✓ ACC Kepsek → Ke Konseptor';
+
       document.getElementById('modal-kepsek').classList.remove('hidden');
     }
 
     async function submitKepsek(decision) {
+      const rowIndex = Number(document.getElementById('kp-rowIndex').value);
+      const rec = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
       const catatan = document.getElementById('kp-catatan').value.trim();
+
       if (decision === 'REVISI' && !catatan) {
         alert('Tuliskan catatan revisi untuk unit terlebih dahulu.');
         return;
@@ -3042,11 +3212,17 @@
         await callGasPost('saveKepsekApproval', {
           pin: getSavedPin('kepsek'),
           payload: {
-            rowIndex: Number(document.getElementById('kp-rowIndex').value),
+            rowIndex: rowIndex,
             decision: decision,
             catatanKepsek: catatan
           }
         });
+
+        // Jalur Cepat Peminjaman Alat: setelah ACC Kepsek, langsung lompat ke Kasie
+        if (decision === 'ACC' && rec && rec.kebutuhan === 'Peminjaman Alat') {
+          await bypassKonseptorForAlat(rowIndex, rec);
+        }
+
         closeModal('modal-kepsek');
         await loadData();
       } catch (err) { alert(err.message); }
@@ -3055,12 +3231,13 @@
     function openTeamModal(rowIndex) {
       const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
       if (!r) return;
+      const pubDate = getEffectiveDeadlineTayang(r);
       document.getElementById('mt-rowIndex').value = r.rowIndex;
       document.getElementById('mt-badge').textContent = `${r.id} • ${r.unit} • ${r.kategoriSla} (${getRecordWolaPoints(r)} Poin WOLA)`;
       document.getElementById('mt-title').textContent = r.judul;
       document.getElementById('mt-pic').innerHTML = renderPicBadgesHtml(r);
       document.getElementById('mt-lokasi').textContent = `${formatShortDateId(r.tglMulaiEvent) || r.tglMulaiEvent || 'Belum ditentukan'} | ${r.waktuLokasi || '-'}`;
-      document.getElementById('mt-prod-date').textContent = `${formatCompactDateId(r.tglMulaiProduksi) || '-'} s/d ${formatShortDateId(r.deadlineTayang) || r.deadlineTayang || '-'}`;
+      document.getElementById('mt-prod-date').textContent = `${formatCompactDateId(r.tglMulaiProduksi) || '-'} s/d ${formatShortDateId(pubDate) || pubDate || '-'}`;
       document.getElementById('mt-format').textContent = `${r.kebutuhan} (${r.formatChannel || 'Sesuai brief'})`;
       document.getElementById('mt-konsep').textContent = r.konsepVbp || r.valueBukti || '-';
       document.getElementById('mt-teknis').textContent = r.detailTeknis || '-';
@@ -3115,14 +3292,18 @@
 
       document.getElementById('mk-tingkat').value = r.tingkatFocus || 'Kegiatan';
       document.getElementById('mk-format').value = r.formatChannel || '';
+      document.getElementById('mk-deadline-tayang').value = getEffectiveDeadlineTayang(r) || '';
       document.getElementById('mk-judul').value = r.judul || '';
       document.getElementById('mk-konsep').value = r.konsepVbp || '';
       document.getElementById('modal-konseptor').classList.remove('hidden');
     }
 
     async function submitKonseptor(nextStatus) {
+      const rowIndex = Number(document.getElementById('mk-rowIndex').value);
+      const rec = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
       const domainVal = document.getElementById('mk-domain').value.trim();
       const subDomainVal = document.getElementById('mk-subdomain').value.trim();
+      const deadlineTayangVal = document.getElementById('mk-deadline-tayang').value;
 
       if (!domainVal) {
         alert('Pilar Utama (FSCM) wajib dipilih.');
@@ -3139,25 +3320,88 @@
         await callGasPost('saveConceptData', {
           pin: getSavedPin('konseptor'),
           payload: {
-            rowIndex: Number(document.getElementById('mk-rowIndex').value),
+            rowIndex: rowIndex,
             domainFscm: domainVal,
             subDomainFscm: subDomainVal,
             tingkatFocus: document.getElementById('mk-tingkat').value,
             formatChannel: document.getElementById('mk-format').value.trim(),
+            deadlineTayang: deadlineTayangVal,
             judul: document.getElementById('mk-judul').value.trim(),
             valueBukti: document.getElementById('mk-info-value').textContent,
             konsepVbp: document.getElementById('mk-konsep').value.trim(),
             status: nextStatus
           }
         });
+
+        if (rec && rec.id) {
+          setLocalDeadlineTayang(rec.id, deadlineTayangVal);
+        }
+
         closeModal('modal-konseptor');
         await loadData();
       } catch (err) { alert(err.message); }
     }
 
     // =========================================================================
-    // MODAL KASIE — BUILDER SUB-TUGAS, POIN WOLA & SMART PIC PICKER
+    // MODAL KASIE — OTOMATISASI SUB-TUGAS, READ-ONLY JADWAL TAYANG & SMART PIC
     // =========================================================================
+    function updateKasieDeadlineReadonlyText() {
+      const val = document.getElementById('ks-deadline').value;
+      const txtEl = document.getElementById('ks-deadline-readonly-text');
+      if (!txtEl) return;
+      txtEl.textContent = (val && /^\d{4}-\d{2}-\d{2}$/.test(val))
+        ? formatShortDateId(val)
+        : 'Belum ditentukan Konseptor';
+    }
+
+    function toggleKasieDeadlineOverride() {
+      const inputEl = document.getElementById('ks-deadline');
+      const btnEl = document.getElementById('btn-ks-override-deadline');
+      const isHidden = inputEl.classList.toggle('hidden');
+      btnEl.textContent = isHidden ? 'Ubah (Darurat)' : 'Selesai Ubah';
+      if (!isHidden) inputEl.focus();
+    }
+
+    function buildDefaultSubtasksByKebutuhan(r) {
+      const keb = (r && r.kebutuhan ? r.kebutuhan : '').toLowerCase();
+      const days = getRecordEventDays(r);
+
+      if (keb.includes('peminjaman alat')) {
+        return [{ role: 'Operator Studio / Alat', pic: '', points: 0 }];
+      }
+      if (keb.includes('liputan') && keb.includes('desain')) {
+        return [
+          { role: 'Liputan Foto / Video', pic: '', points: 2 * days },
+          { role: 'Desain Grafis', pic: '', points: 1.5 },
+          { role: 'Editor Video', pic: '', points: 2 }
+        ];
+      }
+      if (keb.includes('liputan')) {
+        return [
+          { role: 'Liputan Foto / Video', pic: '', points: 2 * days },
+          { role: 'Editor Video', pic: '', points: 2 }
+        ];
+      }
+      if (keb.includes('desain')) {
+        return [
+          { role: 'Konseptor / Copywriter', pic: '', points: 1 },
+          { role: 'Desain Grafis', pic: '', points: 1.5 }
+        ];
+      }
+      if (keb.includes('studio')) {
+        return [
+          { role: 'Operator Studio / Alat', pic: '', points: Math.round(1.5 * days * 10) / 10 },
+          { role: 'Editor Video', pic: '', points: 2 }
+        ];
+      }
+
+      return [{
+        role: 'Tugas Produksi',
+        pic: '',
+        points: getRecordWolaPoints(r)
+      }];
+    }
+
     function openKasieModal(rowIndex) {
       const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
       if (!r) return;
@@ -3181,15 +3425,15 @@
       const defaultStart = r.tglMulaiProduksi || r.tglMulaiEvent || SERVER_DATE;
       document.getElementById('ks-tgl-prod').value = defaultStart;
 
-      let defaultDeadline = r.deadlineTayang;
-      if (!defaultDeadline && defaultStart) {
-        const d = new Date(defaultStart + 'T00:00:00');
-        const addDays = (r.kategoriSla || '').includes('KILAT') ? 1 : ((r.kategoriSla || '').includes('PRIORITAS') ? 2 : 4);
-        d.setDate(d.getDate() + addDays);
-        defaultDeadline = d.toISOString().slice(0, 10);
-      }
-      document.getElementById('ks-deadline').value = defaultDeadline || '';
+      // Ambil Jadwal Terbitan yang sudah ditetapkan Konseptor (read-only by default)
+      const konseptorPubDate = getEffectiveDeadlineTayang(r);
+      const deadlineInput = document.getElementById('ks-deadline');
+      deadlineInput.value = konseptorPubDate || '';
+      deadlineInput.classList.add('hidden');
+      document.getElementById('btn-ks-override-deadline').textContent = 'Ubah (Darurat)';
+      updateKasieDeadlineReadonlyText();
 
+      // Otomatisasi Sub-Tugas sebelum Modal Kasie dibuka
       const existingBreakdown = parseAssignmentBreakdown(r);
       if (existingBreakdown.length > 0) {
         KASIE_SUBTASKS_STATE = existingBreakdown.map(item => ({
@@ -3198,20 +3442,7 @@
           points: Number(item.points) || 0
         }));
       } else {
-        const autoPts = getRecordWolaPoints(r);
-        const keb = (r.kebutuhan || '').toLowerCase();
-        let defaultRole = 'Tugas Produksi';
-        if (keb.includes('liputan') && keb.includes('desain')) defaultRole = 'Liputan & Desain Konten';
-        else if (keb.includes('liputan')) defaultRole = 'Liputan Foto / Video';
-        else if (keb.includes('desain')) defaultRole = 'Desain Grafis';
-        else if (keb.includes('studio')) defaultRole = 'Operator Studio / Alat';
-        else if (keb.includes('peminjaman')) defaultRole = 'Peminjaman Alat';
-
-        KASIE_SUBTASKS_STATE = [{
-          role: defaultRole,
-          pic: '',
-          points: autoPts
-        }];
+        KASIE_SUBTASKS_STATE = buildDefaultSubtasksByKebutuhan(r);
       }
 
       renderKasieSubtaskRows();
@@ -3372,39 +3603,42 @@
       return (diff > 1 && diff <= 14) ? diff : 1;
     }
 
-    function applySubtaskPreset(presetKey) {
+    function applySubtaskPreset(presetType) {
+      const prevPics = {};
+      KASIE_SUBTASKS_STATE.forEach(s => { if (s.role && s.pic) prevPics[s.role] = s.pic; });
       const days = getRecordEventDays(KASIE_CURRENT_RECORD);
-      const prevPicsByRole = {};
-      KASIE_SUBTASKS_STATE.forEach(item => {
-        if (item.pic) prevPicsByRole[item.role.toLowerCase()] = item.pic;
-      });
 
-      let template = [];
-      if (presetKey === 'SIT_IN') {
-        template = [
-          { role: 'Konseptor / Copywriter', points: 1 },
-          { role: 'Liputan Foto / Video', points: 2 * days },
-          { role: 'Desain Grafis', points: 1.5 },
-          { role: 'Editor Video', points: 2 }
+      if (presetType === 'SIT_IN') {
+        KASIE_SUBTASKS_STATE = [
+          { role: 'Liputan Foto / Video', pic: prevPics['Liputan Foto / Video'] || '', points: 2 * days },
+          { role: 'Desain Grafis', pic: prevPics['Desain Grafis'] || '', points: 1.5 },
+          { role: 'Editor Video', pic: prevPics['Editor Video'] || '', points: 2 }
         ];
-      } else if (presetKey === 'LIPUTAN_EDIT') {
-        template = [
-          { role: 'Liputan Foto / Video', points: 2 * days },
-          { role: 'Editor Video', points: 2 }
+      } else if (presetType === 'LIPUTAN_EDIT') {
+        KASIE_SUBTASKS_STATE = [
+          { role: 'Liputan Foto / Video', pic: prevPics['Liputan Foto / Video'] || '', points: 2 * days },
+          { role: 'Editor Video', pic: prevPics['Editor Video'] || '', points: 2 }
         ];
-      } else if (presetKey === 'DESAIN_ONLY') {
-        template = [
-          { role: 'Konseptor / Copywriter', points: 1 },
-          { role: 'Desain Grafis', points: 1.5 }
+      } else if (presetType === 'DESAIN_ONLY') {
+        KASIE_SUBTASKS_STATE = [
+          { role: 'Konseptor / Copywriter', pic: prevPics['Konseptor / Copywriter'] || '', points: 1 },
+          { role: 'Desain Grafis', pic: prevPics['Desain Grafis'] || '', points: 1.5 }
         ];
       }
+      renderKasieSubtaskRows();
+      syncTotalPoinFromSubtasks();
+    }
 
-      KASIE_SUBTASKS_STATE = template.map(t => ({
-        role: t.role,
-        pic: prevPicsByRole[t.role.toLowerCase()] || '',
-        points: t.points
-      }));
+    function resetKasiePointsAuto() {
+      if (!KASIE_CURRENT_RECORD) return;
+      const prevPics = {};
+      KASIE_SUBTASKS_STATE.forEach(s => { if (s.role && s.pic) prevPics[s.role] = s.pic; });
 
+      const rebuilt = buildDefaultSubtasksByKebutuhan(KASIE_CURRENT_RECORD);
+      rebuilt.forEach(item => {
+        if (prevPics[item.role]) item.pic = prevPics[item.role];
+      });
+      KASIE_SUBTASKS_STATE = rebuilt;
       renderKasieSubtaskRows();
       syncTotalPoinFromSubtasks();
     }
@@ -3412,102 +3646,80 @@
     function autoAssignLightestPics() {
       const targetMonth = getKasieTargetMonthKey();
       const { points } = computeTeamWolaSnapshot(targetMonth);
-      const simPoints = Object.assign({}, points);
-
-      if (KASIE_CURRENT_RECORD) {
-        TIM_PUBLIKASI.forEach(staff => {
-          const existingPts = getPersonPointsForRecord(KASIE_CURRENT_RECORD, staff);
-          if (existingPts > 0) {
-            simPoints[staff] = Math.max(0, Math.round((simPoints[staff] - existingPts) * 10) / 10);
-          }
-        });
-      }
+      // Clone poin sementara agar sub-tugas tidak menumpuk semuanya ke 1 orang saja
+      const simulatedPoints = Object.assign({}, points);
 
       KASIE_SUBTASKS_STATE.forEach(row => {
-        const sorted = [...TIM_PUBLIKASI].sort((a, b) => (simPoints[a] || 0) - (simPoints[b] || 0));
-        const chosen = sorted[0];
-        if (chosen) {
-          row.pic = chosen;
-          simPoints[chosen] = Math.round(((simPoints[chosen] || 0) + (Number(row.points) || 0)) * 10) / 10;
-        }
+        if (row.pic) return; // Jangan timpa yang sudah dipilih manual oleh Kasie
+        // Urutkan dari beban WOLA terkecil (utamakan staf tetap sebelum Magang jika poin sama)
+        const candidates = [...TIM_PUBLIKASI].sort((a, b) => {
+          if (simulatedPoints[a] !== simulatedPoints[b]) return simulatedPoints[a] - simulatedPoints[b];
+          if (a === 'Magang') return 1;
+          if (b === 'Magang') return -1;
+          return 0;
+        });
+        const chosen = candidates[0];
+        row.pic = chosen;
+        simulatedPoints[chosen] = Math.round((simulatedPoints[chosen] + (Number(row.points) || 0)) * 10) / 10;
       });
 
       renderKasieSubtaskRows();
     }
 
-    function resetKasiePointsAuto() {
-      if (!KASIE_CURRENT_RECORD) return;
-      const autoBase = computeAutoBasePoints(KASIE_CURRENT_RECORD);
-      const days = getRecordEventDays(KASIE_CURRENT_RECORD);
+    function formatSubtasksForStorage() {
+      const validRows = KASIE_SUBTASKS_STATE.filter(r => (r.pic || '').trim() !== '' || (r.role || '').trim() !== '');
+      if (validRows.length === 0) return 'Tim Publikasi';
 
-      if (KASIE_SUBTASKS_STATE.length === 1) {
-        KASIE_SUBTASKS_STATE[0].points = autoBase;
-      } else {
-        KASIE_SUBTASKS_STATE.forEach(row => {
-          const lowRole = (row.role || '').toLowerCase();
-          if (lowRole.includes('liputan')) {
-            row.points = 2 * days;
-          } else {
-            const match = SUBTASK_ROLE_OPTIONS.find(o => o.role.toLowerCase() === lowRole);
-            if (match) row.points = match.defaultPts;
-          }
-        });
+      // Jika hanya 1 baris generik tanpa nama sub-tugas khusus
+      if (validRows.length === 1 && (!validRows[0].role || validRows[0].role === 'Tugas Produksi')) {
+        const picName = validRows[0].pic || 'Tim Publikasi';
+        const pts = Number(validRows[0].points) || 0;
+        return pts > 0 ? `${picName} (${pts}p)` : picName;
       }
 
-      renderKasieSubtaskRows();
-      syncTotalPoinFromSubtasks();
+      return validRows.map(r => {
+        const roleLabel = (r.role || 'Tugas').trim();
+        const picLabel = (r.pic || 'Belum ditunjuk').trim();
+        const pts = Number(r.points) || 0;
+        return `${roleLabel}: ${picLabel} (${pts}p)`;
+      }).join(', ');
     }
 
     async function submitKasie() {
-      const rowIndex = Number(document.getElementById('ks-rowIndex').value);
-      const status = document.getElementById('ks-status').value;
-      const catatanKasie = document.getElementById('ks-catatan').value.trim();
-
-      if (status === 'Revisi VBP' && !catatanKasie) {
-        alert('Tuliskan catatan revisi untuk Konseptor VBP terlebih dahulu.');
-        document.getElementById('ks-catatan').focus();
-        return;
-      }
-
-      const validSubtasks = KASIE_SUBTASKS_STATE.filter(s => (s.pic || '').trim() !== '');
-      const kebLow = ((KASIE_CURRENT_RECORD && KASIE_CURRENT_RECORD.kebutuhan) || '').toLowerCase();
-
-      if (['Siap Produksi', 'In Progress'].includes(status) && validSubtasks.length === 0 && !kebLow.includes('peminjaman')) {
-        alert('Pilih minimal satu petugas / PIC pada daftar sub-tugas sebelum ACC.');
-        return;
-      }
-
-      const formattedPic = validSubtasks.length > 0
-        ? validSubtasks.map(s => `${s.role.trim() || 'Tugas Produksi'}: ${s.pic.trim()} (${Number(s.points) || 0}p)`).join(', ')
-        : 'Belum ditunjuk';
-
-      const totalBobot = Math.round(KASIE_SUBTASKS_STATE.reduce((acc, s) => acc + (Number(s.points) || 0), 0) * 10) / 10;
-
       const btn = document.getElementById('btn-submit-kasie');
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
+
+      const formattedPic = formatSubtasksForStorage();
+      const totalPoin = parseFloat(document.getElementById('ks-total-poin').value) || 0;
+      const deadlineVal = document.getElementById('ks-deadline').value;
 
       try {
         await callGasPost('saveKasieApproval', {
           pin: getSavedPin('kasie'),
           payload: {
-            rowIndex,
+            rowIndex: Number(document.getElementById('ks-rowIndex').value),
             tglMulaiProduksi: document.getElementById('ks-tgl-prod').value,
-            deadlineTayang: document.getElementById('ks-deadline').value,
+            deadlineTayang: deadlineVal,
             picProduksi: formattedPic,
-            subTugas: validSubtasks,
-            bobot: totalBobot,
-            poinWola: totalBobot,
+            poinWola: totalPoin,
+            bobot: totalPoin,
+            subTugas: KASIE_SUBTASKS_STATE,
             prioritas: document.getElementById('ks-prioritas').value,
-            status,
-            catatanKasie,
+            status: document.getElementById('ks-status').value,
+            catatanKasie: document.getElementById('ks-catatan').value.trim(),
             linkHasil: document.getElementById('ks-link-hasil').value.trim()
           }
         });
+
+        if (KASIE_CURRENT_RECORD && KASIE_CURRENT_RECORD.id) {
+          setLocalDeadlineTayang(KASIE_CURRENT_RECORD.id, deadlineVal);
+        }
+
         closeModal('modal-kasie');
         await loadData();
       } catch (err) {
-        alert('Error menyimpan ACC Kasie: ' + err.message);
+        alert(err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = 'Simpan & ACC Penugasan';
@@ -3515,37 +3727,26 @@
     }
 
     async function triggerAutoShift(rowIndex) {
-      if (!confirm('Slot harian penuh. Geser jadwal produksi/terbitan +1 hari kerja?')) return;
+      if (!confirm('Geser jadwal tugas ini +1 hari?')) return;
       try {
-        const res = await callGasPost('autoShiftSchedule', {
-          pin: getSavedPin('kasie'),
-          payload: { rowIndex }
-        });
-        alert(res.message || 'Jadwal berhasil digeser +1 hari.');
+        await callGasPost('applyAutoShift', { pin: getSavedPin('kasie'), rowIndex });
         await loadData();
-      } catch (err) {
-        alert('Gagal menggeser jadwal: ' + err.message);
-      }
+      } catch (err) { alert(err.message); }
     }
 
     async function triggerSyncAllCalendar() {
       const btn = document.getElementById('btn-sync-cal');
-      if (!btn) return;
       btn.disabled = true;
-      const origText = btn.textContent;
       btn.textContent = 'Menyinkronkan...';
-
       try {
-        const res = await callGasPost('syncAllToCalendar', {
-          pin: getSavedPin('kasie')
-        });
-        alert(res.message || 'Sinkronisasi ke Google Calendar berhasil!');
+        const res = await callGasPost('syncAllToCalendar', { pin: getSavedPin('kasie') });
+        alert(`Selesai! ${res.syncedCount} jadwal aktif berhasil disinkronkan ke Google Calendar.`);
         await loadData();
       } catch (err) {
-        alert('Gagal sinkronisasi Google Calendar: ' + err.message);
+        alert('Gagal sync kalender: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = origText;
+        btn.textContent = 'Sync ke Google Calendar';
       }
     }
   </script>
