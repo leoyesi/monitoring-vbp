@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portal VBP & Publikasi 1-Pintu — Sekolah Athalia</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #0f172a; }
@@ -421,19 +422,19 @@
     <section id="view-kasie" class="hidden space-y-5">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-white rounded-xl border border-red-200 p-3.5 shadow-sm">
-          <div class="text-[11px] font-bold text-red-700">SLA Kilat / Ad-Hoc</div>
+          <div class="text-[11px] font-bold text-red-700">SLA Kilat / Ad-Hoc <span class="ks-kpi-unit-tag text-[10px] font-semibold"></span></div>
           <div id="kpi-kilat" class="text-2xl font-extrabold text-red-900 mt-0.5">0</div>
         </div>
         <div class="bg-white rounded-xl border border-amber-200 p-3.5 shadow-sm">
-          <div class="text-[11px] font-bold text-amber-700">Menunggu ACC Kasie</div>
+          <div class="text-[11px] font-bold text-amber-700">Menunggu ACC Kasie <span class="ks-kpi-unit-tag text-[10px] font-semibold"></span></div>
           <div id="kpi-acc" class="text-2xl font-extrabold text-amber-900 mt-0.5">0</div>
         </div>
         <div class="bg-white rounded-xl border border-blue-200 p-3.5 shadow-sm">
-          <div class="text-[11px] font-bold text-blue-700">Sedang Produksi</div>
+          <div class="text-[11px] font-bold text-blue-700">Sedang Produksi <span class="ks-kpi-unit-tag text-[10px] font-semibold"></span></div>
           <div id="kpi-prod" class="text-2xl font-extrabold text-blue-900 mt-0.5">0</div>
         </div>
         <div class="bg-white rounded-xl border border-emerald-200 p-3.5 shadow-sm">
-          <div class="text-[11px] font-bold text-emerald-700">Selesai (Done)</div>
+          <div class="text-[11px] font-bold text-emerald-700">Selesai (Done) <span class="ks-kpi-unit-tag text-[10px] font-semibold"></span></div>
           <div id="kpi-done" class="text-2xl font-extrabold text-emerald-900 mt-0.5">0</div>
         </div>
       </div>
@@ -448,13 +449,39 @@
             <p class="text-xs text-slate-500">Atur tanggal produksi, PIC, dan geser jadwal reguler (+1H) bila slot penuh.</p>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
+            <!-- DROPDOWN FILTER UNIT UNTUK KASIE -->
+            <select id="ks-unit-filter" onchange="onKasieFilterChange()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800">
+              <option value="ALL">Semua Unit</option>
+              <optgroup label="Unit Sekolah">
+                <option value="KB-TK">KB-TK</option>
+                <option value="SD">SD</option>
+                <option value="SMP">SMP</option>
+                <option value="SMA">SMA</option>
+                <option value="PINUS - PAUD">PINUS - PAUD</option>
+                <option value="PINUS - SD">PINUS - SD</option>
+                <option value="PINUS - PKBM">PINUS - PKBM</option>
+              </optgroup>
+              <optgroup label="Non-Sekolah / Yayasan">
+                <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+                <option value="PK3">PK3</option>
+                <option value="CHAPLAIN">CHAPLAIN</option>
+                <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+                <option value="SARPRAS">SARPRAS</option>
+                <option value="KEUANGAN">KEUANGAN</option>
+                <option value="PENDIDIKAN">PENDIDIKAN</option>
+                <option value="SDM">SDM</option>
+                <option value="YAYASAN">YAYASAN</option>
+                <option value="All Unit">All Unit</option>
+              </optgroup>
+            </select>
+
             <button onclick="triggerSyncAllCalendar()" id="btn-sync-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
               Sync ke Google Calendar
             </button>
-            <button onclick="setKasieFilter('ALL')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
-            <button onclick="setKasieFilter('KILAT')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">SLA Kilat</button>
-            <button onclick="setKasieFilter('ACC')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Menunggu ACC</button>
-            <button onclick="setKasieFilter('PROD')" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Produksi</button>
+            <button onclick="setKasieFilter('ALL')" id="ks-btn-ALL" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+            <button onclick="setKasieFilter('KILAT')" id="ks-btn-KILAT" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">SLA Kilat</button>
+            <button onclick="setKasieFilter('ACC')" id="ks-btn-ACC" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Menunggu ACC</button>
+            <button onclick="setKasieFilter('PROD')" id="ks-btn-PROD" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Produksi</button>
             <button onclick="lockRoleSession('kasie')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50" title="Kunci kembali tab ini">
               🔒 Kunci
             </button>
@@ -465,42 +492,124 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- VIEW 5: PORTAL TIM PRODUKSI & GOOGLE CALENDAR                         -->
+    <!-- VIEW 5: PORTAL TIM PRODUKSI, GRAFIK WOLA & GOOGLE CALENDAR            -->
     <!-- ===================================================================== -->
     <section id="view-tim" class="hidden space-y-5">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
-            <h2 class="text-lg font-extrabold text-slate-900">Penugasan Tim & Google Calendar</h2>
-            <p class="text-xs text-slate-500">Pilih nama Anda untuk melihat daftar tugas, brief teknis, dan jadwal kalender.</p>
+            <h2 class="text-lg font-extrabold text-slate-900">Penugasan Tim, Grafik WOLA & Google Calendar</h2>
+            <p class="text-xs text-slate-500">Pantau beban kerja (Workload Analysis), daftar tugas & brief teknis, serta jadwal kalender tim.</p>
           </div>
-          <a href="https://calendar.google.com" target="_blank" rel="noopener" class="px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs">
-            Buka Google Calendar ↗
-          </a>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="openWolaGuideModal()" class="px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold">
+              📘 Panduan Bobot & WOLA
+            </button>
+            <button type="button" onclick="copyRekapWATim()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs">
+              📋 Copy Rekap WA
+            </button>
+            <a href="https://calendar.google.com" target="_blank" rel="noopener" class="px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs">
+              Buka Google Calendar ↗
+            </a>
+          </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-1.5">
-          <span class="text-xs font-bold text-slate-500 mr-1">Filter PIC:</span>
-          <button onclick="setTeamPicFilter('ALL')" id="pic-btn-ALL" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua Tim</button>
-          <button onclick="setTeamPicFilter('Yesi')" id="pic-btn-Yesi" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Yesi</button>
-          <button onclick="setTeamPicFilter('Indri')" id="pic-btn-Indri" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Indri</button>
-          <button onclick="setTeamPicFilter('Dodai')" id="pic-btn-Dodai" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Dodai</button>
-          <button onclick="setTeamPicFilter('Wahyu')" id="pic-btn-Wahyu" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Wahyu</button>
-          <button onclick="setTeamPicFilter('Nia')" id="pic-btn-Nia" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Nia</button>
-          <button onclick="setTeamPicFilter('Magang')" id="pic-btn-Magang" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Magang</button>
+        <!-- FILTER PIC & PERIODE WOLA -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-xs font-bold text-slate-500 mr-1">Filter PIC:</span>
+            <button onclick="setTeamPicFilter('ALL')" id="pic-btn-ALL" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua Tim</button>
+            <button onclick="setTeamPicFilter('Yesi')" id="pic-btn-Yesi" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Yesi</button>
+            <button onclick="setTeamPicFilter('Indri')" id="pic-btn-Indri" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Indri</button>
+            <button onclick="setTeamPicFilter('Dodai')" id="pic-btn-Dodai" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Dodai</button>
+            <button onclick="setTeamPicFilter('Wahyu')" id="pic-btn-Wahyu" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Wahyu</button>
+            <button onclick="setTeamPicFilter('Nia')" id="pic-btn-Nia" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Nia</button>
+            <button onclick="setTeamPicFilter('Magang')" id="pic-btn-Magang" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Magang</button>
+          </div>
+
+          <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+            <label for="wola-month-filter" class="text-xs font-bold text-slate-700 whitespace-nowrap">📅 Periode WOLA:</label>
+            <select id="wola-month-filter" onchange="renderWolaDashboard()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800">
+              <option value="ALL">Semua Bulan Aktif</option>
+            </select>
+          </div>
         </div>
 
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-          <button onclick="switchTeamSubView('list')" id="sub-tim-list" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900">
-            Daftar Tugas & Brief (<span id="tim-task-count">0</span>)
+        <!-- SUB-TABS: TUGAS & WOLA VS GOOGLE CALENDAR -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
+          <div class="flex items-center gap-2">
+            <button onclick="switchTeamSubView('list')" id="sub-tim-list" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900">
+              📊 Grafik WOLA & Tugas (<span id="tim-task-count">0</span>)
+            </button>
+            <button onclick="switchTeamSubView('calendar')" id="sub-tim-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100">
+              📅 Tampilan Google Calendar
+            </button>
+          </div>
+          <button type="button" onclick="toggleWolaPanel()" id="btn-toggle-wola" class="px-2.5 py-1 rounded-lg border border-slate-300 text-[11px] font-bold text-slate-700 hover:bg-slate-50">
+            − Sembunyikan Grafik WOLA
           </button>
-          <button onclick="switchTeamSubView('calendar')" id="sub-tim-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100">
-            Tampilan Google Calendar
-          </button>
         </div>
 
-        <div id="tim-view-list" class="space-y-4"></div>
+        <!-- KONTEN SUB-TAB 1: GRAFIK WOLA + DAFTAR TUGAS -->
+        <div id="tim-view-list" class="space-y-5">
 
+          <!-- PANEL WORKLOAD ANALYSIS (WOLA) -->
+          <div id="wola-dashboard-panel" class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+              <div>
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>👥</span> BEBAN KERJA & ANALISIS WOLA (<span id="wola-period-label">SEMUA PERIODE</span>)
+                </h3>
+                <p class="text-[11px] text-slate-500">1 Poin WOLA = 2 Jam Kerja Efektif Murni (Standar Normal: 20 Poin / Staf)</p>
+              </div>
+              <div class="inline-flex flex-wrap items-center gap-1.5 text-[11px] text-slate-600 font-semibold bg-white px-3 py-1 rounded-full border border-slate-200 w-fit">
+                <span class="text-emerald-700 font-bold">🟢 ≤15 Aman</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-amber-700 font-bold">🟡 16–25 Peringatan</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-rose-700 font-bold">🔴 >25 Overload</span>
+              </div>
+            </div>
+
+            <!-- 3 EXECUTIVE WOLA SUMMARY CARDS -->
+            <div id="wolaSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+
+            <!-- 6 KARTU BEBAN PERSONEL -->
+            <div id="personelStats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
+
+            <!-- GRAFIK BATANG HORIZONTAL WOLA + 2 PIE CHART -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div class="lg:col-span-7 bg-white p-4 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">📊 Grafik Beban Kerja Per Personel (Poin WOLA)</div>
+                <div class="h-60 relative">
+                  <canvas id="wolaPersonelBarChart"></canvas>
+                </div>
+              </div>
+              <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">🍕 Order Per Unit</div>
+                  <div class="h-36 relative flex items-center justify-center">
+                    <canvas id="wolaUnitPieChart"></canvas>
+                  </div>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">🎨 Proporsi Layanan Produksi</div>
+                  <div class="h-36 relative flex items-center justify-center">
+                    <canvas id="wolaServicePieChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL ANALISA HASIL & REKOMENDASI OTOMATIS -->
+            <div id="wolaInsightsPanel"></div>
+          </div>
+
+          <!-- DAFTAR TUGAS TERKELOMPOK -->
+          <div id="tim-tasks-container" class="space-y-4"></div>
+        </div>
+
+        <!-- KONTEN SUB-TAB 2: GOOGLE CALENDAR -->
         <div id="tim-view-calendar" class="hidden space-y-3">
           <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
             Jika kalender di bawah tidak muncul di browser Anda, pastikan Anda login ke akun Google yang sudah diberi akses kalender atau klik tombol <strong>Buka Google Calendar ↗</strong> di atas.
@@ -512,6 +621,56 @@
       </div>
     </section>
   </main>
+
+  <!-- MODAL PANDUAN BOBOT POIN & WOLA -->
+  <div id="modal-wola-guide" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+      <div class="bg-slate-900 text-white p-4 sm:p-5 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">📘</span>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">Panduan Bobot Poin & Metodologi Workload Analysis (WOLA)</h3>
+            <p class="text-[11px] text-slate-300">Penilaian berbasis Jam Kerja Efektif Murni & Project Breakdown</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-wola-guide')" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">×</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
+        <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-200 space-y-1">
+          <div class="font-extrabold text-blue-900 text-sm">🎯 1. Standar Konversi Poin WOLA</div>
+          <p class="text-blue-800"><strong>1 POIN WOLA = 2 JAM KERJA EFEKTIF MURNI</strong>. Standar beban ideal per staf adalah <strong>20 Poin / bulan</strong> (40 jam kerja produksi murni di luar rapat & koordinasi). Peminjaman alat saja bernilai <strong>0 Poin</strong>.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+            <div class="font-bold text-slate-900">⚡ Estimasi Otomatis Berdasarkan Layanan</div>
+            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+              <li><strong>Liputan & Desain Konten:</strong> 3 Poin / hari</li>
+              <li><strong>Liputan Foto/Video / Studio:</strong> 2 Poin / hari</li>
+              <li><strong>Desain Poster / Medsos Saja:</strong> 1.5 Poin</li>
+              <li><strong>Peminjaman Alat:</strong> 0 Poin</li>
+            </ul>
+          </div>
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+            <div class="font-bold text-slate-900">🚦 Ambang Batas Kapasitas Staf</div>
+            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+              <li><strong class="text-emerald-700">🟢 ≤ 15 Poin:</strong> Kapasitas Aman (Longgar)</li>
+              <li><strong class="text-amber-700">🟡 16 – 25 Poin:</strong> High Utilized (Peringatan)</li>
+              <li><strong class="text-rose-700">🔴 > 25 Poin:</strong> Overload (Potensi Lembur / Perlu Rebalancing)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bg-purple-50 p-3.5 rounded-xl border border-purple-200 space-y-1 text-purple-900">
+          <div class="font-bold">🚌 Kegiatan Multi-Hari / Menginap (Live-In)</div>
+          <p>Untuk kegiatan lintas hari (seperti Live-In atau retret), poin WOLA otomatis dihitung proporsional sesuai rentang tanggal mulai hingga tanggal selesai acara, atau dapat disesuaikan oleh Kasie pada menu <strong>ACC / Atur</strong>.</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-3.5 border-t border-slate-200 flex justify-end shrink-0">
+        <button onclick="closeModal('modal-wola-guide')" class="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Tutup Panduan</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL VERIFIKASI PIN -->
   <div id="modal-pin" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
@@ -777,6 +936,8 @@
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzL8R2VZO2HUjOuRYB8dnDjb5dgN1wCIeYDfghb6LO-kijLCo3sKocJGUBLVKd1qyBm/exec';
 
+    const TIM_PUBLIKASI = ['Magang', 'Dodai', 'Nia', 'Wahyu', 'Yesi', 'Indri'];
+
     let ALL_RECORDS = [];
     let CALENDAR_ID = '';
     let SCHOOL_UNITS = ['KB-TK', 'SD', 'SMP', 'SMA', 'PINUS - PAUD', 'PINUS - SD', 'PINUS - PKBM'];
@@ -789,6 +950,11 @@
     let KONSEPTOR_FILTER = 'ALL';
     let KASIE_FILTER = 'ALL';
     let TEAM_PIC_FILTER = 'ALL';
+    let WOLA_PANEL_OPEN = true;
+
+    let wolaBarChartObj = null;
+    let wolaUnitPieObj = null;
+    let wolaServicePieObj = null;
 
     const MONTH_NAMES_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const SHORT_MONTH_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -841,12 +1007,10 @@
         SERVER_DATE = data.serverDate || SERVER_DATE;
         loadEl.classList.add('hidden');
 
-        // Perbarui ikon kunci di navigasi sesuai setting PIN di Code.gs
         document.getElementById('nav-kepsek').textContent = '2. Kepsek (ACC)' + (PIN_REQUIRED.kepsek ? ' 🔒' : '');
         document.getElementById('nav-konseptor').textContent = '3. Konseptor VBP' + (PIN_REQUIRED.konseptor ? ' 🔒' : '');
         document.getElementById('nav-kasie').textContent = '4. Kasie (ACC)' + (PIN_REQUIRED.kasie ? ' 🔒' : '');
 
-        // Sinkronkan filter unit Kepsek dengan SCHOOL_UNITS dari Code.gs
         const kpUnitSel = document.getElementById('kp-unit-filter');
         const prevKpUnit = kpUnitSel.value;
         kpUnitSel.innerHTML = '<option value="ALL">Semua Unit Sekolah</option>' +
@@ -862,6 +1026,7 @@
 
         onUnitSelectionChange();
         populateTimeFilterOptions();
+        populateWolaMonthFilter();
         renderAllGroupedViews();
         updateKPIs();
       } catch (err) {
@@ -1043,7 +1208,6 @@
         sel.innerHTML = '<option value="">-- Pilih Unit terlebih dahulu di atas --</option>';
         return;
       }
-      // Tampilkan Rencana Kuartalan aktif ATAU order apapun yang berstatus Revisi Unit
       const plans = ALL_RECORDS.filter(r =>
         r.unit === unit &&
         r.status !== 'Done' &&
@@ -1427,7 +1591,11 @@
           </div>
         `;
       } else if (mode === 'tim') {
-        actionHtml = `<button onclick="openTeamModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Brief & Setor Hasil</button>`;
+        const pts = getRecordWolaPoints(r);
+        actionHtml = `
+          <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 font-bold text-[10px]">${pts} Poin</span>
+          <button onclick="openTeamModal(${r.rowIndex})" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800 shrink-0">Brief & Setor Hasil</button>
+        `;
       }
 
       const prodInfo = (mode === 'tim' || mode === 'kasie') && r.tglMulaiProduksi
@@ -1490,24 +1658,28 @@
       });
       document.getElementById('grouped-konseptor-container').innerHTML = buildGroupedHierarchyHtml(konseptorRecs, 'konseptor');
 
-      // Filter Kasie
+      // Filter Kasie (dengan dropdown Unit)
+      const ksUnit = document.getElementById('ks-unit-filter').value;
       const kasieRecs = ALL_RECORDS.filter(r => {
         if (['Menunggu ACC Kepsek', 'Revisi Unit', 'Done', 'Canceled'].includes(r.status)) return false;
+        if (ksUnit !== 'ALL' && r.unit !== ksUnit) return false;
         if (KASIE_FILTER === 'KILAT') return ((r.kategoriSla || '').includes('KILAT') || r.tipeOrder === 'Ad-Hoc');
         if (KASIE_FILTER === 'ACC') return r.status === 'Menunggu ACC Kasie';
         if (KASIE_FILTER === 'PROD') return ['Siap Produksi', 'In Progress'].includes(r.status);
         return true;
       });
       document.getElementById('grouped-kasie-container').innerHTML = buildGroupedHierarchyHtml(kasieRecs, 'kasie');
+      updateKPIs();
 
-      // Filter Tim Produksi
+      // Filter Tim Produksi & Grafik WOLA
       const teamRecs = ALL_RECORDS.filter(r => {
         if (!['Siap Produksi', 'In Progress', 'Done'].includes(r.status)) return false;
         if (TEAM_PIC_FILTER === 'ALL') return true;
         return (r.picProduksi || '').toLowerCase().includes(TEAM_PIC_FILTER.toLowerCase());
       });
       document.getElementById('tim-task-count').textContent = teamRecs.length;
-      document.getElementById('tim-view-list').innerHTML = buildGroupedHierarchyHtml(teamRecs, 'tim');
+      document.getElementById('tim-tasks-container').innerHTML = buildGroupedHierarchyHtml(teamRecs, 'tim');
+      renderWolaDashboard();
     }
 
     function setKepsekFilter(f) {
@@ -1522,7 +1694,25 @@
     }
 
     function setKonseptorFilter(f) { KONSEPTOR_FILTER = f; renderAllGroupedViews(); }
-    function setKasieFilter(f) { KASIE_FILTER = f; renderAllGroupedViews(); }
+
+    function onKasieFilterChange() {
+      renderAllGroupedViews();
+    }
+
+    function setKasieFilter(f) {
+      KASIE_FILTER = f;
+      const styles = {
+        ALL: f === 'ALL' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700',
+        KILAT: f === 'KILAT' ? 'bg-red-700 text-white' : 'bg-red-100 text-red-800',
+        ACC: f === 'ACC' ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-800',
+        PROD: f === 'PROD' ? 'bg-blue-700 text-white' : 'bg-blue-100 text-blue-800'
+      };
+      ['ALL', 'KILAT', 'ACC', 'PROD'].forEach(key => {
+        const btn = document.getElementById('ks-btn-' + key);
+        if (btn) btn.className = `ks-filter px-3 py-1.5 rounded-lg text-xs font-bold ${styles[key]}`;
+      });
+      renderAllGroupedViews();
+    }
 
     function setTeamPicFilter(pic) {
       TEAM_PIC_FILTER = pic;
@@ -1539,6 +1729,7 @@
     function switchTeamSubView(sub) {
       document.getElementById('tim-view-list').classList.toggle('hidden', sub !== 'list');
       document.getElementById('tim-view-calendar').classList.toggle('hidden', sub !== 'calendar');
+      document.getElementById('btn-toggle-wola').classList.toggle('hidden', sub !== 'list');
       document.getElementById('sub-tim-list').className = sub === 'list'
         ? 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900'
         : 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100';
@@ -1548,10 +1739,379 @@
     }
 
     function updateKPIs() {
-      document.getElementById('kpi-kilat').textContent = ALL_RECORDS.filter(r => (r.kategoriSla || '').includes('KILAT') && r.status !== 'Done').length;
-      document.getElementById('kpi-acc').textContent = ALL_RECORDS.filter(r => r.status === 'Menunggu ACC Kasie').length;
-      document.getElementById('kpi-prod').textContent = ALL_RECORDS.filter(r => ['Siap Produksi', 'In Progress'].includes(r.status)).length;
-      document.getElementById('kpi-done').textContent = ALL_RECORDS.filter(r => r.status === 'Done').length;
+      const ksUnitEl = document.getElementById('ks-unit-filter');
+      const ksUnit = ksUnitEl ? ksUnitEl.value : 'ALL';
+      const baseList = ksUnit === 'ALL' ? ALL_RECORDS : ALL_RECORDS.filter(r => r.unit === ksUnit);
+
+      document.querySelectorAll('.ks-kpi-unit-tag').forEach(el => {
+        el.textContent = ksUnit === 'ALL' ? '' : `(${ksUnit})`;
+      });
+
+      document.getElementById('kpi-kilat').textContent = baseList.filter(r => (r.kategoriSla || '').includes('KILAT') && r.status !== 'Done' && r.status !== 'Canceled').length;
+      document.getElementById('kpi-acc').textContent = baseList.filter(r => r.status === 'Menunggu ACC Kasie').length;
+      document.getElementById('kpi-prod').textContent = baseList.filter(r => ['Siap Produksi', 'In Progress'].includes(r.status)).length;
+      document.getElementById('kpi-done').textContent = baseList.filter(r => r.status === 'Done').length;
+    }
+
+    // =========================================================================
+    // WORKLOAD ANALYSIS (WOLA) — GRAFIK & ANALISIS TIM PUBLIKASI
+    // =========================================================================
+    function toggleWolaPanel() {
+      WOLA_PANEL_OPEN = !WOLA_PANEL_OPEN;
+      document.getElementById('wola-dashboard-panel').classList.toggle('hidden', !WOLA_PANEL_OPEN);
+      document.getElementById('btn-toggle-wola').textContent = WOLA_PANEL_OPEN ? '− Sembunyikan Grafik WOLA' : '+ Tampilkan Grafik WOLA';
+      if (WOLA_PANEL_OPEN) renderWolaDashboard();
+    }
+
+    function openWolaGuideModal() {
+      document.getElementById('modal-wola-guide').classList.remove('hidden');
+    }
+
+    function getRecordMonthKey(r) {
+      const refDate = (r.tglMulaiProduksi && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiProduksi))
+        ? r.tglMulaiProduksi
+        : ((r.tglMulaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent)) ? r.tglMulaiEvent : '');
+      if (!refDate) return '';
+      return refDate.slice(0, 7); // YYYY-MM
+    }
+
+    function formatMonthKeyLabel(mKey) {
+      if (!mKey || !/^\d{4}-\d{2}$/.test(mKey)) return mKey;
+      const [y, m] = mKey.split('-').map(Number);
+      return `${MONTH_NAMES_ID[m - 1]} ${y}`;
+    }
+
+    function populateWolaMonthFilter() {
+      const sel = document.getElementById('wola-month-filter');
+      const prevVal = sel.value;
+      const monthSet = new Set();
+
+      ALL_RECORDS.forEach(r => {
+        if (r.status === 'Canceled') return;
+        const mKey = getRecordMonthKey(r);
+        if (mKey) monthSet.add(mKey);
+      });
+
+      const sortedMonths = Array.from(monthSet).sort();
+      sel.innerHTML = '<option value="ALL">Semua Bulan Aktif</option>' +
+        sortedMonths.map(k => `<option value="${k}">${formatMonthKeyLabel(k)}</option>`).join('');
+
+      const currentMonthKey = SERVER_DATE.slice(0, 7);
+      if (prevVal && (prevVal === 'ALL' || sortedMonths.includes(prevVal))) {
+        sel.value = prevVal;
+      } else if (sortedMonths.includes(currentMonthKey)) {
+        sel.value = currentMonthKey;
+      } else if (sortedMonths.length > 0) {
+        sel.value = sortedMonths[sortedMonths.length - 1];
+      } else {
+        sel.value = 'ALL';
+      }
+    }
+
+    function getRecordWolaPoints(r) {
+      if (r.status === 'Canceled') return 0;
+      const keb = (r.kebutuhan || '').toLowerCase();
+      if (keb.includes('peminjaman alat')) return 0;
+
+      const explicit = parseFloat(r.bobot || r.poinWola);
+      if (!isNaN(explicit) && explicit > 0) return explicit;
+
+      let days = 1;
+      if (r.tglMulaiEvent && r.tglSelesaiEvent && /^\d{4}-\d{2}-\d{2}$/.test(r.tglMulaiEvent) && /^\d{4}-\d{2}-\d{2}$/.test(r.tglSelesaiEvent)) {
+        const d1 = new Date(r.tglMulaiEvent + 'T00:00:00');
+        const d2 = new Date(r.tglSelesaiEvent + 'T00:00:00');
+        const diff = Math.round((d2 - d1) / 86400000) + 1;
+        if (diff > 1 && diff <= 14) days = diff;
+      }
+
+      let base = 1.5;
+      if (keb.includes('liputan') && keb.includes('desain')) base = 3;
+      else if (keb.includes('liputan') || keb.includes('studio')) base = 2;
+      else if (keb.includes('desain')) base = 1.5;
+
+      return base * days;
+    }
+
+    function getWolaColor(points) {
+      if (points <= 15) return '#10b981';
+      if (points <= 25) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function getWolaBadgeStyle(points) {
+      if (points <= 15) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      if (points <= 25) return 'bg-amber-50 text-amber-700 border-amber-200';
+      return 'bg-rose-50 text-rose-700 border-rose-200';
+    }
+
+    function renderWolaDashboard() {
+      const selMonth = document.getElementById('wola-month-filter').value;
+      document.getElementById('wola-period-label').textContent = selMonth === 'ALL'
+        ? 'SEMUA PERIODE AKTIF'
+        : formatMonthKeyLabel(selMonth).toUpperCase();
+
+      const wolaRecords = ALL_RECORDS.filter(r => {
+        if (r.status === 'Canceled') return false;
+        if (!['Siap Produksi', 'In Progress', 'Done', 'Menunggu ACC Kasie'].includes(r.status)) return false;
+        if (selMonth !== 'ALL' && getRecordMonthKey(r) !== selMonth) return false;
+        return true;
+      });
+
+      const points = {};
+      const taskCounts = {};
+      TIM_PUBLIKASI.forEach(t => {
+        points[t] = 0;
+        taskCounts[t] = 0;
+      });
+
+      wolaRecords.forEach(r => {
+        const pts = getRecordWolaPoints(r);
+        if (pts <= 0) return;
+        const picStr = (r.picProduksi || '').toLowerCase();
+        TIM_PUBLIKASI.forEach(t => {
+          if (picStr.includes(t.toLowerCase())) {
+            points[t] = Math.round((points[t] + pts) * 10) / 10;
+            taskCounts[t] += 1;
+          }
+        });
+      });
+
+      const totalPoints = Math.round(Object.values(points).reduce((a, b) => a + b, 0) * 10) / 10;
+      const avgPoints = (totalPoints / TIM_PUBLIKASI.length).toFixed(1);
+
+      let statusBadge = '';
+      if (Number(avgPoints) <= 15) {
+        statusBadge = '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg font-bold border border-emerald-200">🟢 Kapasitas Aman</span>';
+      } else if (Number(avgPoints) <= 25) {
+        statusBadge = '<span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold border border-amber-200">🟡 Kapasitas High Utilized</span>';
+      } else {
+        statusBadge = '<span class="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-lg font-bold border border-rose-200">🔴 Overload (Potensi Lembur)</span>';
+      }
+
+      document.getElementById('wolaSummaryCards').innerHTML = `
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between shadow-2xs">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Beban Tim (WOLA)</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-xl font-extrabold text-slate-900">${totalPoints} POIN</span>
+            <span class="text-[11px] text-slate-500 font-medium">(≈ ${Math.round(totalPoints * 2)} Jam Kerja Murni)</span>
+          </div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between shadow-2xs">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Rata-Rata Beban Per Staf</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-xl font-extrabold text-blue-700">${avgPoints} POIN</span>
+            <span class="text-[11px] text-slate-500 font-medium">/ 20 Poin Normal</span>
+          </div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 flex flex-col justify-between shadow-2xs">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status Analisis WOLA</span>
+          <div class="flex items-center gap-1.5 text-xs">${statusBadge}</div>
+        </div>
+      `;
+
+      document.getElementById('personelStats').innerHTML = TIM_PUBLIKASI.map(t => {
+        const pt = points[t];
+        const tc = taskCounts[t];
+        const badgeStyle = getWolaBadgeStyle(pt);
+        const isSelected = TEAM_PIC_FILTER.toLowerCase() === t.toLowerCase();
+        return `
+          <button type="button" onclick="setTeamPicFilter('${isSelected ? 'ALL' : t}')"
+            class="text-left bg-white p-2.5 sm:p-3 rounded-xl border ${isSelected ? 'border-blue-600 ring-2 ring-blue-500/20' : 'border-slate-200/80 hover:border-slate-300'} flex items-center justify-between gap-1.5 shadow-2xs transition">
+            <div class="flex flex-col">
+              <span class="font-bold text-slate-800 text-[11px] sm:text-xs tracking-tight">${t.toUpperCase()}</span>
+              <span class="text-[10px] text-slate-500 font-semibold mt-0.5">📦 ${tc} Order</span>
+            </div>
+            <span class="font-extrabold px-2 py-0.5 rounded-lg text-[10px] sm:text-xs border shrink-0 ${badgeStyle}">${pt} POIN</span>
+          </button>
+        `;
+      }).join('');
+
+      renderWolaCharts(wolaRecords, points);
+      renderWolaInsightsPanel(points, taskCounts, totalPoints, avgPoints);
+    }
+
+    function renderWolaCharts(wolaRecords, points) {
+      if (typeof Chart === 'undefined') return;
+
+      // 1. Horizontal Bar Chart Beban Kerja Personel
+      const barCanvas = document.getElementById('wolaPersonelBarChart');
+      if (barCanvas) {
+        if (wolaBarChartObj) wolaBarChartObj.destroy();
+        wolaBarChartObj = new Chart(barCanvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: TIM_PUBLIKASI,
+            datasets: [{
+              label: 'Total Poin Beban Kerja',
+              data: TIM_PUBLIKASI.map(t => points[t]),
+              backgroundColor: TIM_PUBLIKASI.map(t => getWolaColor(points[t])),
+              borderRadius: 6
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { beginAtZero: true, ticks: { precision: 0, font: { size: 11 } } },
+              y: { ticks: { font: { size: 11, weight: '700' } } }
+            }
+          }
+        });
+      }
+
+      // 2. Pie Chart Order Per Unit
+      const unitCanvas = document.getElementById('wolaUnitPieChart');
+      if (unitCanvas) {
+        const unitCounts = {};
+        wolaRecords.forEach(r => {
+          const u = r.unit || 'Lainnya';
+          unitCounts[u] = (unitCounts[u] || 0) + 1;
+        });
+        const uLabels = Object.keys(unitCounts);
+        const uValues = Object.values(unitCounts);
+
+        if (wolaUnitPieObj) wolaUnitPieObj.destroy();
+        wolaUnitPieObj = new Chart(unitCanvas.getContext('2d'), {
+          type: 'pie',
+          data: {
+            labels: uLabels.length ? uLabels : ['Belum ada data'],
+            datasets: [{
+              data: uValues.length ? uValues : [1],
+              backgroundColor: uLabels.length
+                ? ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b']
+                : ['#e2e8f0']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } }
+          }
+        });
+      }
+
+      // 3. Pie Chart Proporsi Layanan
+      const srvCanvas = document.getElementById('wolaServicePieChart');
+      if (srvCanvas) {
+        const srvCounts = { 'Liputan & Desain': 0, 'Liputan Foto/Video': 0, 'Desain Grafis': 0, 'Studio / Alat': 0 };
+        wolaRecords.forEach(r => {
+          const keb = (r.kebutuhan || '').toLowerCase();
+          if (keb.includes('liputan') && keb.includes('desain')) srvCounts['Liputan & Desain']++;
+          else if (keb.includes('liputan')) srvCounts['Liputan Foto/Video']++;
+          else if (keb.includes('desain')) srvCounts['Desain Grafis']++;
+          else srvCounts['Studio / Alat']++;
+        });
+        const activeSrvLabels = Object.keys(srvCounts).filter(k => srvCounts[k] > 0);
+        const activeSrvVals = activeSrvLabels.map(k => srvCounts[k]);
+
+        if (wolaServicePieObj) wolaServicePieObj.destroy();
+        wolaServicePieObj = new Chart(srvCanvas.getContext('2d'), {
+          type: 'pie',
+          data: {
+            labels: activeSrvLabels.length ? activeSrvLabels : ['Belum ada data'],
+            datasets: [{
+              data: activeSrvVals.length ? activeSrvVals : [1],
+              backgroundColor: activeSrvLabels.length
+                ? ['#2563eb', '#0d9488', '#8b5cf6', '#f59e0b']
+                : ['#e2e8f0']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } }
+          }
+        });
+      }
+    }
+
+    function renderWolaInsightsPanel(points, taskCounts, totalPoints, avgPoints) {
+      const panel = document.getElementById('wolaInsightsPanel');
+      if (!panel) return;
+
+      const overloadStaff = TIM_PUBLIKASI.filter(t => points[t] > 25);
+      const highStaff = TIM_PUBLIKASI.filter(t => points[t] >= 16 && points[t] <= 25);
+      const amanStaff = TIM_PUBLIKASI.filter(t => points[t] <= 15);
+
+      const rekomendasiList = [];
+      if (overloadStaff.length > 0 && amanStaff.length > 0) {
+        rekomendasiList.push(`<strong>Pemerataan Beban Kerja (Rebalancing):</strong> Staf <code>${overloadStaff.join(', ')}</code> berstatus <strong>Overload</strong>. Alihkan order rutin baru kepada <code>${amanStaff.join(', ')}</code> yang kapasitasnya masih longgar.`);
+      } else if (highStaff.length >= 4) {
+        rekomendasiList.push(`<strong>Kapasitas Tim Padat:</strong> Mayoritas staf (${highStaff.join(', ')}) berada di zona 16–25 Poin. Disarankan mengatur jarak slot jadwal reguler (+1H) bila ada pengajuan baru.`);
+      } else {
+        rekomendasiList.push(`<strong>Kapasitas Tim Terkendali:</strong> Distribusi tugas antar personel dalam batas aman (≤25 Poin). Tim siap menangani jadwal produksi berjalan.`);
+      }
+
+      const highFreqStaff = TIM_PUBLIKASI.filter(t => taskCounts[t] >= 6);
+      if (highFreqStaff.length > 0) {
+        rekomendasiList.push(`<strong>Perlindungan Focus Time:</strong> Staf <code>${highFreqStaff.join(', ')}</code> memegang frekuensi tugas cukup banyak (≥6 order). Kelompokkan jadwal editing dan revisi agar waktu fokus terjaga.`);
+      }
+
+      if (Number(avgPoints) > 25) {
+        rekomendasiList.push(`<strong>Pertimbangkan Bantuan Eksternal:</strong> Rata-rata beban tim melebihi 25 Poin/staf. Siapkan opsi dukungan vendor/freelance bila lonjakan agenda berlanjut.`);
+      } else {
+        rekomendasiList.push(`<strong>Kecukupan Tim Internal:</strong> Volume penugasan periode ini ter-cover optimal oleh 6 personel tim internal.`);
+      }
+
+      panel.innerHTML = `
+        <details class="bg-slate-900 text-white rounded-xl overflow-hidden border border-slate-700">
+          <summary class="cursor-pointer select-none px-4 py-2.5 flex items-center justify-between text-xs font-extrabold text-blue-300 hover:bg-slate-800">
+            <span>💡 ANALISA HASIL & REKOMENDASI WOLA (Klik untuk lihat detail)</span>
+            <span class="text-[11px] text-slate-400">▾</span>
+          </summary>
+          <div class="p-4 pt-2 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs border-t border-slate-800">
+            <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/70 space-y-1.5">
+              <div class="font-bold text-amber-400 text-[11px] uppercase tracking-wider">🔍 Ringkasan Angka WOLA</div>
+              <ul class="space-y-1 text-slate-300 text-[11px] list-disc pl-4">
+                <li><strong>Total ${totalPoints} Poin:</strong> Setara ± <strong>${Math.round(totalPoints * 2)} Jam Kerja Murni</strong>.</li>
+                <li><strong>Rata-rata ${avgPoints} Poin/Staf:</strong> Utilisasi <strong>${Math.round((Number(avgPoints) / 20) * 100)}%</strong> dari standar 20 Poin.</li>
+                <li><strong>Overload (>25):</strong> ${overloadStaff.length ? `<span class="text-rose-400 font-bold">${overloadStaff.join(', ')}</span>` : '<span class="text-slate-400">Tidak ada</span>'}</li>
+                <li><strong>High Utilized (16–25):</strong> ${highStaff.length ? `<span class="text-amber-300 font-bold">${highStaff.join(', ')}</span>` : '<span class="text-slate-400">Tidak ada</span>'}</li>
+                <li><strong>Kapasitas Aman (≤15):</strong> ${amanStaff.length ? `<span class="text-emerald-400 font-bold">${amanStaff.join(', ')}</span>` : '<span class="text-slate-400">Tidak ada</span>'}</li>
+              </ul>
+            </div>
+            <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/70 space-y-1.5">
+              <div class="font-bold text-emerald-400 text-[11px] uppercase tracking-wider">🎯 Rekomendasi Pengaturan Tugas</div>
+              <ul class="space-y-1.5 text-slate-200 text-[11px] list-decimal pl-4">
+                ${rekomendasiList.map(item => `<li>${item}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </details>
+      `;
+    }
+
+    function copyRekapWATim() {
+      const selMonth = document.getElementById('wola-month-filter').value;
+      const periodTitle = selMonth === 'ALL' ? 'SEMUA PERIODE AKTIF' : formatMonthKeyLabel(selMonth).toUpperCase();
+
+      const records = ALL_RECORDS.filter(r => {
+        if (r.status === 'Canceled') return false;
+        if (!['Siap Produksi', 'In Progress', 'Done'].includes(r.status)) return false;
+        if (selMonth !== 'ALL' && getRecordMonthKey(r) !== selMonth) return false;
+        return true;
+      });
+
+      let text = `*REKAP PENUGASAN & WOLA TIM PUBLIKASI - ${periodTitle}*\n\n`;
+      TIM_PUBLIKASI.forEach(t => {
+        const tasks = records.filter(r => (r.picProduksi || '').toLowerCase().includes(t.toLowerCase()));
+        const totalPts = Math.round(tasks.reduce((sum, r) => sum + getRecordWolaPoints(r), 0) * 10) / 10;
+        text += `*${t.toUpperCase()}* (${tasks.length} order • ${totalPts} Poin):\n`;
+        if (tasks.length === 0) {
+          text += `- Nihil\n`;
+        } else {
+          tasks.forEach(tk => {
+            text += `- [${tk.tglMulaiProduksi || tk.tglMulaiEvent || '-'}] ${tk.judul} (${tk.unit})\n`;
+          });
+        }
+        text += `\n`;
+      });
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Rekap penugasan & poin WOLA berhasil disalin ke clipboard!');
+      });
     }
 
     // =========================================================================
@@ -1598,7 +2158,7 @@
       const r = ALL_RECORDS.find(x => x.rowIndex === rowIndex);
       if (!r) return;
       document.getElementById('mt-rowIndex').value = r.rowIndex;
-      document.getElementById('mt-badge').textContent = `${r.id} • ${r.unit} • ${r.kategoriSla}`;
+      document.getElementById('mt-badge').textContent = `${r.id} • ${r.unit} • ${r.kategoriSla} (${getRecordWolaPoints(r)} Poin WOLA)`;
       document.getElementById('mt-title').textContent = r.judul;
       document.getElementById('mt-pic').textContent = r.picProduksi || '-';
       document.getElementById('mt-prod-date').textContent = `${r.tglMulaiProduksi || r.tglMulaiEvent || '-'} s/d ${r.deadlineTayang || '-'}`;
