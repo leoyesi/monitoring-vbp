@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal VBP & Publikasi 1-Pintu — Sekolah Athalia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+    }
+    .nav-active { background-color: #2563eb; color: #ffffff; }
+    .flow-card { transition: all 0.15s ease; }
+    .flow-active-a { border-color: #1d4ed8; background-color: #eff6ff; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.10); }
+    .flow-active-b2 { border-color: #b91c1c; background-color: #fef2f2; box-shadow: 0 4px 12px rgba(185, 28, 28, 0.10); }
+    .flow-active-c { border-color: #0d9488; background-color: #f0fdfa; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.10); }
+    .loader { border: 3px solid #e2e8f0; border-top: 3px solid #1d4ed8; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-sm">
+
+  <!-- HEADER & NAVIGASI 6 TAHAP (F1–F6 + JALUR A/B/C) -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-extrabold text-base shadow-inner">A</div>
+        <div>
+          <h1 class="text-base font-extrabold leading-tight tracking-tight">Portal VBP & Publikasi 1-Pintu</h1>
+          <p class="text-xs text-slate-400">Sekolah Athalia • Jalur A/B/C & Alur Produksi F1–F6</p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-xl">
+        <button onclick="switchRole('unit')" id="nav-unit" class="nav-active px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          1. Form Unit
+        </button>
+        <button onclick="switchRole('kepsek')" id="nav-kepsek" class="text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          2. Kepsek (ACC) 🔒
+        </button>
+        <button onclick="switchRole('konseptor')" id="nav-konseptor" class="text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          3. Architect VBP
+        </button>
+        <button onclick="switchRole('kasie')" id="nav-kasie" class="text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          4. Lead / Kasie 🔒
+        </button>
+        <button onclick="switchRole('tim')" id="nav-tim" class="text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          5. Tim & QC
+        </button>
+        <button onclick="switchRole('evaluasi')" id="nav-evaluasi" class="text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          6. Evaluasi F6
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- STATUS SINKRONISASI -->
+  <div id="loading-banner" class="bg-blue-50 border-b border-blue-200 px-4 py-2 text-xs font-semibold text-blue-800 flex items-center justify-center gap-2">
+    <div class="loader"></div>
+    <span>Menyinkronkan data...</span>
+  </div>
+  <div id="error-banner" class="hidden bg-red-50 border-b border-red-200 px-4 py-2 text-xs font-semibold text-red-800 flex items-center justify-center gap-2">
+    <span id="error-banner-text"></span>
+    <button onclick="loadData()" class="underline font-bold ml-2">Muat Ulang</button>
+  </div>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- ===================================================================== -->
+    <!-- TAHAP 1: FORM UNIT (3 PINTU MASUK: JALUR A, JALUR B, JALUR C)         -->
+    <!-- ===================================================================== -->
+    <section id="view-unit" class="space-y-6">
+
+      <!-- BANNER REVISI -->
+      <div id="unit-revision-banner" class="hidden bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-md bg-amber-600 text-white text-xs font-extrabold uppercase">Perlu Tindakan</span>
+            <h3 class="text-sm font-extrabold text-amber-950">Revisi Pengajuan (<span id="rev-banner-count">0</span>)</h3>
+          </div>
+          <span class="text-xs font-semibold text-amber-800 hidden sm:inline">Cek catatan lalu klik Perbaiki Sekarang</span>
+        </div>
+        <div id="unit-revision-list" class="space-y-2"></div>
+      </div>
+
+      <div id="form-unit-card" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Pengajuan Layanan Publikasi, Liputan & Desain</h2>
+            <p class="text-xs text-slate-500">Pilih pintu masuk pengajuan (Jalur A, B, atau C) atau lengkapi jadwal program kuartalan.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="selectFlow('B1')" id="btn-mode-b1" class="px-3.5 py-2 text-xs font-bold rounded-xl border border-teal-600 bg-teal-50 text-teal-900 hover:bg-teal-100 transition">
+              ✏️ Lengkapi Jadwal / Revisi
+            </button>
+            <button type="button" onclick="loadData()" class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-600">
+              ↻ Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 PINTU MASUK (JALUR A, JALUR B, JALUR C) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+          <button type="button" onclick="selectFlow('A')" id="card-flow-A" class="flow-card flow-active-a text-left rounded-xl border-2 p-4">
+            <div class="flex items-center justify-between mb-1">
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-blue-700 text-white">1. Jalur A • Terencana</span>
+              <span class="text-xs font-bold text-blue-700">Jadwal Opsional</span>
+            </div>
+            <div class="text-base font-extrabold text-slate-900">Rencana Kuartalan (VBP)</div>
+            <p class="text-xs text-slate-600 mt-0.5">Program rutin/event & RPP kuartalan unit. Tanggal boleh menyusul.</p>
+          </button>
+
+          <button type="button" onclick="selectFlow('B2')" id="card-flow-B2" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-red-500 p-4">
+            <div class="flex items-center justify-between mb-1">
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-red-700 text-white">2. Jalur B • Case Khusus</span>
+              <span class="text-xs font-bold text-red-700">Tengah Quarter</span>
+            </div>
+            <div class="text-base font-extrabold text-slate-900">Ad-Hoc / Momen / Krisis</div>
+            <p class="text-xs text-slate-600 mt-0.5">Momen mendadak, studio, pinjam alat, atau case khusus negatif/krisis.</p>
+          </button>
+
+          <button type="button" onclick="selectFlow('C')" id="card-flow-C" class="flow-card text-left rounded-xl border-2 border-slate-200 hover:border-teal-500 p-4">
+            <div class="flex items-center justify-between mb-1">
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-teal-700 text-white">3. Jalur C • Layanan</span>
+              <span class="text-xs font-bold text-teal-700">Tanpa Pilar VBP</span>
+            </div>
+            <div class="text-base font-extrabold text-slate-900">Permintaan Layanan Non-Konten</div>
+            <p class="text-xs text-slate-600 mt-0.5">Desain form, ID card, banner, brosur, dll. Langsung analisis brief & serah terima.</p>
+          </button>
+        </div>
+
+        <!-- INDIKATOR MODE UPDATE PROGRAM -->
+        <div id="mode-b1-active-bar" class="hidden mb-5 bg-teal-700 text-white rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-bold">Mode Update: Melengkapi jadwal teknis atau memperbaiki revisi program terdaftar.</span>
+          <button type="button" onclick="selectFlow('A')" class="px-3 py-1 rounded-lg bg-white text-teal-900 text-xs font-extrabold hover:bg-teal-50">
+            ← Pengajuan Baru
+          </button>
+        </div>
+
+        <form id="form-1pintu" onsubmit="handleUnitSubmit(event)" class="space-y-5">
+          <!-- DATA PEMOHON -->
+          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Data Pemohon</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Unit *</label>
+                <select id="u-unit" required onchange="onUnitSelectionChange()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="">-- Pilih Unit --</option>
+                  <optgroup label="Unit Sekolah (Melalui ACC Kepsek)">
+                    <option value="KB-TK">KB-TK</option>
+                    <option value="SD">SD</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                    <option value="PINUS - PAUD">PINUS - PAUD</option>
+                    <option value="PINUS - SD">PINUS - SD</option>
+                    <option value="PINUS - PKBM">PINUS - PKBM</option>
+                  </optgroup>
+                  <optgroup label="Non-Sekolah / Yayasan">
+                    <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+                    <option value="PK3">PK3</option>
+                    <option value="CHAPLAIN">CHAPLAIN</option>
+                    <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+                    <option value="SARPRAS">SARPRAS</option>
+                    <option value="KEUANGAN">KEUANGAN</option>
+                    <option value="PENDIDIKAN">PENDIDIKAN</option>
+                    <option value="SDM">SDM</option>
+                    <option value="YAYASAN">YAYASAN</option>
+                    <option value="All Unit">All Unit</option>
+                  </optgroup>
+                </select>
+                <p id="unit-routing-hint" class="hidden text-xs font-semibold mt-1"></p>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama PIC Unit *</label>
+                <input type="text" id="u-pemohon" required placeholder="Contoh: Bu Anjar" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp *</label>
+                <input type="text" id="u-hp" required placeholder="0812xxxxxxxx" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+          </div>
+
+          <!-- SELECTOR PROGRAM TERDAFTAR (MODE B1) -->
+          <div id="box-b1-selector" class="hidden bg-teal-50 border border-teal-200 rounded-xl p-4 space-y-2">
+            <label class="block text-xs font-extrabold text-teal-900">Pilih Program Terdaftar *</label>
+            <select id="u-existing-plan" onchange="fillFromSelectedPlan()" class="w-full rounded-lg border border-teal-300 bg-white px-3 py-2.5 text-sm font-semibold">
+              <option value="">-- Pilih Unit di atas terlebih dahulu --</option>
+            </select>
+            <p id="b1-plan-preview" class="text-xs text-teal-800"></p>
+            <div id="b1-revision-note" class="hidden bg-amber-50 border border-amber-300 rounded-lg p-2.5 text-xs text-amber-950 font-medium"></div>
+          </div>
+
+          <!-- INFO KEGIATAN & VBP (DINAMIS UNTUK JALUR A, B, ATAU C) -->
+          <div id="box-vbp-fields" class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span id="lbl-box-kegiatan" class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Info Kegiatan & Pilar VBP</span>
+              <span id="badge-b2-kilat" class="hidden px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-red-100 text-red-800">
+                Jalur B • Case Khusus
+              </span>
+              <span id="badge-c-layanan" class="hidden px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-teal-100 text-teal-900">
+                Jalur C • Analisis Brief & Serah Terima
+              </span>
+            </div>
+
+            <!-- KATEGORI CASE KHUSUS (KHUSUS JALUR B) -->
+            <div id="wrap-jalur-b-category" class="hidden bg-white border border-red-200 rounded-xl p-3 space-y-2.5">
+              <label class="block text-xs font-extrabold text-slate-800">Kategori Case Khusus (Jalur B) *</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 cursor-pointer bg-slate-50">
+                  <input type="radio" name="jalur_b_tipe" value="ADHOC_POSITIF" checked onchange="onJalurBCategoryChange()" class="mt-0.5 text-blue-700">
+                  <div class="text-xs">
+                    <div class="font-extrabold text-slate-900">Ad-Hoc / Momen Positif / Alat</div>
+                    <div class="text-slate-500">Liputan candid, prestasi mendadak, studio, atau pinjam alat.</div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-red-300 hover:border-red-600 cursor-pointer bg-red-50/60">
+                  <input type="radio" name="jalur_b_tipe" value="KRISIS_NEGATIF" onchange="onJalurBCategoryChange()" class="mt-0.5 text-red-700">
+                  <div class="text-xs">
+                    <div class="font-extrabold text-red-900">🚨 Case Khusus Negatif / Krisis</div>
+                    <div class="text-red-700">Insiden / isu sensitif. Otomatis kunci produksi & eskalasi ke Lead/BPP.</div>
+                  </div>
+                </label>
+              </div>
+              <div id="box-krisis-alert" class="hidden bg-red-700 text-white rounded-lg p-3 text-xs space-y-1">
+                <div class="font-extrabold">🔒 PROTOKOL KRISIS AKTIF — PRODUKSI & PUBLIKASI DIKUNCI OTOMATIS</div>
+                <p class="text-red-100 leading-relaxed">Sesuai alur Case Khusus Negatif (B2/B3), tidak ada konten yang boleh diproduksi atau diterbitkan sebelum <strong>Lead</strong> mengeskalasi ke <strong>BPP</strong> dan BPP memutuskan isi pesan resmi serta juru bicara sekolah.</p>
+              </div>
+            </div>
+
+            <!-- INFO JALUR C (KHUSUS JALUR C) -->
+            <div id="box-jalur-c-info" class="hidden bg-teal-50 border border-teal-300 rounded-xl p-3 text-xs text-teal-950 space-y-2">
+              <div class="font-extrabold">📋 Jalur C — Permintaan Layanan Non-Konten (Tanpa Wajib Pilar VBP)</div>
+              <p class="text-teal-800">Digunakan untuk kebutuhan desain/produksi khusus pemohon (misal: desain form lowongan kerja SDM, ID card, sertifikat, spanduk internal, brosur). Architect & tim akan meninjau brief, menyepakati revisi, lalu menyerahkan hasil akhir ke pemohon.</p>
+              <label class="flex items-center gap-2 bg-white border border-teal-200 rounded-lg px-3 py-2 cursor-pointer font-semibold text-slate-800">
+                <input type="checkbox" id="u-jalur-c-kanal" class="w-4 h-4 rounded text-teal-700">
+                <span>Produk ini juga diminta tayang di kanal resmi sekolah (akan masuk F5 Final QC Lead)</span>
+              </label>
+            </div>
+
+            <!-- KOLOM PILAR VBP / FSCM (DISEMBUNYIKAN PADA JALUR C) -->
+            <div id="wrap-vbp-pillars" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div id="wrap-kuartal">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Target Kuartal *</label>
+                <select id="u-kuartal" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Q1 (Jul-Sep)">Q1 (Jul - Sep)</option>
+                  <option value="Q2 (Okt-Des)" selected>Q2 (Okt - Des)</option>
+                  <option value="Q3 (Jan-Mar)">Q3 (Jan - Mar)</option>
+                  <option value="Q4 (Apr-Jun)">Q4 (Apr - Jun)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Pilar Utama (FSCM) *</label>
+                <select id="u-domain" onchange="updateSubDomainOptions('u-domain', 'u-subdomain', '', true)" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Identitas & Panggilan">1. Identitas & Panggilan (Purpose)</option>
+                  <option value="Keunggulan Akademik & Proses Belajar">2. Keunggulan Akademik & Proses Belajar</option>
+                  <option value="Pengembangan Potensi & Kehidupan Siswa">3. Pengembangan Potensi & Siswa</option>
+                  <option value="Kemitraan Orang Tua & Komunitas">4. Kemitraan Orang Tua & Komunitas</option>
+                  <option value="Tata Kelola, Layanan & Bukti Kualitas">5. Tata Kelola, Layanan & Bukti Kualitas</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Sub-Pilar <span class="font-normal text-slate-500">(Opsional)</span></label>
+                <select id="u-subdomain" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div id="wrap-bentuk-program">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Bentuk Program *</label>
+                <select id="u-tingkat" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Kegiatan">Kegiatan (Event / Acara)</option>
+                  <option value="Praktik">Praktik (Pembiasaan / RPP Kelas)</option>
+                  <option value="Gerakan">Gerakan (Kampanye / Aksi)</option>
+                  <option value="Kebijakan">Kebijakan (Aturan Sekolah)</option>
+                  <option value="Prinsip">Prinsip (Nilai Dasar)</option>
+                </select>
+              </div>
+              <div id="wrap-judul-col" class="sm:col-span-2">
+                <label id="lbl-u-judul" class="block text-xs font-bold text-slate-700 mb-1">Judul Konten / Nama Kegiatan *</label>
+                <input type="text" id="u-judul" placeholder="Contoh: Entrepreneurship Week SMA 2026" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div id="wrap-value-vbp">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pesan / Bukti Nyata yang Ditonjolkan *</label>
+              <textarea id="u-value" rows="2" placeholder="Contoh: Siswa belajar kerja tim, kejujuran bisnis, dan kreativitas nyata (bukan sekadar seremonial)." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <!-- TOGGLE JADWAL OPSIONAL -->
+          <div id="toggle-teknis-wrapper" class="flex flex-wrap items-center justify-between gap-2 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+            <span class="text-xs font-bold text-blue-900">Sudah ada tanggal kegiatan & kebutuhan liputan/alat? (Opsional untuk Kuartalan)</span>
+            <button type="button" onclick="toggleOptionalTeknis()" id="btn-toggle-teknis" class="px-3 py-1.5 rounded-lg bg-white border border-blue-300 text-xs font-bold text-blue-800 hover:bg-blue-100">
+              + Isi Jadwal & Teknis
+            </button>
+          </div>
+
+          <!-- JADWAL & KEBUTUHAN TEKNIS -->
+          <div id="box-teknis-fields" class="hidden bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Jadwal & Brief Kebutuhan Teknis</span>
+              <div id="sla-live-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-200 text-slate-700">
+                Estimasi SLA: Pilih Tanggal
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kebutuhan Layanan *</label>
+                <select id="u-kebutuhan" onchange="toggleStudioHelper()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                  <option value="Liputan/Dokumentasi & Desain/Konten">Liputan & Desain Konten</option>
+                  <option value="Liputan/Dokumentasi">Liputan Foto / Video Saja</option>
+                  <option value="Desain/Konten">Desain Poster / Medsos / Cetak</option>
+                  <option value="Studio / Rekaman">Booking Studio / Rekaman</option>
+                  <option value="Peminjaman Alat">Peminjaman Alat</option>
+                </select>
+              </div>
+              <div>
+                <label id="lbl-tgl-mulai" class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai / Target <span id="req-tgl-star" class="hidden text-red-600">*</span></label>
+                <input type="date" id="u-tgl-mulai" onchange="recalculateLiveSLA()" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai (Jika >1 hari)</label>
+                <input type="date" id="u-tgl-selesai" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <div id="badge-bypass-alat" class="hidden bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2 text-xs text-emerald-900 font-semibold">
+              ⚡ Peminjaman Alat (0 Poin WOLA): Langsung masuk ke meja Lead / Kasie Publikasi setelah ACC unit.
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Jam & Lokasi / Ukuran Media <span id="req-lok-star" class="hidden text-red-600">*</span></label>
+                <input type="text" id="u-waktu-lokasi" placeholder="Contoh: 07:30 - 11:00 | Aula Gedung F (atau Ukuran A4/Banner)" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Link Brief / Referensi / Rundown (Opsional)</label>
+                <input type="url" id="u-link-brief" placeholder="https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+              </div>
+            </div>
+
+            <!-- PILIHAN ALAT & STUDIO -->
+            <div id="box-studio-helper" class="hidden bg-indigo-50 border border-indigo-200 rounded-xl p-3.5 space-y-3">
+              <div class="text-xs font-extrabold text-indigo-950">Pilih Alat yang Dibutuhkan:</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Kamera Camcorder NX 100" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Kamera Camcorder NX 100</span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Kamera Canon M50" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Kamera Canon M50</span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Tripod" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Tripod</span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Monopod" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Monopod</span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Mic Wireless" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Mic Wireless</span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Lighting Led GVM" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Lighting Led GVM</span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-amber-300 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Godox SL60W (Khusus Studio)" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Godox SL60W <span class="text-amber-800 font-bold">(Khusus Studio)</span></span>
+                </label>
+                <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs font-semibold">
+                  <input type="checkbox" value="Lensa Tamron 70-300mm" class="chk-alat-dipinjam w-4 h-4 rounded text-indigo-700">
+                  <span>Lensa Tamron 70-300mm</span>
+                </label>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label class="block text-xs font-bold text-indigo-900 mb-1">Jadwal Ambil & Kembali / Gladi</label>
+                  <input type="text" id="u-studio-gladi" placeholder="Contoh: Ambil H-1 jam 13.00, kembali H+1" class="w-full rounded-lg border border-indigo-300 bg-white px-3 py-1.5 text-xs">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-indigo-900 mb-1">Jumlah Unit / Keterangan Tambahan</label>
+                  <input type="text" id="u-studio-alat" placeholder="Contoh: Mic Wireless 2 unit" class="w-full rounded-lg border border-indigo-300 bg-white px-3 py-1.5 text-xs">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label id="lbl-detail-teknis" class="block text-xs font-bold text-slate-700 mb-1">Output & Brief Kebutuhan yang Diminta <span id="req-det-star" class="hidden text-red-600">*</span></label>
+              <textarea id="u-detail-teknis" rows="2" placeholder="Contoh: Foto kegiatan, Reels IG 1 menit, atau spesifikasi desain form/banner." class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" id="btn-submit-unit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow-xs transition">
+              Kirim Rencana Kuartalan
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PAPAN JADWAL & DAFTAR ORDER (TRANSPARAN, TANPA PIN) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-extrabold text-slate-900">Papan Jadwal & Daftar Order</h3>
+              <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-bold">Transparan • Tanpa PIN</span>
+            </div>
+            <p class="text-xs text-slate-500">Pantau Output 1 (PIC & Alat), Output 2 (Liputan, Raw & Editing), dan Output 3 (Terbitan / Serah Terima).</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="flt-date-basis" onchange="onDateBasisChange(this.value)" class="rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-900">
+              <option value="EVENT">Urut: 📅 Jadwal Liputan / Event</option>
+              <option value="PUBLISH">Urut: 🚀 Jadwal Terbitan</option>
+            </select>
+            <button type="button" onclick="toggleAllAccordions(true)" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+              Buka Semua
+            </button>
+            <button type="button" onclick="toggleAllAccordions(false)" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+              Tutup Semua
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <select id="flt-year" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Tahun</option>
+          </select>
+          <select id="flt-month" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Bulan</option>
+          </select>
+          <select id="flt-week" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Minggu</option>
+            <option value="THIS_WEEK">Minggu Ini</option>
+            <option value="NEXT_WEEK">Minggu Depan</option>
+          </select>
+          <select id="flt-unit" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ALL">Semua Unit</option>
+            <optgroup label="Unit Sekolah">
+              <option value="KB-TK">KB-TK</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="PINUS - PAUD">PINUS - PAUD</option>
+              <option value="PINUS - SD">PINUS - SD</option>
+              <option value="PINUS - PKBM">PINUS - PKBM</option>
+            </optgroup>
+            <optgroup label="Non-Sekolah / Yayasan">
+              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+              <option value="PK3">PK3</option>
+              <option value="CHAPLAIN">CHAPLAIN</option>
+              <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+              <option value="SARPRAS">SARPRAS</option>
+              <option value="KEUANGAN">KEUANGAN</option>
+              <option value="PENDIDIKAN">PENDIDIKAN</option>
+              <option value="SDM">SDM</option>
+              <option value="YAYASAN">YAYASAN</option>
+              <option value="All Unit">All Unit</option>
+            </optgroup>
+          </select>
+          <select id="flt-status" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+            <option value="ACTIVE">Status: Aktif Saja</option>
+            <option value="ALL">Status: Semua</option>
+            <option value="DONE">Status: Selesai (Done)</option>
+          </select>
+          <input type="text" id="flt-search" onkeyup="renderAllGroupedViews()" placeholder="Cari judul / PIC / alat..." class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+        </div>
+
+        <div id="grouped-unit-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAHAP 2: KEPALA SEKOLAH (ACC)                                         -->
+    <!-- ===================================================================== -->
+    <section id="view-kepsek" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-extrabold text-slate-900">Persetujuan Kepala Sekolah</h2>
+              <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold">🔓 Terverifikasi</span>
+            </div>
+            <p class="text-xs text-slate-500">Setujui atau minta revisi pengajuan unit sekolah sebelum masuk Gerbang Nilai & Kurasi Architect.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="kp-unit-filter" onchange="renderAllGroupedViews()" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold">
+              <option value="ALL">Semua Unit Sekolah</option>
+            </select>
+            <button onclick="setKepsekFilter('PENDING')" id="kp-flt-PENDING" class="kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 text-white">
+              Menunggu ACC (<span id="kp-pending-count">0</span>)
+            </button>
+            <button onclick="setKepsekFilter('ALL')" id="kp-flt-ALL" class="kp-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">
+              Semua Aktif
+            </button>
+            <button onclick="lockRoleSession('kepsek')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+              🔒 Kunci
+            </button>
+          </div>
+        </div>
+        <div id="grouped-kepsek-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAHAP 3: ARCHITECT / KONSEPTOR VBP (F2 GERBANG NILAI & F3 BRIEF)      -->
+    <!-- ===================================================================== -->
+    <section id="view-konseptor" class="hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">F2 Gerbang Nilai & F3 Brief Produksi (Architect VBP)</h2>
+            <p class="text-xs text-slate-500">Uji kriteria Gerbang Nilai (Slot, Funnel, Skala Produksi, Impact Metric), cek izin tampil anak & persetujuan brief.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button onclick="setKonseptorFilter('ANTREAN')" id="k-btn-ANTREAN" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-700 text-white">
+              Siap Dikonsep (<span id="k-cnt-antrean">0</span>)
+            </button>
+            <button onclick="setKonseptorFilter('NO_SUBPILAR')" id="k-btn-NO_SUBPILAR" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900">
+              Sub-Pilar Kosong (<span id="k-cnt-nosub">0</span>)
+            </button>
+            <button onclick="setKonseptorFilter('JALUR_C')" id="k-btn-JALUR_C" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-100 text-teal-900">
+              Jalur C Layanan (<span id="k-cnt-jalurc">0</span>)
+            </button>
+            <button onclick="setKonseptorFilter('REVISI')" id="k-btn-REVISI" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-100 text-orange-900">
+              Revisi Lead (<span id="k-cnt-revisi">0</span>)
+            </button>
+            <button onclick="setKonseptorFilter('KILAT')" id="k-btn-KILAT" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">
+              Kilat / Krisis (<span id="k-cnt-kilat">0</span>)
+            </button>
+            <button onclick="setKonseptorFilter('ALL')" id="k-btn-ALL" class="k-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">
+              Semua (<span id="k-cnt-all">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div class="lg:col-span-3">
+            <select id="k-flt-unit" onchange="renderKonseptorCompactView()" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+              <option value="ALL">Semua Unit</option>
+              <option value="KB-TK">KB-TK</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="PINUS - PAUD">PINUS - PAUD</option>
+              <option value="PINUS - SD">PINUS - SD</option>
+              <option value="PINUS - PKBM">PINUS - PKBM</option>
+              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+              <option value="PK3">PK3</option>
+              <option value="CHAPLAIN">CHAPLAIN</option>
+              <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+              <option value="SARPRAS">SARPRAS</option>
+              <option value="KEUANGAN">KEUANGAN</option>
+              <option value="PENDIDIKAN">PENDIDIKAN</option>
+              <option value="SDM">SDM</option>
+              <option value="YAYASAN">YAYASAN</option>
+              <option value="All Unit">All Unit</option>
+            </select>
+          </div>
+          <div class="lg:col-span-3">
+            <select id="k-flt-month" onchange="renderKonseptorCompactView()" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+              <option value="ALL">Semua Bulan</option>
+            </select>
+          </div>
+          <div class="lg:col-span-3">
+            <select id="k-flt-domain" onchange="renderKonseptorCompactView()" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+              <option value="ALL">Semua Pilar Utama</option>
+              <option value="Identitas & Panggilan">1. Identitas & Panggilan</option>
+              <option value="Keunggulan Akademik & Proses Belajar">2. Keunggulan Akademik</option>
+              <option value="Pengembangan Potensi & Kehidupan Siswa">3. Potensi & Siswa</option>
+              <option value="Kemitraan Orang Tua & Komunitas">4. Kemitraan & Komunitas</option>
+              <option value="Tata Kelola, Layanan & Bukti Kualitas">5. Tata Kelola & Layanan</option>
+            </select>
+          </div>
+          <div class="lg:col-span-3 flex items-center gap-1.5">
+            <input type="text" id="k-flt-search" onkeyup="renderKonseptorCompactView()" placeholder="Cari judul..." class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+            <button type="button" onclick="resetKonseptorFilters()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-xs font-bold text-slate-600">Reset</button>
+          </div>
+        </div>
+
+        <div id="grouped-konseptor-container" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAHAP 4: LEAD / KEPALA SEKSI (ACC, ESKALASI KRISIS & DISTRIBUSI)      -->
+    <!-- ===================================================================== -->
+    <section id="view-kasie" class="hidden space-y-5">
+      <!-- KPI RINGKAS -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl border border-red-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-red-700">SLA Kilat / Krisis <span class="ks-kpi-unit-tag"></span></div>
+          <div id="kpi-kilat" class="text-2xl font-extrabold text-red-900 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-amber-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-amber-700">Menunggu ACC <span class="ks-kpi-unit-tag"></span></div>
+          <div id="kpi-acc" class="text-2xl font-extrabold text-amber-900 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-blue-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-blue-700">Produksi & QC <span class="ks-kpi-unit-tag"></span></div>
+          <div id="kpi-prod" class="text-2xl font-extrabold text-blue-900 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-emerald-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-emerald-700">Terbit / Done <span class="ks-kpi-unit-tag"></span></div>
+          <div id="kpi-done" class="text-2xl font-extrabold text-emerald-900 mt-0.5">0</div>
+        </div>
+      </div>
+
+      <!-- KAPASITAS PERSONEL -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+            📊 Kapasitas Beban Tim (🟢 ≤15p Aman • 🟡 16–25p Padat • 🔴 >25p Overload)
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="ks-wola-month" onchange="renderKasieWolaStrip()" class="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-bold">
+              <option value="ALL">Semua Bulan</option>
+            </select>
+            <button type="button" onclick="openWolaGuideModal()" class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold">
+              Rumus Poin
+            </button>
+          </div>
+        </div>
+        <div id="kasie-wola-strip" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2"></div>
+      </div>
+
+      <!-- DAFTAR ANTREAN ACC LEAD / KASIE -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-extrabold text-slate-900">Gatekeeper Lead / Kasie & Pengolahan Data</h2>
+              <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold">🔓 Terverifikasi</span>
+            </div>
+            <p class="text-xs text-slate-500">Atur Output 1 (PIC & Alat), Output 2 (Jadwal Liputan, Raw & Editing), QC Berlapis, dan Output 3 (Terbitan).</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <select id="ks-unit-filter" onchange="onKasieFilterChange()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold">
+              <option value="ALL">Semua Unit</option>
+              <option value="KB-TK">KB-TK</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="PINUS - PAUD">PINUS - PAUD</option>
+              <option value="PINUS - SD">PINUS - SD</option>
+              <option value="PINUS - PKBM">PINUS - PKBM</option>
+              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+              <option value="PK3">PK3</option>
+              <option value="CHAPLAIN">CHAPLAIN</option>
+              <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+              <option value="SARPRAS">SARPRAS</option>
+              <option value="KEUANGAN">KEUANGAN</option>
+              <option value="PENDIDIKAN">PENDIDIKAN</option>
+              <option value="SDM">SDM</option>
+              <option value="YAYASAN">YAYASAN</option>
+              <option value="All Unit">All Unit</option>
+            </select>
+            <button onclick="triggerSyncAllCalendar()" id="btn-sync-cal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
+              Sync Calendar
+            </button>
+            <button onclick="setKasieFilter('ALL')" id="ks-btn-ALL" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+            <button onclick="setKasieFilter('KILAT')" id="ks-btn-KILAT" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-800">Kilat / Krisis</button>
+            <button onclick="setKasieFilter('ACC')" id="ks-btn-ACC" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Menunggu ACC</button>
+            <button onclick="setKasieFilter('PROD')" id="ks-btn-PROD" class="ks-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Produksi & QC</button>
+            <button onclick="lockRoleSession('kasie')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+              🔒 Kunci
+            </button>
+          </div>
+        </div>
+        <div id="grouped-kasie-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAHAP 5: TIM, PENGOLAHAN DATA & QC BERLAPIS                           -->
+    <!-- ===================================================================== -->
+    <section id="view-tim" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Eksekusi Tim, Pengolahan Data & QC Berlapis</h2>
+            <p class="text-xs text-slate-500">Alur F4–F5: Capture & Copywriting → Sortir & Editing → QC Visual & Brief → Final QC (Lead) → Done (Terbit).</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="copyRekapWATim()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+              📋 Copy Rekap WA
+            </button>
+            <a href="https://calendar.google.com" target="_blank" rel="noopener" class="px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold">
+              Google Calendar ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- RINGKASAN 3 OUTPUT FLOWCHART -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <button type="button" onclick="setOutputFocusFilter('ALL')" id="out-card-ALL" class="out-focus-card text-left rounded-xl border-2 border-teal-600 bg-teal-50/70 p-3.5 transition">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded bg-teal-700 text-white text-xs font-extrabold">OUTPUT 1</span>
+              <span id="out1-stat" class="text-xs font-extrabold text-teal-900">0 Order</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900 mt-1.5">👥 Penugasan Tim (PIC & Alat)</div>
+            <div id="out1-sub" class="text-xs text-slate-600 mt-0.5">Pembagian PIC & alokasi alat terpakai</div>
+          </button>
+
+          <button type="button" onclick="setOutputFocusFilter('PRODUKSI')" id="out-card-PRODUKSI" class="out-focus-card text-left rounded-xl border-2 border-slate-200 hover:border-emerald-500 bg-emerald-50/40 p-3.5 transition">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded bg-emerald-700 text-white text-xs font-extrabold">OUTPUT 2</span>
+              <span id="out2-stat" class="text-xs font-extrabold text-emerald-900">0 Jadwal</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900 mt-1.5">🎬 Produksi, Raw & QC Berlapis</div>
+            <div id="out2-sub" class="text-xs text-slate-600 mt-0.5">Liputan, Raw Capture, Draft QC & Final QC</div>
+          </button>
+
+          <button type="button" onclick="setOutputFocusFilter('TERBITAN')" id="out-card-TERBITAN" class="out-focus-card text-left rounded-xl border-2 border-slate-200 hover:border-amber-500 bg-amber-50/40 p-3.5 transition">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded bg-amber-600 text-white text-xs font-extrabold">OUTPUT 3</span>
+              <span id="out3-stat" class="text-xs font-extrabold text-amber-900">0 Tayang</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-900 mt-1.5">🚀 Terbitan Media / Serah Terima</div>
+            <div id="out3-sub" class="text-xs text-slate-600 mt-0.5">Tanggal tayang, kanal & hasil terbit</div>
+          </button>
+        </div>
+
+        <!-- FILTER PIC & SUB-NAVIGASI BERSIH -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-xs font-bold text-slate-500 mr-1">PIC:</span>
+            <button onclick="setTeamPicFilter('ALL')" id="pic-btn-ALL" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">Semua</button>
+            <button onclick="setTeamPicFilter('Yesi')" id="pic-btn-Yesi" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Yesi</button>
+            <button onclick="setTeamPicFilter('Indri')" id="pic-btn-Indri" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Indri</button>
+            <button onclick="setTeamPicFilter('Dodai')" id="pic-btn-Dodai" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Dodai</button>
+            <button onclick="setTeamPicFilter('Wahyu')" id="pic-btn-Wahyu" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Wahyu</button>
+            <button onclick="setTeamPicFilter('Nia')" id="pic-btn-Nia" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Nia</button>
+            <button onclick="setTeamPicFilter('Magang')" id="pic-btn-Magang" class="pic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Magang</button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="tim-date-basis" onchange="onDateBasisChange(this.value)" class="rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-900">
+              <option value="EVENT">Urut: 📅 Liputan / Event</option>
+              <option value="PUBLISH">Urut: 🚀 Terbitan Media</option>
+            </select>
+            <select id="wola-month-filter" onchange="onWolaMonthSync(this.value)" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800">
+              <option value="ALL">Semua Bulan</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TAB SWITCHER: PAPAN 3 OUTPUT vs GRAFIK WOLA vs GOOGLE CALENDAR -->
+        <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+          <button onclick="switchTeamSubView('list')" id="sub-tim-list" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-blue-700 text-white">
+            📋 Papan 3 Output Kerja (<span id="tim-task-count">0</span>)
+          </button>
+          <button onclick="switchTeamSubView('wola')" id="sub-tim-wola" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+            📊 Grafik Beban WOLA
+          </button>
+          <button onclick="switchTeamSubView('calendar')" id="sub-tim-cal" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+            📅 Google Calendar
+          </button>
+        </div>
+
+        <!-- VIEW A: PAPAN 3 OUTPUT KERJA -->
+        <div id="tim-view-list" class="space-y-4">
+          <div id="tim-tasks-container" class="space-y-4"></div>
+        </div>
+
+        <!-- VIEW B: GRAFIK BEBAN WOLA -->
+        <div id="tim-view-wola" class="hidden space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-sm font-extrabold text-slate-900">Analisis Beban Kerja WOLA (<span id="wola-period-label">SEMUA PERIODE</span>)</h3>
+            <button type="button" onclick="openWolaGuideModal()" class="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold">
+              📘 Panduan Poin
+            </button>
+          </div>
+          <div id="wolaSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+          <div id="personelStats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div class="lg:col-span-7 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div class="text-xs font-bold text-slate-600 mb-2">Beban Kerja Per Personel (Poin WOLA)</div>
+              <div class="h-60 relative"><canvas id="wolaPersonelBarChart"></canvas></div>
+            </div>
+            <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+              <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <div class="text-xs font-bold text-slate-600 mb-1">Order Per Unit</div>
+                <div class="h-36 relative"><canvas id="wolaUnitPieChart"></canvas></div>
+              </div>
+              <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <div class="text-xs font-bold text-slate-600 mb-1">Proporsi Layanan</div>
+                <div class="h-36 relative"><canvas id="wolaServicePieChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+          <div id="wolaInsightsPanel"></div>
+        </div>
+
+        <!-- VIEW C: GOOGLE CALENDAR -->
+        <div id="tim-view-calendar" class="hidden">
+          <div class="w-full rounded-xl overflow-hidden border border-slate-300 bg-white">
+            <iframe id="gcal-iframe" src="" style="border: 0" width="100%" height="620" frameborder="0" scrolling="no"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAHAP 6: EVALUASI F6 & IDEASI KUARTAL BERIKUTNYA (CLOSED LOOP TO F1)   -->
+    <!-- ===================================================================== -->
+    <section id="view-evaluasi" class="hidden space-y-5">
+      <!-- KPI F6 RINGKAS -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl border border-emerald-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-emerald-700">Konten Terbit (Done)</div>
+          <div id="f6-kpi-done" class="text-2xl font-extrabold text-emerald-950 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-blue-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-blue-700">Sudah Dievaluasi F6</div>
+          <div id="f6-kpi-evaluated" class="text-2xl font-extrabold text-blue-950 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-purple-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-purple-700">Total Lead PPDB Tercatat</div>
+          <div id="f6-kpi-leads" class="text-2xl font-extrabold text-purple-950 mt-0.5">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-amber-200 p-3.5 shadow-2xs">
+          <div class="text-xs font-bold text-amber-700">Diteruskan ke F1 Ideation</div>
+          <div id="f6-kpi-promoted" class="text-2xl font-extrabold text-amber-950 mt-0.5">0</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">F6 Evaluasi Hasil Terbit & Ide Kuartal Berikutnya</h2>
+            <p class="text-xs text-slate-500">Catat performa pascapublikasi (Reach/Engagement, Klik Web, Lead PPDB) dan ubah temuan terbaik menjadi ide F1 kuartal berikutnya.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="f6-flt-unit" onchange="renderEvaluasiF6View()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+              <option value="ALL">Semua Unit</option>
+              <option value="KB-TK">KB-TK</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="PINUS - PAUD">PINUS - PAUD</option>
+              <option value="PINUS - SD">PINUS - SD</option>
+              <option value="PINUS - PKBM">PINUS - PKBM</option>
+              <option value="UMUM - HUMAS">UMUM - HUMAS</option>
+              <option value="PK3">PK3</option>
+              <option value="CHAPLAIN">CHAPLAIN</option>
+              <option value="PERPUSTAKAAN">PERPUSTAKAAN</option>
+              <option value="SARPRAS">SARPRAS</option>
+              <option value="KEUANGAN">KEUANGAN</option>
+              <option value="PENDIDIKAN">PENDIDIKAN</option>
+              <option value="SDM">SDM</option>
+              <option value="YAYASAN">YAYASAN</option>
+              <option value="All Unit">All Unit</option>
+            </select>
+            <select id="f6-flt-status" onchange="renderEvaluasiF6View()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold">
+              <option value="ALL">Semua Tiket Done</option>
+              <option value="PENDING">Belum Dievaluasi F6</option>
+              <option value="EVALUATED">Sudah Dievaluasi F6</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="f6-list-container" class="space-y-3"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL PANDUAN WOLA -->
+  <div id="modal-wola-guide" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-extrabold text-base text-slate-900">Standar Bobot Poin WOLA</h3>
+        <button onclick="closeModal('modal-wola-guide')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+      <div class="text-xs text-slate-700 space-y-2.5 leading-relaxed">
+        <p><strong>1 Poin WOLA = 2 Jam Kerja Efektif Murni</strong> (Standar normal: 20 Poin / staf per bulan).</p>
+        <ul class="list-disc pl-4 space-y-1">
+          <li><strong>Architect / Copywriter:</strong> 1 Poin</li>
+          <li><strong>Visual Lead / Desain Grafis:</strong> 1.5 Poin</li>
+          <li><strong>Crew Liputan Foto / Video (per hari):</strong> 2 Poin</li>
+          <li><strong>Editor Video:</strong> 2 Poin</li>
+          <li><strong>Admin Publish (Social & Web/SEO):</strong> 1 Poin</li>
+          <li><strong>Peminjaman Alat:</strong> 0 Poin (Jalur Cepat ke Lead/Kasie)</li>
+        </ul>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="closeModal('modal-wola-guide')" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PIN -->
+  <div id="modal-pin" class="hidden fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+    <form onsubmit="submitPinVerification(event)" class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="pin-modal-title" class="text-base font-extrabold text-slate-900">Verifikasi PIN</h3>
+        <button type="button" onclick="closeModal('modal-pin')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+      <div>
+        <input type="password" inputmode="numeric" id="pin-input-field" required placeholder="••••" class="w-full text-center tracking-[0.5em] text-xl font-extrabold rounded-xl border-2 border-slate-300 focus:border-blue-600 outline-none px-4 py-3">
+        <p id="pin-error-msg" class="hidden text-xs text-red-600 font-bold mt-1.5 text-center">PIN salah. Silakan coba lagi.</p>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeModal('modal-pin')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold">Batal</button>
+        <button type="submit" id="btn-verify-pin" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold">Buka Akses</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL ACC KEPSEK -->
+  <div id="modal-kepsek" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="kp-badge" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 id="kp-title" class="text-base font-extrabold text-slate-900">Tinjauan Kepala Sekolah</h3>
+        </div>
+        <button onclick="closeModal('modal-kepsek')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="kp-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3.5 text-xs space-y-1.5 border border-slate-200">
+        <div><strong>Unit & Pemohon:</strong> <span id="kp-unit-info"></span></div>
+        <div><strong>Pilar VBP / Jalur:</strong> <span id="kp-pilar-info"></span></div>
+        <div><strong>Bukti Nyata:</strong> <span id="kp-value-info"></span></div>
+        <div><strong>Jadwal & Lokasi:</strong> <span id="kp-jadwal-info" class="text-blue-800 font-bold"></span></div>
+        <div><strong>Layanan & Alat:</strong> <span id="kp-teknis-info"></span></div>
+      </div>
+
+      <div id="kp-bypass-info" class="hidden bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs text-emerald-900 font-semibold">
+        ⚡ Peminjaman Alat: Setelah ACC, otomatis diteruskan ke Lead / Kasie Publikasi.
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Catatan (Wajib jika Revisi)</label>
+        <textarea id="kp-catatan" rows="2" placeholder="Tulis catatan persetujuan atau revisi..." class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"></textarea>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-2 pt-1">
+        <button onclick="submitKepsek('TOLAK')" class="px-3.5 py-2 rounded-lg border border-red-300 text-red-700 text-xs font-bold hover:bg-red-50">Tolak</button>
+        <button onclick="submitKepsek('REVISI')" class="px-3.5 py-2 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200">Revisi Unit</button>
+        <button onclick="submitKepsek('ACC')" id="btn-kp-acc" class="px-5 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800">✓ Setuju (ACC)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KONSEPTOR / ARCHITECT VBP (LENGKAP DENGAN PANEL GERBANG NILAI F2 & BRIEF F3) -->
+  <div id="modal-konseptor" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="mk-badge-id" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 class="text-base font-extrabold text-slate-900">Panel Gerbang Nilai (F2) & Brief Produksi (F3)</h3>
+        </div>
+        <button onclick="closeModal('modal-konseptor')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="mk-rowIndex">
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-200">
+        <div><strong>Unit:</strong> <span id="mk-info-unit"></span></div>
+        <div><strong>Bukti Nyata / Brief Pemohon:</strong> <span id="mk-info-value"></span></div>
+        <div><strong>Info Liputan / Teknis:</strong> <span id="mk-info-teknis" class="text-blue-800 font-semibold"></span></div>
+        <div id="mk-info-brief-wrap" class="hidden"></div>
+        <div id="mk-info-catatan-wrap" class="hidden text-amber-900 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg mt-1">
+          <strong>Catatan Lead / Kasie:</strong> <span id="mk-info-catatan"></span>
+        </div>
+      </div>
+
+      <!-- BANNER KHUSUS JIKA TIKET JALUR C -->
+      <div id="mk-jalur-c-banner" class="hidden bg-teal-50 border border-teal-300 rounded-xl p-3 text-xs text-teal-950">
+        <strong>📋 Tiket Jalur C (Permintaan Layanan Non-Konten):</strong> Pilar VBP/FSCM bersifat opsional. Fokus pada analisis brief, kesesuaian brand, dan serah terima ke pemohon.
+      </div>
+
+      <!-- PANEL GERBANG NILAI (F2) -->
+      <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-3.5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-indigo-950 uppercase tracking-wider">⚖️ Panel Gerbang Nilai (F2) & Slot Master Kalender</span>
+          <span class="text-[11px] font-bold text-indigo-700">PIC: Architect • Keputusan: Lead</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1">Jenis Slot Master Kalender *</label>
+            <select id="mk-jenis-slot" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-bold">
+              <option value="Event Besar / Program Utama">🏆 Event Besar / Program Utama</option>
+              <option value="Liputan RPP Harian">📚 Liputan RPP Harian (Pembelajaran Kelas)</option>
+              <option value="Case Khusus / Ad-Hoc">⚡ Case Khusus / Momen Tengah Quarter</option>
+              <option value="Layanan Non-Konten (Jalur C)">📋 Layanan Non-Konten (Jalur C)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1">Funnel Alignment *</label>
+            <select id="mk-funnel" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-bold">
+              <option value="Awareness">1. Awareness (Menarik Perhatian Umum)</option>
+              <option value="Consideration">2. Consideration (Meyakinkan Kualitas Kurikulum)</option>
+              <option value="Decision">3. Decision (Mendorong Pendaftaran / PPDB)</option>
+              <option value="Advocacy">4. Advocacy (Mempertahankan Loyalitas Orang Tua)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1">Skala Produksi (Scale Efficiency) *</label>
+            <select id="mk-skala-produksi" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-bold">
+              <option value="Produksi Penuh / High-Tier">🎬 Produksi Penuh / High-Tier (Nilai Utama)</option>
+              <option value="Template Kit (Kegiatan Rutin)">🧩 Template Kit (Kegiatan Rutin / Self-Service)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-800 mb-1">Target Impact Metric (F6) *</label>
+            <select id="mk-impact-metric" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-bold">
+              <option value="Reach / Engagement Medsos">📈 Interaksi Media Sosial (Reach / Engagement)</option>
+              <option value="Klik Web & Trafik Artikel">🌐 Trafik Website & Klik Web</option>
+              <option value="Lead PPDB (Calon Pendaftar)">🎓 Lead PPDB (Jumlah Calon Pendaftar)</option>
+              <option value="Serah Terima Pemohon (Non-Publikasi)">🤝 Serah Terima Pemohon (Layanan Internal)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- GERBANG KEPATUHAN & BRIEF PRODUKSI (F3.2 & F3.3) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <label class="flex items-start gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs">
+            <input type="checkbox" id="mk-cek-izin-anak" class="mt-0.5 w-4 h-4 rounded text-indigo-700">
+            <div>
+              <span class="font-extrabold text-slate-900 block">Cek Izin Tampil Anak (F3.2)</span>
+              <span class="text-[11px] text-slate-500">Izin publikasi siswa/pihak tampil telah diverifikasi.</span>
+            </div>
+          </label>
+          <label class="flex items-start gap-2 bg-white border border-indigo-200 rounded-lg px-3 py-2 cursor-pointer text-xs">
+            <input type="checkbox" id="mk-brief-disetujui" class="mt-0.5 w-4 h-4 rounded text-indigo-700">
+            <div>
+              <span class="font-extrabold text-slate-900 block">Brief Disetujui Unit / BPP (F3.3)</span>
+              <span class="text-[11px] text-slate-500">Brief nilai & teknis disepakati sebelum produksi.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- PILAR FSCM & SUB-PILAR -->
+      <div id="mk-fscm-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Pilar Utama (FSCM)</label>
+          <select id="mk-domain" onchange="updateSubDomainOptions('mk-domain', 'mk-subdomain', '', false)" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
+            <option value="Identitas & Panggilan">1. Identitas & Panggilan</option>
+            <option value="Keunggulan Akademik & Proses Belajar">2. Keunggulan Akademik</option>
+            <option value="Pengembangan Potensi & Kehidupan Siswa">3. Potensi & Siswa</option>
+            <option value="Kemitraan Orang Tua & Komunitas">4. Kemitraan & Komunitas</option>
+            <option value="Tata Kelola, Layanan & Bukti Kualitas">5. Tata Kelola & Layanan</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Sub-Pilar VBP <span id="mk-subpilar-req-star" class="text-red-600">*</span></label>
+          <select id="mk-subdomain" class="w-full rounded-lg border-2 border-blue-300 bg-blue-50/40 px-2.5 py-2 text-xs font-semibold"></select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Bentuk Program</label>
+          <select id="mk-tingkat" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Kegiatan">Kegiatan</option>
+            <option value="Praktik">Praktik (RPP)</option>
+            <option value="Gerakan">Gerakan</option>
+            <option value="Kebijakan">Kebijakan</option>
+            <option value="Prinsip">Prinsip</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Channel Publikasi / Output *</label>
+          <input type="text" id="mk-format" placeholder="Reels IG, Carousel, Web, Cetak" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1 text-amber-900">🚀 Target Tgl Terbit / Serah Terima *</label>
+          <input type="date" id="mk-deadline-tayang" class="w-full rounded-lg border-2 border-amber-300 bg-amber-50/40 px-2.5 py-2 text-xs font-bold">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Judul Konten / Layanan</label>
+        <input type="text" id="mk-judul" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Brief Nilai & Pesan Kunci</label>
+        <textarea id="mk-konsep" rows="2" placeholder="Tulis pesan utama VBP atau hasil tinjauan brief..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Link Brief Produksi / Script / Storyboard</label>
+        <input type="url" id="mk-link-brief" placeholder="https://docs.google.com/... atau https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div class="flex justify-end gap-2 pt-1">
+        <button onclick="submitKonseptor('Draft Plan')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold">Simpan Draft</button>
+        <button onclick="submitKonseptor('Menunggu ACC Kasie')" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800">Ajukan ACC Lead / Kasie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KASIE / LEAD: KENDALI OUTPUT 1, 2, 3, KUNCI KRISIS, QC BERLAPIS & PENGOLAHAN DATA -->
+  <div id="modal-kasie" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="ks-badge-sla" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold"></span>
+          <h3 id="ks-title" class="text-base font-extrabold text-slate-900 mt-1">ACC Lead / Kasie & Pengaturan 3 Output</h3>
+        </div>
+        <button onclick="closeModal('modal-kasie')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="ks-rowIndex">
+
+      <!-- PANEL ESKALASI & KUNCI KRISIS (JIKA CASE KHUSUS NEGATIF) -->
+      <div id="ks-krisis-panel" class="hidden bg-red-50 border-2 border-red-400 rounded-xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-extrabold text-red-900">🚨 CASE KHUSUS NEGATIF / KRISIS (ALUR B2/B3)</span>
+          <span id="ks-krisis-badge" class="px-2 py-0.5 rounded bg-red-700 text-white text-[11px] font-extrabold">PRODUKSI DIKUNCI</span>
+        </div>
+        <p class="text-xs text-red-800">Produksi dan penerbitan dikunci sampai Lead mengeskalasi ke BPP dan BPP menyetujui pesan resmi serta juru bicara sekolah.</p>
+        <label class="flex items-center gap-2 bg-white border border-red-300 rounded-lg px-3 py-2 cursor-pointer text-xs font-bold text-slate-900">
+          <input type="checkbox" id="ks-krisis-unlocked" onchange="onKasieCrisisUnlockToggle()" class="w-4 h-4 rounded text-emerald-700">
+          <span>BPP sudah memutuskan pesan resmi & juru bicara — Buka Kunci Produksi</span>
+        </label>
+      </div>
+
+      <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1.5 border border-slate-200">
+        <div id="ks-gate-badges" class="flex flex-wrap gap-1.5 pb-1"></div>
+        <div><strong>Pesan VBP / Brief:</strong> <span id="ks-konsep"></span></div>
+        <div><strong>Catatan Unit:</strong> <span id="ks-teknis"></span></div>
+      </div>
+
+      <!-- ZONA OUTPUT 2 & OUTPUT 3: JADWAL LIPUTAN, EDITING & TERBITAN -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200">
+        <div>
+          <span class="block text-xs font-extrabold text-emerald-950 mb-1">1. 📅 Jadwal Liputan</span>
+          <div id="ks-event-date" class="rounded-lg border border-emerald-200 bg-white px-2.5 py-2 text-xs font-bold text-slate-900"></div>
+        </div>
+        <div>
+          <label class="block text-xs font-extrabold text-emerald-950 mb-1">2. ✂️ Deadline Editing</label>
+          <input type="date" id="ks-tgl-prod" onchange="refreshKasieSubtaskPicDropdowns()" class="w-full rounded-lg border border-emerald-300 bg-white px-2.5 py-1.5 text-xs font-bold">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-extrabold text-amber-950">3. 🚀 Jadwal Terbitan</label>
+            <button type="button" onclick="toggleKasieDeadlineOverride()" id="btn-ks-override-deadline" class="text-xs font-bold text-blue-700 hover:underline">Ubah</button>
+          </div>
+          <div id="ks-deadline-readonly-box" class="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs font-extrabold text-amber-950">
+            <span id="ks-deadline-readonly-text">Belum diatur</span>
+          </div>
+          <input type="date" id="ks-deadline" onchange="updateKasieDeadlineReadonlyText()" class="hidden mt-1.5 w-full rounded-lg border border-amber-400 bg-white px-2.5 py-1.5 text-xs font-bold">
+        </div>
+      </div>
+
+      <!-- ZONA OUTPUT 1A: PENUGASAN PIC -->
+      <div class="bg-teal-50/60 border border-teal-200 rounded-xl p-3.5 space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-extrabold text-teal-950">OUTPUT 1A • Penugasan PIC & Bobot WOLA</span>
+          <div class="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-teal-300">
+            <span class="text-xs font-bold text-slate-600">Total:</span>
+            <input type="number" step="0.5" min="0" id="ks-total-poin" oninput="onKasieTotalPoinManualChange()" class="w-14 text-center font-extrabold text-xs text-teal-900 border-b border-teal-400 focus:outline-none">
+            <span class="text-xs font-extrabold text-teal-800">Poin</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button type="button" onclick="applySubtaskPreset('SIT_IN')" class="px-2.5 py-1 rounded-md bg-white hover:bg-teal-100 border border-teal-300 text-xs font-bold text-teal-900">+ Liputan & Desain</button>
+          <button type="button" onclick="applySubtaskPreset('LIPUTAN_EDIT')" class="px-2.5 py-1 rounded-md bg-white hover:bg-teal-100 border border-teal-300 text-xs font-bold text-teal-900">+ Liputan & Editor</button>
+          <button type="button" onclick="applySubtaskPreset('DESAIN_ONLY')" class="px-2.5 py-1 rounded-md bg-white hover:bg-teal-100 border border-teal-300 text-xs font-bold text-teal-900">+ Konsep & Desain</button>
+          <button type="button" onclick="autoAssignLightestPics()" class="px-2.5 py-1 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">💡 Auto-Pilih Staf</button>
+        </div>
+
+        <div id="ks-subtask-list" class="space-y-2"></div>
+
+        <div class="flex items-center justify-between pt-1">
+          <button type="button" onclick="addKasieSubtaskRow()" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold">+ Tambah PIC</button>
+          <button type="button" onclick="resetKasiePointsAuto()" class="text-xs font-bold text-teal-800 hover:underline">↻ Reset Otomatis</button>
+        </div>
+      </div>
+
+      <!-- ZONA OUTPUT 1B: PENUGASAN / ALOKASI ALAT -->
+      <div class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-indigo-950">OUTPUT 1B • Alokasi Alat & Studio</span>
+          <span id="ks-alat-conflict-warn" class="hidden text-xs font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded">⚠ Bentrok Alat di Tgl Ini!</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Camcorder NX 100" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>NX 100</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Canon M50" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>Canon M50</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Tripod" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>Tripod</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Mic Wireless" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>Mic Wireless</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="LED GVM" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>LED GVM</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Godox SL60W" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>Godox SL60W</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Tamron 70-300mm" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>Lensa Tamron</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer">
+            <input type="checkbox" value="Ruang Studio" onchange="checkKasieAlatConflict()" class="ks-chk-alat rounded text-indigo-700">
+            <span>Ruang Studio</span>
+          </label>
+        </div>
+        <input type="text" id="ks-alat-note" placeholder="Catatan alat (misal: Ambil H-1, Mic 2 unit, atau Tidak perlu alat)" class="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-1.5 text-xs">
+      </div>
+
+      <!-- ZONA STATUS QC BERLAPIS & PRIORITAS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold mb-1">Prioritas</label>
+          <select id="ks-prioritas" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+            <option value="Normal">Normal</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Keputusan Lead / Status QC Berlapis</label>
+          <select id="ks-status" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-bold">
+            <option value="Siap Produksi">✓ Setuju — Siap Produksi</option>
+            <option value="In Progress">🎬 In Progress (Sortir Raws & Editing)</option>
+            <option value="QC Visual & Brief">🎨 QC Visual & Brief (Visual Lead / Architect)</option>
+            <option value="Final QC">🔍 Final QC (Lead — Paket Terbit & Izin Anak)</option>
+            <option value="Done">✅ Done (Terbit / Selesai)</option>
+            <option value="Revisi VBP">↩ Revisi ke Architect VBP</option>
+            <option value="Canceled">Batalkan / Hold</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- LAPISAN PENGOLAHAN DATA (3 TAUTAN ASET PRODUKSI) -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+        <div class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">🗂️ Pengolahan Data (Raw Capture, Draft QC & Hasil Terbit)</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Link Folder Raw Capture</label>
+            <input type="url" id="ks-link-raw" placeholder="https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Link Draft QC</label>
+            <input type="url" id="ks-link-draft" placeholder="https://drive.google.com/..." class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Link Hasil Terbit</label>
+            <input type="url" id="ks-link-hasil" placeholder="https://instagram.com/..." class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">Catatan Lead / Kasie</label>
+        <input type="text" id="ks-catatan" placeholder="Arahan singkat atau catatan revisi QC..." class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs">
+      </div>
+
+      <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t">
+        <button type="button" onclick="copySingleTicketWA()" class="px-3.5 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold">
+          📋 Salin Tiket Distribusi WA
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeModal('modal-kasie')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold">Batal</button>
+          <button onclick="submitKasie()" id="btn-submit-kasie" class="px-5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Simpan & ACC</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TIM: UPDATE PROGRES QC BERLAPIS & PENGOLAHAN DATA -->
+  <div id="modal-tim" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="mt-badge" class="text-xs font-extrabold text-blue-700"></span>
+          <h3 id="mt-title" class="text-base font-extrabold text-slate-900">Detail Tugas, Pengolahan Data & QC Berlapis</h3>
+        </div>
+        <button onclick="closeModal('modal-tim')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="mt-rowIndex">
+
+      <div id="mt-krisis-banner" class="hidden bg-red-600 text-white rounded-xl p-3 text-xs font-bold">
+        🔒 PRODUKSI DIKUNCI (CASE KHUSUS NEGATIF / KRISIS): Dilarang memproduksi atau menerbitkan konten sebelum Lead/BPP membuka kunci.
+      </div>
+
+      <div class="space-y-2.5 text-xs">
+        <div class="bg-teal-50 border border-teal-200 rounded-xl p-3 space-y-1">
+          <div class="font-extrabold text-teal-950">OUTPUT 1 • Penugasan PIC & Alat</div>
+          <div id="mt-pic" class="flex flex-wrap gap-1.5"></div>
+          <div id="mt-alat" class="text-teal-900 font-semibold pt-0.5"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+            <div class="font-extrabold text-emerald-950">OUTPUT 2 • Liputan & Editing</div>
+            <div id="mt-lokasi" class="font-bold text-slate-900 mt-0.5"></div>
+            <div id="mt-editing" class="text-emerald-900 font-semibold mt-0.5"></div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+            <div class="font-extrabold text-amber-950">OUTPUT 3 • Jadwal Terbitan</div>
+            <div id="mt-prod-date" class="font-bold text-slate-900 mt-0.5"></div>
+            <div id="mt-format" class="text-amber-900 font-semibold mt-0.5"></div>
+          </div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
+          <div id="mt-gate-badges" class="flex flex-wrap gap-1 pb-1"></div>
+          <div><strong>Pesan VBP / Brief:</strong> <span id="mt-konsep"></span></div>
+          <div><strong>Teknis Unit:</strong> <span id="mt-teknis"></span></div>
+          <div><strong>Catatan Lead / Kasie:</strong> <span id="mt-catatan"></span></div>
+          <div id="mt-brief-wrap"></div>
+        </div>
+      </div>
+
+      <!-- STATUS PASCAPRODUKSI & QC BERLAPIS -->
+      <div>
+        <label class="block text-xs font-bold mb-1">Tahap Pengerjaan & QC Berlapis (F4 → F5)</label>
+        <select id="mt-status" class="w-full rounded-lg border-2 border-blue-300 bg-blue-50/40 px-3 py-2 text-xs font-extrabold text-slate-900">
+          <option value="Siap Produksi">1. Siap Produksi (Capture & Copywriting)</option>
+          <option value="In Progress">2. In Progress (Sortir Raws & Editing)</option>
+          <option value="QC Visual & Brief">3. 🎨 QC Visual & Brief (Visual Lead / Architect)</option>
+          <option value="Final QC">4. 🔍 Final QC (Lead — Paket Terbit & Izin Anak)</option>
+          <option value="Done">5. ✅ Done (Sudah Terbit / Serah Terima)</option>
+        </select>
+      </div>
+
+      <!-- 3 TAUTAN PENGOLAHAN DATA -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+        <div class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">🗂️ Tautan Pengolahan Data</div>
+        <div class="grid grid-cols-1 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Link Folder Raw Capture (Crew → Editor)</label>
+            <input type="url" id="mt-link-raw" placeholder="https://drive.google.com/... (Folder foto/video/audio mentah)" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Link Draft QC (Rendered Product → Visual Lead / Architect / Lead)</label>
+            <input type="url" id="mt-link-draft" placeholder="https://drive.google.com/... (Draft desain/video sebelum terbit)" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Link Hasil Terbit / Serah Terima Pemohon</label>
+            <input type="url" id="mt-link-hasil" placeholder="https://instagram.com/... atau link hasil akhir" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-between items-center gap-2 pt-1">
+        <button type="button" id="btn-mt-open-f6" onclick="openEvaluasiFromTeamModal()" class="hidden px-3.5 py-2 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs font-extrabold">
+          📊 Isi Evaluasi F6
+        </button>
+        <div class="flex gap-2 ml-auto">
+          <button onclick="closeModal('modal-tim')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold">Tutup</button>
+          <button onclick="submitTeamProgress()" id="btn-submit-tim" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-bold hover:bg-blue-800">Simpan Progres & Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EVALUASI F6 & KONVERSI IDE KUARTAL BERIKUTNYA -->
+  <div id="modal-evaluasi" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <span id="ev-badge" class="text-xs font-extrabold text-purple-700"></span>
+          <h3 id="ev-title" class="text-base font-extrabold text-slate-900">Evaluasi Hasil Terbit (F6)</h3>
+        </div>
+        <button onclick="closeModal('modal-evaluasi')" class="text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">×</button>
+      </div>
+
+      <input type="hidden" id="ev-rowIndex">
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 text-xs space-y-1">
+        <div><strong>Unit & Kuartal:</strong> <span id="ev-unit-kuartal"></span></div>
+        <div><strong>Target Impact Metric (F2):</strong> <span id="ev-target-metric" class="font-extrabold text-purple-900"></span></div>
+        <div id="ev-link-hasil-wrap"></div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">📈 Reach / Engagement (Media Sosial)</label>
+          <input type="text" id="ev-reach" placeholder="Contoh: 4.800 Reach • 340 Likes • 45 Share" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">🌐 Klik Web / Trafik Artikel</label>
+            <input type="text" id="ev-klik-web" placeholder="Contoh: 215 Klik / Views" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">🎓 Lead PPDB (Jumlah Pendaftar)</label>
+            <input type="number" min="0" id="ev-lead-ppdb" placeholder="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">💡 Insight & Rekomendasi Kuartal Berikutnya</label>
+          <textarea id="ev-catatan" rows="2" placeholder="Apa yang paling menarik minat orang tua/siswa & layak diangkat lagi?" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"></textarea>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-950 flex items-center justify-between gap-2">
+        <div>
+          <div class="font-extrabold">Tutup Siklus F6 → F1 Ideation</div>
+          <div class="text-[11px] text-amber-800">Otomatis buat usulan Rencana Kuartalan untuk <strong id="ev-next-quarter-label">kuartal berikutnya</strong>.</div>
+        </div>
+        <button type="button" onclick="promoteEvaluationToNextQuarter()" id="btn-ev-promote" class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shrink-0">
+          ♻️ Jadikan Ide Kuartal Berikutnya
+        </button>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-1 border-t">
+        <button onclick="closeModal('modal-evaluasi')" class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold">Tutup</button>
+        <button onclick="saveEvaluationF6(false)" id="btn-ev-save" class="px-5 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold">💾 Simpan Evaluasi F6</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzL8R2VZO2HUjOuRYB8dnDjb5dgN1wCIeYDfghb6LO-kijLCo3sKocJGUBLVKd1qyBm/exec';
+    const TIM_PUBLIKASI = ['Magang', 'Dodai', 'Nia', 'Wahyu', 'Yesi', 'Indri'];
+    const SUBTASK_ROLE_OPTIONS = [
+      { role: 'Lead Crew (Koordinator & Alat)', defaultPts: 1.5 },
+      { role: 'Jurnalis / Interviewer', defaultPts: 1.5 },
+      { role: 'Visual Lead (Desain & QC)', defaultPts: 1.5 },
+      { role: 'Admin Publish (Social & Web/SEO)', defaultPts: 1 },
+      { role: 'Konseptor / Copywriter', defaultPts: 1 },
+      { role: 'Liputan Foto / Video', defaultPts: 2 },
+      { role: 'Desain Grafis', defaultPts: 1.5 },
+      { role: 'Editor Video', defaultPts: 2 },
+      { role: 'Operator Studio / Alat', defaultPts: 1 },
+      { role: 'Koordinator / Umum', defaultPts: 1.5 }
+    ];
+
+    const QC_AND_PROD_STATUSES = ['Siap Produksi', 'In Progress', 'QC Visual & Brief', 'Final QC', 'Menunggu Final QC'];
+    const TIM_VISIBLE_STATUSES = ['Siap Produksi', 'In Progress', 'QC Visual & Brief', 'Final QC', 'Menunggu Final QC', 'Done'];
+
+    let ALL_RECORDS = [];
+    let CALENDAR_ID = '';
+    let SCHOOL_UNITS = ['KB-TK', 'SD', 'SMP', 'SMA', 'PINUS - PAUD', 'PINUS - SD', 'PINUS - PKBM'];
+    let PIN_REQUIRED = { kepsek: true, konseptor: false, kasie: true };
+    let PENDING_PIN_ROLE = null;
+    let SERVER_DATE = new Date().toISOString().slice(0, 10);
+    let INITIAL_TIME_FILTER_APPLIED = false;
+    let CURRENT_FLOW = 'A';
+    let OPTIONAL_TEKNIS_OPEN = false;
+    let KEPSEK_FILTER = 'PENDING';
+    let KONSEPTOR_FILTER = 'ANTREAN';
+    let KASIE_FILTER = 'ALL';
+    let TEAM_PIC_FILTER = 'ALL';
+    let OUTPUT_FOCUS_FILTER = 'ALL';
+    let DATE_GROUP_BASIS = 'EVENT';
+    let KASIE_SUBTASKS_STATE = [];
+    let KASIE_CURRENT_RECORD = null;
+
+    let wolaBarChartObj = null;
+    let wolaUnitPieObj = null;
+    let wolaServicePieObj = null;
+
+    const DAY_NAMES_SHORT_ID = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const MONTH_NAMES_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const SHORT_MONTH_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    const FSCM_SUBDOMAINS = {
+      "Identitas & Panggilan": ["Identitas Kristiani", "Visi Pembentukan Seutuhnya", "Budaya Kasih & Rasa Memiliki"],
+      "Keunggulan Akademik & Proses Belajar": ["Pembelajaran Aktif & Bermakna", "Kompetensi Masa Depan", "Pendampingan Belajar Individual"],
+      "Pengembangan Potensi & Kehidupan Siswa": ["Minat, Bakat & Ekstrakurikuler", "Kepemimpinan & Tanggung Jawab", "Kesehatan Mental & Kesejahteraan Siswa"],
+      "Kemitraan Orang Tua & Komunitas": ["Sinergi Sekolah & Keluarga", "Keterbukaan & Komunikasi", "Kepercayaan & Kesaksian Nyata"],
+      "Tata Kelola, Layanan & Bukti Kualitas": ["Profesionalisme Guru & Staf", "Fasilitas & Lingkungan Aman", "Rekam Jejak & Dampak Lulusan"]
+    };
+
+    function normalizeFscmDomain(rawDom) {
+      const val = String(rawDom || '').trim();
+      if (FSCM_SUBDOMAINS[val]) return val;
+      const low = val.toLowerCase();
+      if (low.includes('akademik') || low.includes('teaching')) return 'Keunggulan Akademik & Proses Belajar';
+      if (low.includes('potensi') || low.includes('siswa')) return 'Pengembangan Potensi & Kehidupan Siswa';
+      if (low.includes('kemitraan') || low.includes('orang tua') || low.includes('community')) return 'Kemitraan Orang Tua & Komunitas';
+      if (low.includes('tata kelola') || low.includes('expertise')) return 'Tata Kelola, Layanan & Bukti Kualitas';
+      return 'Identitas & Panggilan';
+    }
+
+    window.onload = function() {
+      updateSubDomainOptions('u-domain', 'u-subdomain', '', true);
+      updateSubDomainOptions('mk-domain', 'mk-subdomain', '', false);
+      selectFlow('A');
+      loadData();
+    };
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        ['modal-wola-guide', 'modal-pin', 'modal-kepsek', 'modal-tim', 'modal-konseptor', 'modal-kasie', 'modal-evaluasi'].forEach(closeModal);
+      }
+    });
+
+    function closeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.add('hidden');
+    }
+
+    function isSchoolUnit(unit) {
+      return SCHOOL_UNITS.includes(String(unit || '').trim());
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"')
+        .replace(/'/g, ''');
+    }
+
+    function formatShortDateId(isoDateStr) {
+      if (!isoDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)) return '';
+      const [y, m, d] = isoDateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      return `${DAY_NAMES_SHORT_ID[dt.getDay()]}, ${String(d).padStart(2, '0')} ${SHORT_MONTH_ID[m - 1]} ${y}`;
+    }
+
+    function formatCompactDateId(isoDateStr) {
+      if (!isoDateStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)) return '';
+      const [y, m, d] = isoDateStr.split('-').map(Number);
+      return `${String(d).padStart(2, '0')} ${SHORT_MONTH_ID[m - 1]}`;
+    }
+
+    function parseWaktuLokasi(waktuLokasiStr) {
+      const raw = String(waktuLokasiStr || '').trim();
+      if (!raw || raw === '-') return { jam: '', lokasi: '' };
+      if (raw.includes('|')) {
+        const parts = raw.split('|');
+        return { jam: parts[0].trim(), lokasi: parts.slice(1).join('|').trim() };
+      }
+      if (/\d{1,2}[:.]\d{2}/.test(raw) && raw.length <= 22) return { jam: raw, lokasi: '' };
+      return { jam: '', lokasi: raw };
+    }
+
+    // =========================================================================
+    // HELPER PERSISTENSI STRUKTUR DATA BARU (JALUR B KRISIS, JALUR C, GERBANG NILAI, PENGOLAHAN DATA, EVALUASI F6)
+    // =========================================================================
+    function isCrisisTicket(r) {
+      if (!r) return false;
+      if (r.krisisLocked === true) return true;
+      const checkStr = `${r.tipeOrder || ''} ${r.catatanKasie || ''} ${r.detailTeknis || ''}`.toLowerCase();
+      return checkStr.includes('case khusus negatif') || checkStr.includes('[locked - case negatif/krisis]') || checkStr.includes('[krisis');
+    }
+
+    function isCrisisUnlocked(r) {
+      if (!r) return false;
+      try {
+        const st = localStorage.getItem('athalia_crisis_unlock_' + r.id);
+        if (st === 'true') return true;
+      } catch (e) {}
+      return (r.catatanKasie || '').includes('[UNLOCKED BPP]');
+    }
+
+    function setLocalCrisisUnlocked(recordId, unlocked) {
+      if (!recordId) return;
+      try {
+        if (unlocked) localStorage.setItem('athalia_crisis_unlock_' + recordId, 'true');
+        else localStorage.removeItem('athalia_crisis_unlock_' + recordId);
+      } catch (e) {}
+    }
+
+    function isJalurCTicket(r) {
+      if (!r) return false;
+      const checkStr = `${r.tipeOrder || ''} ${r.domainFscm || ''}`.toLowerCase();
+      return checkStr.includes('jalur c') || checkStr.includes('non-konten');
+    }
+
+    function getGateMetadata(r) {
+      if (!r) return {};
+      let local = {};
+      try {
+        const raw = localStorage.getItem('athalia_gate_' + r.id);
+        if (raw) local = JSON.parse(raw);
+      } catch (e) {}
+      return {
+        jenisSlot: r.jenisSlot || local.jenisSlot || (isJalurCTicket(r) ? 'Layanan Non-Konten (Jalur C)' : 'Event Besar / Program Utama'),
+        funnel: r.funnel || local.funnel || '',
+        skalaProduksi: r.skalaProduksi || local.skalaProduksi || '',
+        impactMetric: r.impactMetric || local.impactMetric || '',
+        izinTampilAnak: (r.izinTampilAnak !== undefined) ? Boolean(r.izinTampilAnak) : Boolean(local.izinTampilAnak),
+        briefDisetujui: (r.briefDisetujui !== undefined) ? Boolean(r.briefDisetujui) : Boolean(local.briefDisetujui)
+      };
+    }
+
+    function setLocalGateMetadata(recordId, dataObj) {
+      if (!recordId || !dataObj) return;
+      try {
+        localStorage.setItem('athalia_gate_' + recordId, JSON.stringify(dataObj));
+      } catch (e) {}
+    }
+
+    function getDataProcessingLinks(r) {
+      if (!r) return { linkRaw: '', linkDraftQc: '', linkHasil: '' };
+      let local = {};
+      try {
+        const raw = localStorage.getItem('athalia_data_links_' + r.id);
+        if (raw) local = JSON.parse(raw);
+      } catch (e) {}
+      return {
+        linkRaw: r.linkRaw || local.linkRaw || '',
+        linkDraftQc: r.linkDraftQc || local.linkDraftQc || '',
+        linkHasil: r.linkHasil || local.linkHasil || ''
+      };
+    }
+
+    function setLocalDataProcessingLinks(recordId, linksObj) {
+      if (!recordId || !linksObj) return;
+      try {
+        localStorage.setItem('athalia_data_links_' + recordId, JSON.stringify(linksObj));
+      } catch (e) {}
+    }
+
+    function getEffectiveStatusOverride(r) {
+      if (!r) return '';
+      try {
+        const st = localStorage.getItem('athalia_qc_status_' + r.id);
+        if (st && r.status !== 'Done' && r.status !== 'Canceled') return st;
+      } catch (e) {}
+      return r.status || '';
+    }
+
+    function setLocalQcStatus(recordId, statusVal) {
+      if (!recordId) return;
+      try {
+        if (statusVal === 'QC Visual & Brief' || statusVal === 'Final QC') {
+          localStorage.setItem('athalia_qc_status_' + recordId, statusVal);
+        } else {
+          localStorage.removeItem('athalia_qc_status_' + recordId);
+        }
+      } catch (e) {}
+    }
+
+    function getEvaluationF6(r) {
+      if (!r) return null;
+      let local = null;
+      try {
+        const raw = localStorage.getItem('athalia_eval_f6_' + r.id);
+        if (raw) local = JSON.parse(raw);
+      } catch (e) {}
+      if (r.evalReach || r.evalKlikWeb || r.evalLeadPpdb || r.evalCatatan) {
+        return {
+          reach: r.evalReach || (local && local.reach) || '',
+          klikWeb: r.evalKlikWeb || (local && local.klikWeb) || '',
+          leadPpdb: Number(r.evalLeadPpdb || (local && local.leadPpdb) || 0),
+          catatan: r.evalCatatan || (local && local.catatan) || '',
+          promotedToF1: Boolean(r.promotedToF1 || (local && local.promotedToF1)),
+          nextQuarterId: r.nextQuarterId || (local && local.nextQuarterId) || ''
+        };
+      }
+      return local;
+    }
+
+    function setLocalEvaluationF6(recordId, evalObj) {
+      if (!recordId || !evalObj) return;
+      try {
+        localStorage.setItem('athalia_eval_f6_' + recordId, JSON.stringify(evalObj));
+      } catch (e) {}
+    }
+
+    function getNextQuarterLabel(currentKuartal) {
+      const q = String(currentKuartal || '').trim();
+      if (q.startsWith('Q1')) return 'Q2 (Okt-Des)';
+      if (q.startsWith('Q2')) return 'Q3 (Jan-Mar)';
+      if (q.startsWith('Q3')) return 'Q4 (Apr-Jun)';
+      if (q.startsWith('Q4')) return 'Q1 (Jul-Sep)';
+      return 'Q3 (Jan-Mar)';
+    }
+
+    function renderGateBadgesHtml(r) {
+      const g = getGateMetadata(r);
+      const badges = [];
+      if (g.jenisSlot) badges.push(`<span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-bold">${escapeHtml(g.jenisSlot)}</span>`);
+      if (g.funnel) badges.push(`<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 text-[11px] font-bold">Funnel: ${escapeHtml(g.funnel)}</span>`);
+      if (g.skalaProduksi) {
+        const isKit = g.skalaProduksi.toLowerCase().includes('template');
+        badges.push(`<span class="px-2 py-0.5 rounded ${isKit ? 'bg-slate-100 text-slate-800 border-slate-300' : 'bg-purple-50 text-purple-800 border-purple-200'} border text-[11px] font-bold">${isKit ? '🧩 Template Kit' : '🎬 Produksi Penuh'}</span>`);
+      }
+      if (g.impactMetric) badges.push(`<span class="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 text-[11px] font-bold">🎯 ${escapeHtml(g.impactMetric)}</span>`);
+      if (g.izinTampilAnak) badges.push(`<span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold">✓ Izin Anak</span>`);
+      if (g.briefDisetujui) badges.push(`<span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold">✓ Brief ACC</span>`);
+      return badges.join(' ');
+    }
+
+    // =========================================================================
+    // SINKRONISASI DATA 3 OUTPUT (ALAT, JADWAL EDITING, JADWAL TERBITAN)
+    // =========================================================================
+    function getEffectiveDeadlineTayang(r) {
+      if (!r) return '';
+      if (r.deadlineTayang && /^\d{4}-\d{2}-\d{2}$/.test(r.deadlineTayang)) return r.deadlineTayang;
+      try {
+        const localVal = localStorage.getItem('athalia_pub_date_' + r.id) || '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(localVal)) return localVal;
+      } catch (e) {}
+      return '';
+    }
+
+    function setLocalDeadlineTayang(recordId, isoDate) {
+      if (!recordId) return;
+      try {
+        if (isoDate && /^\d{4}-\d{2}-\d{2}$/.test(isoDate)) localStorage.setItem('athalia_pub_date_' + recordId, isoDate);
+        else localStorage.removeItem('athalia_pub_date_' + recordId);
+      } catch (e) {}
+    }
+
+    function getEffectiveLinkBrief(r) {
+      if (!r) return '';
+      try {
+        const localBrief = localStorage.getItem('athalia_brief_link_' + r.id);
+        if (localBrief !== null && localBrief.trim()) return localBrief.trim();
+      } catch (e) {}
+      return String(r.linkBrief || '').trim();
+    }
+
+    function setLocalLinkBrief(recordId, urlStr) {
+      if (!recordId) return;
+      try {
+        const clean = String(urlStr || '').trim();
+        if (clean) localStorage.setItem('athalia_brief_link_' + recordId, clean);
+        else localStorage.removeItem('athalia_brief_link_' + recordId);
+      } catch (e) {}
+    }
+
+    function setLocalUnitVbpOverride(recordId, dataObj) {
+      if (!recordId || !dataObj) return;
+      try {
+        localStorage.setItem('athalia_vbp_edit_' + recordId, JSON.stringify(dataObj));
+      } catch (e) {}
+    }
+
+    function applyLocalRecordOverrides(records) {
+      return (records || []).map(r => {
+        const copy = Object.assign({}, r);
+        try {
+          const rawVbp = localStorage.getItem('athalia_vbp_edit_' + copy.id);
+          if (rawVbp) {
+            const ov = JSON.parse(rawVbp);
+            if (ov.judul) copy.judul = ov.judul;
+            if (ov.valueBukti !== undefined) copy.valueBukti = ov.valueBukti;
+            if (ov.domainFscm) copy.domainFscm = ov.domainFscm;
+            if (ov.subDomainFscm) copy.subDomainFscm = ov.subDomainFscm;
+            if (ov.tingkatFocus) copy.tingkatFocus = ov.tingkatFocus;
+            if (ov.targetKuartal) copy.targetKuartal = ov.targetKuartal;
+          }
+          const localBrief = localStorage.getItem('athalia_brief_link_' + copy.id);
+          if (localBrief && localBrief.trim()) copy.linkBrief = localBrief.trim();
+
+          const localLinks = localStorage.getItem('athalia_data_links_' + copy.id);
+          if (localLinks) {
+            const parsedLinks = JSON.parse(localLinks);
+            if (parsedLinks.linkRaw) copy.linkRaw = parsedLinks.linkRaw;
+            if (parsedLinks.linkDraftQc) copy.linkDraftQc = parsedLinks.linkDraftQc;
+            if (parsedLinks.linkHasil && !copy.linkHasil) copy.linkHasil = parsedLinks.linkHasil;
+          }
+
+          const localQc = localStorage.getItem('athalia_qc_status_' + copy.id);
+          if (localQc && copy.status !== 'Done' && copy.status !== 'Canceled') {
+            copy.status = localQc;
+          }
+        } catch (e) {}
+        return copy;
+      });
+    }
+
+    function getEffectiveAlatInfo(r) {
+      if (!r) return { list: [], note: '', text: '' };
+      if (r.alatProduksi && String(r.alatProduksi).trim()) {
+        const rawAlat = String(r.alatProduksi).trim();
+        const parts = rawAlat.split(',').map(s => s.trim()).filter(Boolean);
+        return { list: parts, note: rawAlat, text: rawAlat };
+      }
+      try {
+        const savedJson = localStorage.getItem('athalia_alat_' + r.id);
+        if (savedJson) {
+          const parsed = JSON.parse(savedJson);
+          const combined = [...(parsed.list || []), parsed.note || ''].filter(Boolean).join(' • ');
+          return { list: parsed.list || [], note: parsed.note || '', text: combined };
+        }
+      } catch (e) {}
+      const det = String(r.detailTeknis || '');
+      const match = det.match(/\[Studio\/Alat\]\s*(.+)$/m);
+      if (match) return { list: [], note: match[1].trim(), text: match[1].trim() };
+      if ((r.kebutuhan || '').toLowerCase().includes('alat') || (r.kebutuhan || '').toLowerCase().includes('studio')) {
+        return { list: [], note: r.kebutuhan, text: r.kebutuhan };
+      }
+      return { list: [], note: '', text: '' };
+    }
+
+    function setLocalAlatInfo(recordId, list, note) {
+      if (!recordId) return;
+      try {
+        localStorage.setItem('athalia_alat_' + recordId, JSON.stringify({ list: list || [], note: note || '' }));
+      } catch (e) {}
+    }
+
+    function getGroupingDate(r) {
+      if (DATE_GROUP_BASIS === 'PUBLISH') {
+        return getEffectiveDeadlineTayang(r) || r.tglMulaiProduksi || r.tglMulaiEvent || '';
+      }
+      return r.tglMulaiEvent || '';
+    }
+
+    function onDateBasisChange(newBasis) {
+      DATE_GROUP_BASIS = newBasis;
+      ['flt-date-basis', 'tim-date-basis'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = newBasis;
+      });
+      populateTimeFilterOptions();
+      renderAllGroupedViews();
+    }
+
+    function updateSubDomainOptions(domainSelectId, subSelectId, selectedVal, allowOptional) {
+      const dom = normalizeFscmDomain(document.getElementById(domainSelectId).value);
+      const subEl = document.getElementById(subSelectId);
+      const list = FSCM_SUBDOMAINS[dom] || [];
+      subEl.innerHTML = (allowOptional
+        ? `<option value="Ditentukan Konseptor">— Ditentukan Architect VBP —</option>`
+        : `<option value="">-- Pilih Sub-Pilar --</option>`) +
+        list.map(s => `<option value="${s}">${s}</option>`).join('');
+      subEl.value = (selectedVal && list.includes(selectedVal)) ? selectedVal : (allowOptional ? 'Ditentukan Konseptor' : '');
+    }
+
+    async function loadData() {
+      const loadEl = document.getElementById('loading-banner');
+      const errEl = document.getElementById('error-banner');
+      loadEl.classList.remove('hidden');
+      errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL + '?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Gagal membaca data.');
+
+        ALL_RECORDS = applyLocalRecordOverrides(data.records || []);
+        CALENDAR_ID = data.calendarId || '';
+        if (Array.isArray(data.schoolUnits) && data.schoolUnits.length > 0) SCHOOL_UNITS = data.schoolUnits;
+        if (data.pinRequired) PIN_REQUIRED = data.pinRequired;
+        SERVER_DATE = data.serverDate || SERVER_DATE;
+        loadEl.classList.add('hidden');
+
+        document.getElementById('nav-kepsek').textContent = '2. Kepsek (ACC)' + (PIN_REQUIRED.kepsek ? ' 🔒' : '');
+        document.getElementById('nav-konseptor').textContent = '3. Architect VBP' + (PIN_REQUIRED.konseptor ? ' 🔒' : '');
+        document.getElementById('nav-kasie').textContent = '4. Lead / Kasie' + (PIN_REQUIRED.kasie ? ' 🔒' : '');
+
+        const kpUnitSel = document.getElementById('kp-unit-filter');
+        const prevKpUnit = kpUnitSel.value;
+        kpUnitSel.innerHTML = '<option value="ALL">Semua Unit Sekolah</option>' +
+          SCHOOL_UNITS.map(u => `<option value="${u}">${u}</option>`).join('');
+        if (prevKpUnit && (prevKpUnit === 'ALL' || SCHOOL_UNITS.includes(prevKpUnit))) kpUnitSel.value = prevKpUnit;
+
+        if (CALENDAR_ID) {
+          document.getElementById('gcal-iframe').src =
+            `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(CALENDAR_ID)}&ctz=Asia%2FJakarta&mode=WEEK`;
+        }
+
+        renderUnitRevisionBanner();
+        onUnitSelectionChange();
+        populateTimeFilterOptions();
+        populateKonseptorFilterOptions();
+        populateWolaMonthFilter();
+        renderAllGroupedViews();
+        updateKPIs();
+      } catch (err) {
+        loadEl.classList.add('hidden');
+        errEl.classList.remove('hidden');
+        document.getElementById('error-banner-text').textContent = 'Gagal memuat data: ' + err.message;
+      }
+    }
+
+    async function callGasPost(actionName, extraBody) {
+      const res = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ action: actionName }, extraBody))
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Gagal menyimpan.');
+      return data;
+    }
+
+    // =========================================================================
+    // BANNER REVISI & NAVIGASI PERAN
+    // =========================================================================
+    function renderUnitRevisionBanner() {
+      const bannerEl = document.getElementById('unit-revision-banner');
+      const listEl = document.getElementById('unit-revision-list');
+      const cntEl = document.getElementById('rev-banner-count');
+      const revItems = ALL_RECORDS.filter(r => r.status === 'Revisi Unit');
+      if (revItems.length === 0) {
+        bannerEl.classList.add('hidden');
+        return;
+      }
+      cntEl.textContent = revItems.length;
+      bannerEl.classList.remove('hidden');
+      listEl.innerHTML = revItems.map(r => `
+        <div class="bg-white border border-amber-300 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="text-xs space-y-0.5">
+            <div class="flex items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-slate-900 text-white font-bold">${escapeHtml(r.unit)}</span>
+              <strong class="text-sm text-slate-900">${escapeHtml(r.judul)}</strong>
+            </div>
+            <p class="text-amber-900 font-medium">Catatan: ${escapeHtml(r.catatanKasie || 'Mohon lengkapi detail program.')}</p>
+          </div>
+          <button type="button" onclick="openQuickUpdatePlan(${r.rowIndex})"
+            class="px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold shrink-0">
+            Perbaiki Sekarang →
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function openQuickUpdatePlan(rowIndex) {
+      const item = ALL_RECORDS.find(r => r.rowIndex === rowIndex);
+      if (!item) return;
+      selectFlow('B1');
+      document.getElementById('u-unit').value = item.unit;
+      onUnitSelectionChange();
+      document.getElementById('u-existing-plan').value = String(item.rowIndex);
+      fillFromSelectedPlan();
+      document.getElementById('form-unit-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function getSavedPin(role) {
+      return sessionStorage.getItem('athalia_pin_' + role) || '';
+    }
+
+    function switchRole(role) {
+      if (PIN_REQUIRED[role] && !getSavedPin(role)) {
+        PENDING_PIN_ROLE = role;
+        const label = role === 'kepsek' ? 'PIN Kepala Sekolah' : (role === 'kasie' ? 'PIN Lead / Kasie Publikasi' : 'PIN Architect');
+        document.getElementById('pin-modal-title').textContent = 'Masukkan ' + label;
+        document.getElementById('pin-input-field').value = '';
+        document.getElementById('pin-error-msg').classList.add('hidden');
+        document.getElementById('modal-pin').classList.remove('hidden');
+        setTimeout(() => document.getElementById('pin-input-field').focus(), 50);
+        return;
+      }
+      activateRoleView(role);
+    }
+
+    function activateRoleView(role) {
+      ['unit', 'kepsek', 'konseptor', 'kasie', 'tim', 'evaluasi'].forEach(r => {
+        document.getElementById('view-' + r).classList.toggle('hidden', r !== role);
+        const btn = document.getElementById('nav-' + r);
+        btn.classList.toggle('nav-active', r === role);
+        btn.classList.toggle('text-slate-300', r !== role);
+      });
+      renderAllGroupedViews();
+    }
+
+    async function submitPinVerification(e) {
+      e.preventDefault();
+      const pinVal = document.getElementById('pin-input-field').value.trim();
+      const btn = document.getElementById('btn-verify-pin');
+      btn.disabled = true;
+      btn.textContent = 'Memeriksa...';
+      try {
+        const res = await callGasPost('verifyPin', { role: PENDING_PIN_ROLE, pin: pinVal });
+        if (res.valid) {
+          sessionStorage.setItem('athalia_pin_' + PENDING_PIN_ROLE, pinVal);
+          closeModal('modal-pin');
+          activateRoleView(PENDING_PIN_ROLE);
+        } else {
+          document.getElementById('pin-error-msg').classList.remove('hidden');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Buka Akses';
+      }
+    }
+
+    function lockRoleSession(role) {
+      sessionStorage.removeItem('athalia_pin_' + role);
+      activateRoleView('unit');
+    }
+
+    // =========================================================================
+    // FORM UNIT (JALUR A, JALUR B + KRISIS, JALUR C NON-KONTEN)
+    // =========================================================================
+    function onUnitSelectionChange() {
+      const unit = document.getElementById('u-unit').value;
+      const hintEl = document.getElementById('unit-routing-hint');
+      if (!unit) {
+        hintEl.classList.add('hidden');
+      } else if (isSchoolUnit(unit)) {
+        hintEl.classList.remove('hidden');
+        hintEl.className = 'text-xs font-semibold mt-1 text-amber-800';
+        hintEl.textContent = CURRENT_FLOW === 'C'
+          ? 'Alur Jalur C: ACC Kepsek → Analisis Brief Architect → Serah Terima Pemohon'
+          : 'Alur: ACC Kepala Sekolah → Gerbang Nilai Architect → Lead/Kasie';
+      } else {
+        hintEl.classList.remove('hidden');
+        hintEl.className = 'text-xs font-semibold mt-1 text-blue-700';
+        hintEl.textContent = CURRENT_FLOW === 'C'
+          ? 'Alur Jalur C: Langsung Analisis Brief & Serah Terima Pemohon'
+          : 'Alur: Langsung ke Gerbang Nilai Architect VBP';
+      }
+      populateUnitPlansDropdown();
+    }
+
+    function getSelectedJalurBTipe() {
+      const el = document.querySelector('input[name="jalur_b_tipe"]:checked');
+      return el ? el.value : 'ADHOC_POSITIF';
+    }
+
+    function onJalurBCategoryChange() {
+      const tipe = getSelectedJalurBTipe();
+      const isKrisis = (tipe === 'KRISIS_NEGATIF');
+      document.getElementById('box-krisis-alert').classList.toggle('hidden', !isKrisis);
+      const btn = document.getElementById('btn-submit-unit');
+      if (CURRENT_FLOW === 'B2') {
+        btn.textContent = isKrisis
+          ? '🚨 Kirim Case Krisis (Kunci Produksi & Eskalasi Lead/BPP)'
+          : 'Kirim Order Case Khusus (Jalur B)';
+      }
+      recalculateLiveSLA();
+    }
+
+    function selectFlow(flow) {
+      CURRENT_FLOW = flow;
+      document.getElementById('card-flow-A').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'A' ? 'flow-active-a' : 'border-slate-200 hover:border-blue-400');
+      document.getElementById('card-flow-B2').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'B2' ? 'flow-active-b2' : 'border-slate-200 hover:border-red-400');
+      document.getElementById('card-flow-C').className = 'flow-card text-left rounded-xl border-2 p-4 ' + (flow === 'C' ? 'flow-active-c' : 'border-slate-200 hover:border-teal-400');
+      document.getElementById('mode-b1-active-bar').classList.toggle('hidden', flow !== 'B1');
+
+      const btn = document.getElementById('btn-submit-unit');
+      const isJalurC = (flow === 'C');
+
+      // Sembunyikan kolom VBP/FSCM jika Jalur C agar form ringkas bagi guru/unit
+      document.getElementById('wrap-vbp-pillars').classList.toggle('hidden', isJalurC);
+      document.getElementById('wrap-bentuk-program').classList.toggle('hidden', isJalurC);
+      document.getElementById('wrap-value-vbp').classList.toggle('hidden', isJalurC);
+      document.getElementById('box-jalur-c-info').classList.toggle('hidden', !isJalurC);
+      document.getElementById('badge-c-layanan').classList.toggle('hidden', !isJalurC);
+      document.getElementById('wrap-judul-col').className = isJalurC ? 'sm:col-span-3' : 'sm:col-span-2';
+      document.getElementById('lbl-box-kegiatan').textContent = isJalurC
+        ? 'Permintaan Layanan Non-Konten (Jalur C)'
+        : 'Info Kegiatan & Pilar VBP';
+      document.getElementById('lbl-u-judul').textContent = isJalurC
+        ? 'Nama Produk / Layanan yang Diminta *'
+        : 'Judul Konten / Nama Kegiatan *';
+      document.getElementById('u-judul').placeholder = isJalurC
+        ? 'Contoh: Desain Form Lowongan Kerja SDM / Spanduk Open House'
+        : 'Contoh: Entrepreneurship Week SMA 2026';
+
+      // Jalur B kategori (Ad-Hoc vs Case Khusus Negatif / Krisis)
+      document.getElementById('wrap-jalur-b-category').classList.toggle('hidden', flow !== 'B2');
+
+      if (flow === 'A') {
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('wrap-kuartal').classList.remove('hidden');
+        document.getElementById('badge-b2-kilat').classList.add('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.remove('hidden');
+        document.getElementById('box-teknis-fields').classList.toggle('hidden', !OPTIONAL_TEKNIS_OPEN);
+        setTeknisRequired(false);
+        btn.textContent = 'Kirim Rencana Kuartalan (Jalur A)';
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm';
+      } else if (flow === 'B1') {
+        document.getElementById('box-b1-selector').classList.remove('hidden');
+        document.getElementById('wrap-kuartal').classList.remove('hidden');
+        document.getElementById('badge-b2-kilat').classList.add('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.add('hidden');
+        document.getElementById('box-teknis-fields').classList.remove('hidden');
+        setTeknisRequired(true);
+        populateUnitPlansDropdown();
+        btn.textContent = 'Simpan Jadwal / Revisi';
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm';
+      } else if (flow === 'B2') {
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('wrap-kuartal').classList.add('hidden');
+        document.getElementById('badge-b2-kilat').classList.remove('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.add('hidden');
+        document.getElementById('box-teknis-fields').classList.remove('hidden');
+        setTeknisRequired(true);
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-sm';
+        onJalurBCategoryChange();
+      } else if (flow === 'C') {
+        document.getElementById('box-b1-selector').classList.add('hidden');
+        document.getElementById('badge-b2-kilat').classList.add('hidden');
+        document.getElementById('toggle-teknis-wrapper').classList.add('hidden');
+        document.getElementById('box-teknis-fields').classList.remove('hidden');
+        document.getElementById('u-kebutuhan').value = 'Desain/Konten';
+        setTeknisRequired(true);
+        btn.textContent = 'Kirim Permintaan Layanan (Jalur C)';
+        btn.className = 'w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm';
+      }
+      onUnitSelectionChange();
+      toggleStudioHelper();
+      recalculateLiveSLA();
+    }
+
+    function toggleOptionalTeknis() {
+      OPTIONAL_TEKNIS_OPEN = !OPTIONAL_TEKNIS_OPEN;
+      document.getElementById('box-teknis-fields').classList.toggle('hidden', !OPTIONAL_TEKNIS_OPEN);
+      document.getElementById('btn-toggle-teknis').textContent = OPTIONAL_TEKNIS_OPEN ? '− Sembunyikan Jadwal' : '+ Isi Jadwal & Teknis';
+    }
+
+    function setTeknisRequired(isReq) {
+      ['req-tgl-star', 'req-lok-star', 'req-det-star'].forEach(id => document.getElementById(id).classList.toggle('hidden', !isReq));
+      document.getElementById('u-tgl-mulai').required = isReq;
+      document.getElementById('u-waktu-lokasi').required = isReq;
+      document.getElementById('u-detail-teknis').required = isReq;
+    }
+
+    function toggleStudioHelper() {
+      const keb = document.getElementById('u-kebutuhan').value;
+      const showStudio = (keb === 'Studio / Rekaman' || keb === 'Peminjaman Alat');
+      document.getElementById('box-studio-helper').classList.toggle('hidden', !showStudio);
+      document.getElementById('badge-bypass-alat').classList.toggle('hidden', keb !== 'Peminjaman Alat');
+    }
+
+    function populateUnitPlansDropdown() {
+      const unit = document.getElementById('u-unit').value;
+      const sel = document.getElementById('u-existing-plan');
+      document.getElementById('b1-plan-preview').textContent = '';
+      document.getElementById('b1-revision-note').classList.add('hidden');
+      if (!unit) {
+        sel.innerHTML = '<option value="">-- Pilih Unit di atas terlebih dahulu --</option>';
+        return;
+      }
+      const plans = ALL_RECORDS.filter(r => r.unit === unit && r.status !== 'Done' && r.status !== 'Canceled' && (r.tipeOrder === 'Rencana Kuartalan' || r.status === 'Revisi Unit'));
+      if (plans.length === 0) {
+        sel.innerHTML = '<option value="">(Tidak ada program aktif)</option>';
+        return;
+      }
+      sel.innerHTML = `<option value="">-- Pilih Program (${plans.length}) --</option>` +
+        plans.map(p => `<option value="${p.rowIndex}">[${p.id}] ${p.judul}${p.status === 'Revisi Unit' ? ' [REVISI]' : ''}</option>`).join('');
+    }
+
+    function fillFromSelectedPlan() {
+      const rowIdx = Number(document.getElementById('u-existing-plan').value);
+      const item = ALL_RECORDS.find(r => r.rowIndex === rowIdx);
+      const prev = document.getElementById('b1-plan-preview');
+      const revBox = document.getElementById('b1-revision-note');
+      if (!item) {
+        prev.textContent = '';
+        revBox.classList.add('hidden');
+        document.getElementById('u-judul').value = '';
+        document.getElementById('u-value').value = '';
+        return;
+      }
+
+      prev.textContent = `Status: ${item.status} • ${item.valueBukti || ''}`;
+      if (item.status === 'Revisi Unit' && item.catatanKasie) {
+        revBox.classList.remove('hidden');
+        revBox.innerHTML = `<strong>Catatan Revisi:</strong> ${escapeHtml(item.catatanKasie)}`;
+      } else {
+        revBox.classList.add('hidden');
+      }
+
+      const isAdHocItem = (item.tipeOrder === 'Ad-Hoc' || isCrisisTicket(item));
+      const isJalurCItem = isJalurCTicket(item);
+      document.getElementById('wrap-vbp-pillars').classList.toggle('hidden', isJalurCItem);
+      document.getElementById('wrap-bentuk-program').classList.toggle('hidden', isJalurCItem);
+      document.getElementById('wrap-value-vbp').classList.toggle('hidden', isJalurCItem);
+      document.getElementById('wrap-kuartal').classList.toggle('hidden', isAdHocItem || isJalurCItem);
+      document.getElementById('badge-b2-kilat').classList.toggle('hidden', !isAdHocItem);
+      document.getElementById('badge-c-layanan').classList.toggle('hidden', !isJalurCItem);
+
+      if (item.targetKuartal && !isAdHocItem) {
+        document.getElementById('u-kuartal').value = item.targetKuartal;
+      }
+      const normDom = normalizeFscmDomain(item.domainFscm);
+      document.getElementById('u-domain').value = normDom;
+      updateSubDomainOptions('u-domain', 'u-subdomain', item.subDomainFscm || '', true);
+      if (item.tingkatFocus) document.getElementById('u-tingkat').value = item.tingkatFocus;
+      document.getElementById('u-judul').value = item.judul || '';
+      document.getElementById('u-value').value = item.valueBukti || '';
+
+      if (item.status === 'Revisi Unit' && !isAdHocItem && !item.tglMulaiEvent) {
+        setTeknisRequired(false);
+      } else {
+        setTeknisRequired(true);
+      }
+
+      if (item.pemohon && !document.getElementById('u-pemohon').value) document.getElementById('u-pemohon').value = item.pemohon;
+      if (item.noHp && item.noHp !== '-' && !document.getElementById('u-hp').value) document.getElementById('u-hp').value = item.noHp;
+      document.getElementById('u-tgl-mulai').value = item.tglMulaiEvent || '';
+      document.getElementById('u-tgl-selesai').value = item.tglSelesaiEvent || '';
+      document.getElementById('u-waktu-lokasi').value = item.waktuLokasi || '';
+      if (item.kebutuhan) document.getElementById('u-kebutuhan').value = item.kebutuhan;
+      document.getElementById('u-link-brief').value = getEffectiveLinkBrief(item);
+
+      let cleanTeknis = String(item.detailTeknis || '');
+      document.getElementById('u-studio-gladi').value = '';
+      document.getElementById('u-studio-alat').value = '';
+      const studioMatch = cleanTeknis.match(/\n?\[Studio\/Alat\]\s*(.+?)\s*\(([^)]*)\)\s*$/);
+      if (studioMatch) {
+        cleanTeknis = cleanTeknis.replace(/\n?\[Studio\/Alat\][\s\S]*$/, '').trim();
+        const rawAlatPart = studioMatch[1].trim();
+        const rawGladiPart = studioMatch[2].trim();
+        if (rawGladiPart && rawGladiPart !== 'Sesuai jadwal') {
+          document.getElementById('u-studio-gladi').value = rawGladiPart;
+        }
+        const checkedVals = [];
+        document.querySelectorAll('.chk-alat-dipinjam').forEach(cb => {
+          const isChecked = rawAlatPart.includes(cb.value);
+          cb.checked = isChecked;
+          if (isChecked) checkedVals.push(cb.value);
+        });
+        const pipeParts = rawAlatPart.split('|').map(s => s.trim()).filter(Boolean);
+        const manualParts = pipeParts.filter(part => !checkedVals.some(cv => part.includes(cv)) && part !== '-');
+        document.getElementById('u-studio-alat').value = manualParts.join(' | ');
+      } else {
+        document.querySelectorAll('.chk-alat-dipinjam').forEach(cb => {
+          cb.checked = Boolean(cleanTeknis && cleanTeknis.includes(cb.value));
+        });
+      }
+
+      if (cleanTeknis && !cleanTeknis.startsWith('Menunggu detail teknis')) {
+        document.getElementById('u-detail-teknis').value = cleanTeknis;
+      } else {
+        document.getElementById('u-detail-teknis').value = '';
+      }
+
+      toggleStudioHelper();
+      recalculateLiveSLA();
+    }
+
+    function recalculateLiveSLA() {
+      const badge = document.getElementById('sla-live-badge');
+      const tglStr = document.getElementById('u-tgl-mulai').value;
+      if (CURRENT_FLOW === 'B2') {
+        const isKrisis = getSelectedJalurBTipe() === 'KRISIS_NEGATIF';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800';
+        badge.textContent = isKrisis ? '🔒 KRISIS: ESKALASI LEAD & BPP' : 'SLA KILAT (Case Khusus Jalur B)';
+        return;
+      }
+      if (CURRENT_FLOW === 'C') {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-teal-100 text-teal-900';
+        badge.textContent = 'Jalur C: Analisis Brief & Serah Terima';
+        return;
+      }
+      if (!tglStr) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-200 text-slate-700';
+        badge.textContent = 'Estimasi SLA: Pilih Tanggal';
+        return;
+      }
+      const diffDays = Math.round((new Date(tglStr + 'T00:00:00') - new Date(SERVER_DATE + 'T00:00:00')) / 86400000);
+      if (diffDays <= 2) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-800';
+        badge.textContent = `H-${Math.max(0, diffDays)}: SLA KILAT`;
+      } else if (diffDays <= 7) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800';
+        badge.textContent = `H-${diffDays}: PRIORITAS`;
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800';
+        badge.textContent = `H-${diffDays}: REGULER`;
+      }
+    }
+
+    async function bypassKonseptorForAlat(rowIndex, itemData) {
+      await callGasPost('saveConceptData', {
+        pin: getSavedPin('konseptor'),
+        payload: {
+          rowIndex: Number(rowIndex),
+          domainFscm: normalizeFscmDomain(itemData.domainFscm || 'Tata Kelola, Layanan & Bukti Kualitas'),
+          subDomainFscm: (itemData.subDomainFscm && itemData.subDomainFscm !== 'Ditentukan Konseptor') ? itemData.subDomainFscm : 'Fasilitas & Lingkungan Aman',
+          tingkatFocus: itemData.tingkatFocus || 'Kegiatan',
+          formatChannel: 'Peminjaman Alat',
+          judul: itemData.judul || 'Peminjaman Alat',
+          valueBukti: itemData.valueBukti || 'Peminjaman Alat Unit',
+          konsepVbp: '[Jalur Cepat] Peminjaman Alat',
+          status: 'Menunggu ACC Kasie'
+        }
+      });
+    }
+
+    async function handleUnitSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-unit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      const kebutuhanVal = document.getElementById('u-kebutuhan').value;
+      const isPeminjamanAlat = (kebutuhanVal === 'Peminjaman Alat');
+
+      let detTeknis = document.getElementById('u-detail-teknis').value.trim();
+      const gladi = document.getElementById('u-studio-gladi').value.trim();
+      const checkedAlat = Array.from(document.querySelectorAll('.chk-alat-dipinjam:checked')).map(cb => cb.value);
+      const alatManual = document.getElementById('u-studio-alat').value.trim();
+      const alatGabungan = [checkedAlat.join(', '), alatManual].filter(Boolean).join(' | ');
+      if (gladi || alatGabungan) {
+        detTeknis += `\n[Studio/Alat] ${alatGabungan || '-'} (${gladi || 'Sesuai jadwal'})`;
+      }
+
+      try {
+        if (CURRENT_FLOW === 'B1') {
+          const rowIndex = Number(document.getElementById('u-existing-plan').value);
+          if (!rowIndex) { alert('Pilih program terlebih dahulu.'); btn.disabled = false; selectFlow('B1'); return; }
+          const judulB1 = document.getElementById('u-judul').value.trim();
+          if (!judulB1) { alert('Judul konten / nama kegiatan wajib diisi.'); btn.disabled = false; selectFlow('B1'); return; }
+          const existingItem = ALL_RECORDS.find(x => x.rowIndex === rowIndex) || {};
+          const updatedVbpFields = {
+            targetKuartal: document.getElementById('u-kuartal').value,
+            domainFscm: document.getElementById('u-domain').value,
+            subDomainFscm: document.getElementById('u-subdomain').value || 'Ditentukan Konseptor',
+            tingkatFocus: document.getElementById('u-tingkat').value,
+            judul: judulB1,
+            valueBukti: document.getElementById('u-value').value.trim()
+          };
+          const linkBriefB1 =
